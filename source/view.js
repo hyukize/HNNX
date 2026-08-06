@@ -134,6 +134,7 @@ view.View = class {
             viewDirty: false,
             viewRevision: 0,
             redrawing: false,
+            renderPromise: null,
             historyPromise: null,
             historyPending: 0,
             positions: new Map(),
@@ -1773,21 +1774,22 @@ view.View = class {
             (this._graphEdit.undo.length === 0 && this._graphEdit.positions.size === 0)) {
             return;
         }
-        this._cancelGraphEditSelection(false);
-        for (let index = this._graphEdit.undo.length - 1; index >= 0; index--) {
-            this._graphEdit.undo[index].revert();
-        }
-        this._graphEdit.undo = [];
-        this._graphEdit.redo = [];
-        this._graphEdit.viewDirty = false;
-        this._graphEdit.viewRevision++;
-        this._graphEdit.redrawing = false;
-        this._graphEdit.positions.clear();
-        this._clearGraphShapeInference();
-        this._clearGraphEditDerivedState();
-        await this.refresh(null, { animate: false });
-        this._host.document.documentElement.classList.remove('onnx-graph-edit-view-dirty');
-        this._updateGraphEditStatus('RESET · Restored the graph to its original edit-session state.');
+        await this._queueGraphEditRender('Resetting the graph', async () => {
+            this._cancelGraphEditSelection(false);
+            for (let index = this._graphEdit.undo.length - 1; index >= 0; index--) {
+                this._graphEdit.undo[index].revert();
+            }
+            this._graphEdit.undo = [];
+            this._graphEdit.redo = [];
+            this._graphEdit.viewDirty = false;
+            this._graphEdit.viewRevision++;
+            this._graphEdit.positions.clear();
+            this._clearGraphShapeInference();
+            this._clearGraphEditDerivedState();
+            await this.refresh(null, { animate: false });
+            this._host.document.documentElement.classList.remove('onnx-graph-edit-view-dirty');
+            return 'RESET · Restored the graph to its original edit-session state.';
+        });
     }
 
     async graphEditConnection(edge) {
@@ -2727,15 +2729,15 @@ view.View = class {
                 applied++;
             }
         }
-        await this.refresh(null, { animate: false });
-        const warnings = Array.isArray(result.warnings) ? result.warnings
-            .map((warning) => typeof warning === 'string' ? warning : warning && warning.message)
-            .filter((warning) => warning) : [];
-        const outcome = warnings.length > 0 ? 'SHAPE INFERENCE COMPLETED WITH WARNING' : 'SHAPE INFERENCE PASSED';
-        const warning = warnings.length > 0 ? ` · ${warnings.join(' · ')}` : '';
-        this._updateGraphEditStatus(
-            `${outcome} · ${applied} tensor${applied === 1 ? '' : 's'} updated · ${result.nodes || 0} nodes processed${warning}`
-        );
+        await this._queueGraphEditRender('Applying inferred shapes', async () => {
+            await this.refresh(null, { animate: false });
+            const warnings = Array.isArray(result.warnings) ? result.warnings
+                .map((warning) => typeof warning === 'string' ? warning : warning && warning.message)
+                .filter((warning) => warning) : [];
+            const outcome = warnings.length > 0 ? 'SHAPE INFERENCE COMPLETED WITH WARNING' : 'SHAPE INFERENCE PASSED';
+            const warning = warnings.length > 0 ? ` · ${warnings.join(' · ')}` : '';
+            return `${outcome} · ${applied} tensor${applied === 1 ? '' : 's'} updated · ${result.nodes || 0} nodes processed${warning}`;
+        });
     }
 
     _graphEditInferenceNode(diagnostic) {
@@ -2958,13 +2960,14 @@ view.View = class {
         if (!this.activeTarget) {
             return;
         }
-        this._cancelGraphEditSelection(false);
-        this._graphEdit.positions.clear();
-        this._graphEdit.viewDirty = false;
-        this._graphEdit.viewRevision++;
-        this._graphEdit.redrawing = false;
-        await this.refresh(null, { animate: false });
-        this._updateGraphEditStatus('Graph rebuilt and re-laid out. No model reload was needed.');
+        await this._queueGraphEditRender('Re-laying out the graph', async () => {
+            this._cancelGraphEditSelection(false);
+            this._graphEdit.positions.clear();
+            this._graphEdit.viewDirty = false;
+            this._graphEdit.viewRevision++;
+            await this.refresh(null, { animate: false });
+            return 'Graph rebuilt and re-laid out. No model reload was needed.';
+        });
     }
 
     _deferGraphEditRefresh(message) {
@@ -2975,30 +2978,53 @@ view.View = class {
     }
 
     async redrawGraphEdit(positionOverrides = null) {
-        if (!this._graphEdit.enabled || !this._graphEdit.viewDirty) {
-            return;
-        }
-        this._cancelGraphEditSelection(false);
-        // Structural edits still need a new SVG graph, but should never
-        // silently rearrange the user's working layout. RE-LAYOUT is the
-        // only action that intentionally clears these positions.
-        this._preserveVisibleGraphEditPositions();
-        if (positionOverrides) {
-            for (const [value, position] of positionOverrides) {
-                this._graphEdit.positions.set(value, position);
+        await this._queueGraphEditRender('Refreshing the graph view', async () => {
+            if (!this._graphEdit.enabled || !this._graphEdit.viewDirty) {
+                return null;
             }
-        }
-        const revision = this._graphEdit.viewRevision;
-        this._graphEdit.redrawing = true;
-        this._updateGraphEditStatus('Redrawing the edited graph view…');
-        await this.refresh(null, { animate: false });
-        this._graphEdit.redrawing = false;
-        if (revision === this._graphEdit.viewRevision) {
-            this._graphEdit.viewDirty = false;
-            this._host.document.documentElement.classList.remove('onnx-graph-edit-view-dirty');
-            this._updateGraphEditStatus('Graph view updated. Manual node positions were preserved.');
-        } else {
-            this._updateGraphEditStatus('Graph view refreshed, but newer edits are still pending · Press REFRESH VIEW again.');
+            this._cancelGraphEditSelection(false);
+            // Structural edits still need a new SVG graph, but should never
+            // silently rearrange the user's working layout. RE-LAYOUT is the
+            // only action that intentionally clears these positions.
+            this._preserveVisibleGraphEditPositions();
+            if (positionOverrides) {
+                for (const [value, position] of positionOverrides) {
+                    this._graphEdit.positions.set(value, position);
+                }
+            }
+            const revision = this._graphEdit.viewRevision;
+            this._graphEdit.redrawing = true;
+            try {
+                await this.refresh(null, { animate: false });
+            } finally {
+                this._graphEdit.redrawing = false;
+            }
+            if (revision === this._graphEdit.viewRevision) {
+                this._graphEdit.viewDirty = false;
+                this._host.document.documentElement.classList.remove('onnx-graph-edit-view-dirty');
+                return 'Graph view updated. Manual node positions were preserved.';
+            }
+            return 'Graph view refreshed, but newer edits are still pending · Press REFRESH VIEW again.';
+        });
+    }
+
+    async _queueGraphEditRender(label, task) {
+        const previous = this._graphEdit.renderPromise || Promise.resolve();
+        const queued = Boolean(this._graphEdit.renderPromise);
+        let message = null;
+        const current = previous.catch(() => null).then(async (previousMessage) => {
+            const nextMessage = await task();
+            return nextMessage === null || nextMessage === undefined ? previousMessage : nextMessage;
+        });
+        this._graphEdit.renderPromise = current;
+        this._updateGraphEditStatus(queued ? `${label} after the current graph update…` : `${label}…`);
+        try {
+            message = await current;
+        } finally {
+            if (this._graphEdit.renderPromise === current) {
+                this._graphEdit.renderPromise = null;
+                this._updateGraphEditStatus(message);
+            }
         }
     }
 
@@ -3855,6 +3881,7 @@ view.View = class {
         this._graphEdit.viewDirty = false;
         this._graphEdit.viewRevision = 0;
         this._graphEdit.redrawing = false;
+        this._graphEdit.renderPromise = null;
         this._graphEdit.historyPromise = null;
         this._graphEdit.historyPending = 0;
         this._graphEdit.positions.clear();
@@ -3936,6 +3963,7 @@ view.View = class {
         const redo = this._element('graph-edit-redo-button');
         const reset = this._element('graph-edit-reset-button');
         const redraw = this._element('graph-edit-redraw-button');
+        const layout = this._element('graph-edit-layout-button');
         const save = this._element('graph-edit-save-button');
         if (undo) {
             undo.disabled = this._graphEdit.undo.length === 0 || this._graphEdit.historyPending > 0;
@@ -3961,6 +3989,12 @@ view.View = class {
             if (this._graphEdit.redrawing) {
                 redraw.title = 'Refreshing the graph view…';
             }
+        }
+        if (layout) {
+            layout.disabled = Boolean(this._graphEdit.renderPromise);
+            layout.textContent = layout.disabled ? 'LAYOUT…' : 'RE-LAYOUT';
+            layout.title = layout.disabled ? 'Graph update in progress' :
+                'Rebuild and re-layout the current graph (R)';
         }
         if (save) {
             const saveInvalid = dirty ? invalid : [];

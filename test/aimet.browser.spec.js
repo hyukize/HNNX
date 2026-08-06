@@ -314,6 +314,8 @@ playwright.test('ONNX GraphSurgeon Editor previews input and graph output edits 
     await playwright.expect(page.locator('html')).toHaveClass(/onnx-graph-edit/);
     await playwright.expect(page.locator('#graph-edit-status')).toContainText('Select a connection line');
     await playwright.expect(page.locator('#graph-edit-infer-button')).toBeVisible();
+    await playwright.expect(page.locator('#graph-edit-redraw-button')).toBeVisible();
+    await playwright.expect(page.locator('#graph-edit-redraw-button')).toBeDisabled();
     await playwright.expect(page.locator('#graph-edit-redraw-button')).toHaveText('REFRESH VIEW');
     await page.setViewportSize({ width: 720, height: 720 });
     const saveButtonBounds = await page.locator('#graph-edit-save-button').boundingBox();
@@ -468,6 +470,17 @@ playwright.test('ONNX GraphSurgeon Editor previews input and graph output edits 
     await playwright.expect(page.locator('#graph-edit-connection-actions')).toBeVisible();
     await playwright.expect(page.locator('#graph-edit-connection-label')).toContainText('alt → neg.X');
     await playwright.expect(page.locator('#graph-edit-connection-disconnect')).toBeEnabled();
+    const originalAltPath = await page.locator('#edge-alt').getAttribute('d');
+    await page.locator('#graph-edit-connection-replace').click();
+    await playwright.expect(page.locator('html')).toHaveClass(/onnx-graph-edit-connection-replace/);
+    await page.locator('.graph-edit-output-port[aria-label="Use output a"]:visible').click();
+    await playwright.expect(page.locator('#graph-edit-status')).toContainText('Changed neg.X: alt → a');
+    const replacedAltPath = await page.locator('#edge-alt').getAttribute('d');
+    playwright.expect(replacedAltPath).not.toBe(originalAltPath);
+    await page.locator('#graph-edit-undo-button').click();
+    await playwright.expect(page.locator('#edge-alt')).toHaveAttribute('d', originalAltPath);
+    await page.locator('#hit-edge-alt').click({ force: true });
+    await playwright.expect(page.locator('#graph-edit-connection-label')).toContainText('alt → neg.X');
     await physicalKey(page, 'ㅇ', 'KeyD', 68);
     await playwright.expect(page.locator('#graph-edit-status')).toContainText('Required input is now unresolved');
     await playwright.expect(page.locator('#graph-edit-connection-actions')).not.toBeVisible();
@@ -633,7 +646,10 @@ playwright.test('HNNX workspace shortcuts enter, inspect, layout, view, and save
     await page.locator('#graph-edit-add-close').click();
 
     await physicalKey(page, 'ㄱ', 'KeyR', 82);
+    await physicalKey(page, 'ㄱ', 'KeyR', 82);
     await playwright.expect(page.locator('#graph-edit-status')).toContainText('re-laid out');
+    await playwright.expect(page.locator('#graph-edit-layout-button')).toBeEnabled();
+    await playwright.expect(page.locator('#graph-edit-layout-button')).toHaveText('RE-LAYOUT');
     await physicalKey(page, 'ㅍ', 'KeyV', 86);
     await playwright.expect(page.locator('html')).not.toHaveClass(/onnx-graph-edit/);
 

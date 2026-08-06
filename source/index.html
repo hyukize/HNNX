@@ -68,6 +68,7 @@ html.onnx-graph-edit .toolbar > * { flex-shrink: 0; }
 .graph-edit-history-button:disabled { cursor: default; opacity: 0.3; }
 .graph-edit-layout-button { display: none; width: auto; padding: 0 9px; border: 1px solid #808080; color: #666666; background: rgba(255, 255, 255, 0.8); font-size: 10px; font-weight: 700; letter-spacing: 0.04em; }
 #graph-edit-layout-button { display: block; }
+#graph-edit-layout-button:disabled { cursor: wait; opacity: 0.55; }
 .graph-edit-infer-button { display: block; }
 .graph-edit-add-button { color: #ffffff; border-color: #2563eb; background: #2563eb; }
 .graph-edit-add-overlay { display: none; position: fixed; inset: 0; z-index: 40; align-items: center; justify-content: center; padding: 24px; background: rgba(15, 23, 42, 0.42); backdrop-filter: blur(2px); }
@@ -164,11 +165,11 @@ html.onnx-graph-edit .toolbar > * { flex-shrink: 0; }
 .graph-edit-node-menu-footer .danger { border-color: #dc2626; color: #991b1b; }
 .graph-edit-node-menu-footer .danger:hover { color: #ffffff; background: #dc2626; }
 .graph-edit-node-menu-footer .primary { color: #ffffff; border-color: #2563eb; background: #2563eb; }
-html.onnx-graph-edit .graph-edit-button { color: #ffffff; border-color: #c2410c; background: #c2410c; }
+html.onnx-graph-edit .graph-edit-button { color: #9a3412; border-color: #c2410c; background: rgba(255, 247, 237, 0.9); }
 html.onnx-graph-edit .graph-edit-history-button { display: block; }
 html.onnx-graph-edit .graph-edit-layout-button { display: block; }
-html.onnx-graph-edit .graph-edit-redraw-button { display: none; }
-html.onnx-graph-edit.onnx-graph-edit-view-dirty .graph-edit-redraw-button:not(:disabled) { display: block; margin-left: 10px; opacity: 0.82; }
+html.onnx-graph-edit .graph-edit-redraw-button { display: block; margin-left: 3px; opacity: 0.34; }
+html.onnx-graph-edit.onnx-graph-edit-view-dirty .graph-edit-redraw-button:not(:disabled) { opacity: 0.82; }
 html.onnx-graph-edit .graph-edit-status { display: block; }
 html.onnx-graph-edit.onnx-graph-edit-encodings-disabled .graph-edit-encodings-warning { display: block; }
 html.onnx-graph-edit-connection .graph-edit-connection-actions { display: flex; }
@@ -346,6 +347,8 @@ html.onnx-graph-edit .graph-edit-graph-output-port-missing { display: block; poi
 .graph-edit-button { color: #aaaaaa; border-color: #777777; background: rgba(45, 45, 45, 0.85); }
 .graph-edit-button::after { color: #fff7ed; background: #c2410c; }
 .graph-edit-button:hover { color: #ffffff; border-color: #dfdfdf; background: #383838; }
+html.onnx-graph-edit .graph-edit-button { color: #fdba74; border-color: #c2410c; background: rgba(45, 45, 45, 0.85); }
+html.onnx-graph-edit .graph-edit-button:hover { color: #ffffff; border-color: #f97316; background: #383838; }
 .graph-edit-save-button { color: #aaaaaa; border-color: #777777; background: rgba(45, 45, 45, 0.85); }
 .graph-edit-save-button:hover { color: #ffffff; border-color: #dfdfdf; background: #383838; }
 .graph-edit-layout-button { color: #aaaaaa; border-color: #777777; background: rgba(45, 45, 45, 0.85); }
@@ -679,6 +682,7 @@ html.onnx-graph-edit .graph-edit-graph-output-port-missing { display: block; poi
     <button id="graph-edit-infer-button" class="toolbar-button graph-edit-layout-button graph-edit-infer-button" title="Run strict ONNX shape inference without modifying the open model (I)">INFER SHAPES</button>
     <button id="graph-edit-save-button" class="toolbar-button graph-edit-save-button" title="Save the current ONNX to a chosen file (Cmd/Ctrl+S)">SAVE AS</button>
     <button id="graph-edit-layout-button" class="toolbar-button graph-edit-layout-button" title="Rebuild and re-layout the current graph (R)">RE-LAYOUT</button>
+    <button id="graph-edit-redraw-button" class="toolbar-button graph-edit-layout-button graph-edit-redraw-button" title="Refresh the current graph view without changing its layout" disabled>REFRESH VIEW</button>
     <button id="graph-edit-button" class="toolbar-button graph-edit-button" title="Enter ONNX GraphSurgeon Editor (Beta) (E)">EDIT</button>
     <div id="toolbar-navigator" class="toolbar-select">
         <select id="toolbar-target-selector">
@@ -698,7 +702,6 @@ html.onnx-graph-edit .graph-edit-graph-output-port-missing { display: block; poi
             &#x276E;
         </button>
     </div>
-    <button id="graph-edit-redraw-button" class="toolbar-button graph-edit-layout-button graph-edit-redraw-button" title="Refresh the graph view without re-layout; shown only when the incremental view is pending" disabled>REFRESH VIEW</button>
 </div>
 <div id="graph-edit-status" class="graph-edit-status">ONNX GRAPHSURGEON</div>
 <div id="graph-edit-encodings-warning" class="graph-edit-encodings-warning">ENCODINGS DISABLED DURING EDIT</div>

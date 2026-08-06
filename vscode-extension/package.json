@@ -2,7 +2,7 @@
     "name": "hnnx",
     "displayName": "HNNX",
     "description": "Visualize, analyze, and edit ONNX models with AIMET encoding support, including remote workspaces.",
-    "version": "0.1.3",
+    "version": "0.1.4",
     "publisher": "local",
     "license": "MIT",
     "engines": {
@@ -57,7 +57,7 @@
     },
     "scripts": {
         "build:media": "node ./scripts/build-media.mjs",
-        "package": "npm run build:media && npx --yes @vscode/vsce package --no-dependencies --out hnnx-0.1.3.vsix",
+        "package": "npm run build:media && npx --yes @vscode/vsce package --no-dependencies --out hnnx-0.1.4.vsix",
         "test": "node --test ./test/*.test.js"
     },
     "files": [

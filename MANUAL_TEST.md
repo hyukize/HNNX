@@ -9,7 +9,7 @@ Use a copy of the ONNX file when testing `SAVE AS`.
 
 ## 1. macOS installation and GraphSurgeon setup
 
-1. Install the latest `dist/HNNX-0.1.3-arm64.dmg`.
+1. Install the latest `dist/HNNX-0.1.4-arm64.dmg`.
 2. Open **HNNX > GraphSurgeon Settings…** or press `Cmd+,`.
 3. Select the Python executable that contains `onnx` and
    `onnx_graphsurgeon`.
@@ -173,7 +173,7 @@ Expected:
 
 ## 12. VS Code and remote workspace
 
-1. Install `vscode-extension/hnnx-0.1.3.vsix`.
+1. Install `vscode-extension/hnnx-0.1.4.vsix`.
 2. Reload VS Code.
 3. Run **HNNX: Configure GraphSurgeon Python** from the Command
    Palette.

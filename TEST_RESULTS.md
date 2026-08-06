@@ -94,16 +94,24 @@ TensorFlow, and TensorFlow Lite.
     Graph Input endpoints now use the same `Q:A8`/`Q:A16` badge policy as other
     tensor producers and open a dedicated `Graph Input QParam` detail section.
 22. `REFRESH VIEW` occupied a central toolbar position and became the only
-    orange control when pending. It is now hidden during normal editing and
-    appears neutrally at the toolbar end only as an incremental-render fallback;
+    orange control when pending. It now stays as a quiet, disabled secondary
+    control beside `RE-LAYOUT`, becoming available only for a deferred redraw;
     `RE-LAYOUT` remains the primary full redraw action.
+23. Active Edit mode painted the entire `VIEW` button orange even though only
+    the Beta marker was intended to carry the accent. `VIEW` is now neutral
+    with an orange outline and Beta marker in both light and dark themes.
+24. Full graph renders could overlap, leaving `RE-LAYOUT` apparently ignored
+    on large graphs. Re-layout, deferred refresh, Reset, and inferred-shape
+    application now share a serialized render queue with immediate `LAYOUT…`
+    feedback. Rapid repeated layout requests and the explicit connection
+    `REPLACE` workflow are covered by browser regression tests.
 
 ## Package artifacts
 
 | Artifact | Size | SHA-256 |
 | --- | --- | --- |
-| `dist/HNNX-0.1.3-arm64.dmg` | 127 MB | `d54c9f0eec9e9a9d4ebc4b0d1ddecb8967cfb5f24dff737e5a1565f23ce7052c` |
-| `vscode-extension/hnnx-0.1.3.vsix` | 3.6 MB | `fe2d00f12a002457d1d804c1de7ffd6c9222006cff090e66e9830760e061177a` |
+| `dist/HNNX-0.1.4-arm64.dmg` | 121 MB | `1a29d8b083bfcd29c42a9c7087dc9215d4cf348c338e31abbc1394754a5eaf1c` |
+| `vscode-extension/hnnx-0.1.4.vsix` | 3.5 MB | `979e225ea9dc249b00200a72f70ead0023baf89b205280d01fce8c78b7686978` |
 
 ## Manual checks still required
 
