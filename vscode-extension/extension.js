@@ -49,6 +49,14 @@ class OnnxEditorProvider {
                 vscode.window.showErrorMessage(`HNNX: ${text}`);
             }
         }));
+        subscriptions.push(vscode.window.onDidChangeActiveColorTheme(async () => {
+            await this.sendTheme(document.uri, panel.webview);
+        }));
+        subscriptions.push(vscode.workspace.onDidChangeConfiguration(async (event) => {
+            if (event.affectsConfiguration('hnnx.colorTheme', document.uri)) {
+                await this.sendTheme(document.uri, panel.webview);
+            }
+        }));
         panel.onDidDispose(() => subscriptions.forEach((item) => item.dispose()));
     }
 
@@ -62,6 +70,7 @@ class OnnxEditorProvider {
     async onMessage(document, webview, message) {
         switch (message.type) {
             case 'ready':
+                await this.sendTheme(document.uri, webview);
                 await this.open(document.uri, webview);
                 break;
             case 'fetch':
@@ -75,6 +84,9 @@ class OnnxEditorProvider {
                 break;
             case 'inferOnnxShapes':
                 await this.inferOnnxShapes(document.uri, webview, message.edits);
+                break;
+            case 'setTheme':
+                await this.setTheme(document.uri, webview, message.value);
                 break;
             case 'openExternal':
                 if (typeof message.url === 'string') {
@@ -90,6 +102,29 @@ class OnnxEditorProvider {
             default:
                 break;
         }
+    }
+
+    async setTheme(uri, webview, value) {
+        const values = new Set(['auto', 'light', 'dark']);
+        if (!values.has(value)) {
+            throw new Error(`Unsupported HNNX color theme: ${value}`);
+        }
+        const configuration = vscode.workspace.getConfiguration('hnnx', uri);
+        await configuration.update('colorTheme', value, vscode.ConfigurationTarget.Global);
+        await this.sendTheme(uri, webview);
+    }
+
+    async sendTheme(uri, webview) {
+        const configuration = vscode.workspace.getConfiguration('hnnx', uri);
+        const configured = configuration.get('colorTheme', 'auto');
+        const preference = ['auto', 'light', 'dark'].includes(configured) ? configured : 'auto';
+        const kind = vscode.window.activeColorTheme.kind;
+        const hostDark = kind === vscode.ColorThemeKind.Dark || kind === vscode.ColorThemeKind.HighContrast;
+        let effective = preference;
+        if (preference === 'auto') {
+            effective = hostDark ? 'dark' : 'light';
+        }
+        await webview.postMessage({ type: 'theme', preference, effective });
     }
 
     async open(uri, webview) {

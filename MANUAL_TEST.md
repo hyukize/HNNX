@@ -9,7 +9,7 @@ Use a copy of the ONNX file when testing `SAVE AS`.
 
 ## 1. macOS installation and GraphSurgeon setup
 
-1. Install the latest `dist/HNNX-0.1.8-arm64.dmg`.
+1. Install the latest `dist/HNNX-0.1.9-arm64.dmg`.
 2. Open **HNNX > GraphSurgeon Settings…** or press `Cmd+,`.
 3. Select the Python executable that contains `onnx` and
    `onnx_graphsurgeon`.
@@ -18,6 +18,15 @@ Use a copy of the ONNX file when testing `SAVE AS`.
    displayed.
 
 Expected: an invalid interpreter is rejected and cannot be saved.
+
+### Theme selection
+
+1. Open **View > Theme** and select **Dark**, then **Light**.
+2. Select **Auto** and change the macOS appearance.
+3. Restart HNNX and confirm the selected preference is retained.
+
+Expected: forced themes change immediately; Auto follows macOS without a
+reload, and the preference survives restart.
 
 ## 2. Open ONNX and AIMET encodings
 
@@ -173,7 +182,7 @@ Expected:
 
 ## 12. VS Code and remote workspace
 
-1. Install `vscode-extension/hnnx-0.1.8.vsix`.
+1. Install `vscode-extension/hnnx-0.1.9.vsix`.
 2. Reload VS Code.
 3. Run **HNNX: Configure GraphSurgeon Python** from the Command
    Palette.
@@ -183,6 +192,8 @@ Expected:
 6. Switch to another text file and return to the ONNX tab.
 7. Repeat connection replacement, optional disconnect, `INFER SHAPES` and
    `SAVE AS`.
+8. Set HNNX Theme to Auto, switch the active VS Code color theme, then verify
+   explicit Light and Dark overrides through the HNNX View menu.
 
 Expected:
 
@@ -190,6 +201,7 @@ Expected:
   file was selected.
 - Shape inference and saving execute through the configured remote Python.
 - Missing Python offers **Enter Python Path** and **Open Settings**.
+- Auto follows the active VS Code theme immediately; explicit overrides persist.
 
 ## 13. Move endpoints and add graph items
 

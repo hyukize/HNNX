@@ -117,6 +117,8 @@ view.View = class {
             mousewheel: 'scroll'
         };
         this._options = { ...this._defaultOptions };
+        this._themePreference = 'auto';
+        this._themeMediaRules = null;
         this._events = {};
         this._events.selectionchange = () => this._selectionChangeHandler();
         this._model = null;
@@ -452,6 +454,16 @@ view.View = class {
                     execute: () => this.toggle('mousewheel'),
                     enabled: () => this.activeTarget
                 });
+                if (this._host.type === 'VS Code') {
+                    const theme = view.group('&Theme');
+                    for (const value of ['auto', 'light', 'dark']) {
+                        const name = value.charAt(0).toUpperCase() + value.slice(1);
+                        theme.add({
+                            label: () => `${this._themePreference === value ? '✓ ' : ''}${name}`,
+                            execute: async () => await this._host.execute('set-theme', value)
+                        });
+                    }
+                }
                 view.add({});
                 if (this._host.type === 'Electron') {
                     view.add({
@@ -649,6 +661,39 @@ view.View = class {
             this._host.delete('options');
         } else {
             this._host.set('options', options);
+        }
+    }
+
+    setTheme(preference, effective) {
+        const values = new Set(['auto', 'light', 'dark']);
+        this._themePreference = values.has(preference) ? preference : 'auto';
+        const resolved = effective === 'dark' ? 'dark' : 'light';
+        const root = this._host.document.documentElement;
+        root.setAttribute('data-theme', this._themePreference);
+        root.setAttribute('data-effective-theme', resolved);
+        if (!this._themeMediaRules) {
+            this._themeMediaRules = [];
+            const collect = (rules) => {
+                for (const rule of rules) {
+                    if (rule.media && typeof rule.media.mediaText === 'string' &&
+                        rule.media.mediaText.includes('prefers-color-scheme: dark')) {
+                        this._themeMediaRules.push(rule);
+                    }
+                    if (rule.cssRules) {
+                        collect(rule.cssRules);
+                    }
+                }
+            };
+            for (const sheet of this._host.document.styleSheets) {
+                try {
+                    collect(sheet.cssRules);
+                } catch {
+                    // Ignore cross-origin stylesheets; HNNX theme rules are local.
+                }
+            }
+        }
+        for (const rule of this._themeMediaRules) {
+            rule.media.mediaText = resolved === 'dark' ? 'all' : 'not all';
         }
     }
 

@@ -13,6 +13,10 @@ Workspace shortcuts are `E` for Edit, `V` for View, `R` for Re-layout and
 on Windows/Linux. These shortcuts do not intercept typing in form controls.
 `RESET` intentionally has no shortcut.
 
+Use **View > Theme** inside HNNX to select Auto, Light, or Dark. Auto follows
+the active VS Code color theme and updates while the model remains open. The
+same persistent preference is available as `hnnx.colorTheme` in Settings.
+
 The extension automatically attaches a neighboring encoding file named
 `<model>.encodings`, `<model>.onnx.encodings`, or `<model>.encodings.json`.
 Use **File > Open...** inside the viewer to select a different encoding file.

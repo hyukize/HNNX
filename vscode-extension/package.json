@@ -2,7 +2,7 @@
     "name": "hnnx",
     "displayName": "HNNX",
     "description": "Visualize, analyze, and edit ONNX models with AIMET encoding support, including remote workspaces.",
-    "version": "0.1.8",
+    "version": "0.1.9",
     "publisher": "local",
     "license": "MIT",
     "engines": {
@@ -51,13 +51,28 @@
                     "type": "string",
                     "default": "",
                     "markdownDescription": "Python interpreter containing `onnx` and NVIDIA `onnx_graphsurgeon`. In remote workspaces this path is resolved on the remote extension host. Use the **HNNX: Configure GraphSurgeon Python** command to validate and save it."
+                },
+                "hnnx.colorTheme": {
+                    "type": "string",
+                    "enum": [
+                        "auto",
+                        "light",
+                        "dark"
+                    ],
+                    "enumDescriptions": [
+                        "Follow the active VS Code color theme.",
+                        "Always use the HNNX light theme.",
+                        "Always use the HNNX dark theme."
+                    ],
+                    "default": "auto",
+                    "description": "Controls the HNNX graph viewer color theme."
                 }
             }
         }
     },
     "scripts": {
         "build:media": "node ./scripts/build-media.mjs",
-        "package": "npm run build:media && npx --yes @vscode/vsce package --no-dependencies --out hnnx-0.1.8.vsix",
+        "package": "npm run build:media && npx --yes @vscode/vsce package --no-dependencies --out hnnx-0.1.9.vsix",
         "test": "node --test ./test/*.test.js"
     },
     "files": [

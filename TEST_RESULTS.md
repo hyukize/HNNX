@@ -17,8 +17,8 @@ The test scope is defined in `REGRESSION_TEST.md`.
 | Stage 3 model state machine | PASS | 100 / 100 deterministic round-trip, partial-history, atomic-failure and recovery workflows |
 | Stage 3 adversarial UI | PASS | 100 / 100 unique high-speed history and renderer workflows; 98 in the full pass plus 2 setup-timeout cases rerun unchanged and passed |
 | AIMET precision policy | PASS | TopK `values` inherits activation bitwidth; `indices` remains unlabelled |
-| VS Code extension | PASS | VSIX package built successfully; remote-runtime smoke test remains manual |
-| AIMET browser/editor E2E | PASS | 14 / 14, including the post-connection first-click Re-layout regression, HNNX showcase model, workspace shortcuts, fixed Split-Concat bundles, fan-out port alignment and physical D/Q/Z with Korean IME |
+| VS Code extension | PASS | Auto/Light/Dark theme resolution and persistence unit test passed; remote-runtime smoke test remains manual |
+| AIMET browser/editor E2E | PASS | 15 / 15, including runtime Light/Dark overrides, post-connection first-click Re-layout, HNNX showcase model, fixed Split-Concat bundles and fan-out alignment |
 | Netron validation models | NOT RUN | Not rerun in this focused editor audit |
 | Upstream browser/Electron E2E | NOT RUN | Not rerun in this focused editor audit |
 | VSIX packaging | PASS | 184 files; web app and Python backend present |
@@ -124,13 +124,18 @@ TensorFlow, and TensorFlow Lite.
     Clicks on another target or position—including Re-layout—pass immediately.
     The old implementation fails the deterministic regression while the scoped
     implementation passes it.
+28. Appearance depended only on `prefers-color-scheme`, so the VS Code Webview
+    could disagree with a manually selected VS Code theme and neither package
+    offered an override. HNNX now provides persistent Auto, Light and Dark
+    modes. Auto follows macOS in the desktop app and the active VS Code theme
+    in the extension; runtime host-theme changes update without reloading.
 
 ## Package artifacts
 
 | Artifact | Size | SHA-256 |
 | --- | --- | --- |
-| `dist/HNNX-0.1.8-arm64.dmg` | 121 MB | `659c963acabedc61d256d9eb5fd68cf6fca94cee1151ae882d5d9d9ee79d2829` |
-| `vscode-extension/hnnx-0.1.8.vsix` | 3.5 MB | `0ec4ceee4dc91f2446b2d2da777f946de0c1de820b0f78a44a0dc980e2aeca38` |
+| `dist/HNNX-0.1.9-arm64.dmg` | 121 MB | `eb9c95f622f1658c63b9379d59f3857268a25cec95b81025356d6cc9c6a70b0c` |
+| `vscode-extension/hnnx-0.1.9.vsix` | 3.5 MB | `c7219c3c25065fb97712b00efe91d084f2c220d9383c242d240c40465e0561a7` |
 
 ## Manual checks still required
 

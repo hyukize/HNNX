@@ -16,6 +16,7 @@ analysis, and NVIDIA ONNX GraphSurgeon-backed editing.
 - Undo, redo, reset, shape inference, validation, and Save As
 - Use the native Apple Silicon macOS app or VS Code extension
 - Open models from VS Code Remote and Kubernetes workspaces
+- Select Auto, Light, or Dark appearance; Auto follows macOS or VS Code
 
 See [AIMET.md](AIMET.md) for the complete feature guide and editor behavior.
 See [MANUAL_TEST.md](MANUAL_TEST.md) for the hands-on test workflow.
@@ -50,8 +51,8 @@ VS Code extension:
 npm run build:vscode-hnnx
 ```
 
-Generated packages are written to `dist/HNNX-0.1.8-arm64.dmg` and
-`vscode-extension/hnnx-0.1.8.vsix`.
+Generated packages are written to `dist/HNNX-0.1.9-arm64.dmg` and
+`vscode-extension/hnnx-0.1.9.vsix`.
 
 ## Attribution
 

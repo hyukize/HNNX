@@ -1444,3 +1444,38 @@ playwright.test('ONNX GraphSurgeon Editor moves endpoints and adds graph items',
     await page.locator('#graph-edit-redo-button').click();
     await playwright.expect(page.locator('.node.graph-output').filter({ hasText: 'relu_output' })).toHaveCount(1);
 });
+
+playwright.test('runtime theme override switches all bundled dark media rules', async ({ page }) => {
+    await page.goto('http://127.0.0.1:8765/dist/web/');
+    await page.waitForSelector('body.welcome', { timeout: 10000 });
+    const themes = await page.evaluate(async () => {
+        const module = await import('./view.js');
+        const themeView = Object.create(module.View.prototype);
+        themeView._host = { document: window.document };
+        themeView._themePreference = 'auto';
+        themeView._themeMediaRules = null;
+        themeView.setTheme('dark', 'dark');
+        const dark = {
+            preference: window.document.documentElement.dataset.theme,
+            effective: window.document.documentElement.dataset.effectiveTheme,
+            background: window.getComputedStyle(window.document.body).backgroundColor
+        };
+        themeView.setTheme('light', 'light');
+        const light = {
+            preference: window.document.documentElement.dataset.theme,
+            effective: window.document.documentElement.dataset.effectiveTheme,
+            background: window.getComputedStyle(window.document.body).backgroundColor
+        };
+        return { dark, light };
+    });
+    playwright.expect(themes.dark).toEqual({
+        preference: 'dark',
+        effective: 'dark',
+        background: 'rgb(32, 41, 54)'
+    });
+    playwright.expect(themes.light).toEqual({
+        preference: 'light',
+        effective: 'light',
+        background: 'rgb(236, 236, 236)'
+    });
+});

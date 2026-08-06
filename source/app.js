@@ -175,6 +175,7 @@ app.Application = class {
 
     _ready() {
         this._configuration.open();
+        this._applyTheme(this._configuration.get('theme') || 'auto');
         if (this._openQueue) {
             const queue = this._openQueue;
             this._openQueue = null;
@@ -288,6 +289,7 @@ app.Application = class {
             case 'close': window.close(); break;
             case 'quit': electron.app.quit(); break;
             case 'reload': this._reload(); break;
+            case 'theme': this._setTheme(value); break;
             case 'graphsurgeon-settings': result = await this._graphSurgeonSettings(window, value || {}); break;
             case 'report-issue': electron.shell.openExternal(`https://github.com/${this._package.repository}/issues/new`); break;
             case 'about': this._about(); break;
@@ -300,6 +302,19 @@ app.Application = class {
             }
         }
         return result;
+    }
+
+    _setTheme(value) {
+        const values = new Set(['auto', 'light', 'dark']);
+        const theme = values.has(value) ? value : 'auto';
+        this._configuration.set('theme', theme);
+        this._configuration.save();
+        this._applyTheme(theme);
+    }
+
+    _applyTheme(theme) {
+        const value = ['auto', 'light', 'dark'].includes(theme) ? theme : 'auto';
+        electron.nativeTheme.themeSource = value === 'auto' ? 'system' : value;
     }
 
     _reload() {
@@ -714,6 +729,29 @@ app.Application = class {
                         id: 'view.toggle-mousewheel',
                         accelerator: 'CmdOrCtrl+M',
                         click: async () => await this.execute('toggle', 'mousewheel'),
+                    },
+                    {
+                        label: '&Theme',
+                        submenu: [
+                            {
+                                label: '&Auto',
+                                type: 'radio',
+                                checked: (this._configuration.get('theme') || 'auto') === 'auto',
+                                click: async () => await this.execute('theme', 'auto')
+                            },
+                            {
+                                label: '&Light',
+                                type: 'radio',
+                                checked: this._configuration.get('theme') === 'light',
+                                click: async () => await this.execute('theme', 'light')
+                            },
+                            {
+                                label: '&Dark',
+                                type: 'radio',
+                                checked: this._configuration.get('theme') === 'dark',
+                                click: async () => await this.execute('theme', 'dark')
+                            }
+                        ]
                     },
                     { type: 'separator' },
                     {

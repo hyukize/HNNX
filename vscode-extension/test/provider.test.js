@@ -11,19 +11,37 @@ const commands = [];
 const copies = [];
 const messages = [];
 let autoPinOnnxEditors = true;
+let colorTheme = 'auto';
+let activeColorThemeKind = 2;
 let saveDialogResult = null;
 const originalLoad = Module._load;
 Module._load = function(request, parent, isMain) {
     if (request === 'vscode') {
         return {
             window: {
+                get activeColorTheme() {
+                    return { kind: activeColorThemeKind };
+                },
                 createOutputChannel: () => ({ appendLine() {} }),
                 showSaveDialog: async () => saveDialogResult,
                 showInformationMessage: (message) => messages.push(message)
             },
             workspace: {
                 getConfiguration: () => ({
-                    get: (name, fallback) => name === 'autoPinOnnxEditors' ? autoPinOnnxEditors : fallback
+                    get: (name, fallback) => {
+                        if (name === 'autoPinOnnxEditors') {
+                            return autoPinOnnxEditors;
+                        }
+                        if (name === 'colorTheme') {
+                            return colorTheme;
+                        }
+                        return fallback;
+                    },
+                    update: async (name, value) => {
+                        if (name === 'colorTheme') {
+                            colorTheme = value;
+                        }
+                    }
                 }),
                 fs: {
                     copy: async (source, target, options) => copies.push({ source, target, options })
@@ -32,6 +50,8 @@ Module._load = function(request, parent, isMain) {
             commands: {
                 executeCommand: async (command) => commands.push(command)
             },
+            ColorThemeKind: { Light: 1, Dark: 2, HighContrast: 3, HighContrastLight: 4 },
+            ConfigurationTarget: { Global: 1 },
             Uri: {
                 joinPath: (uri, ...parts) => ({
                     ...uri,
@@ -79,6 +99,24 @@ test('does not keep an inactive editor or disabled preview editor open', async (
     autoPinOnnxEditors = false;
     await provider.keepEditorOpen(model, { active: true });
     assert.deepEqual(commands, []);
+});
+
+test('resolves Auto from VS Code and persists explicit HNNX themes', async () => {
+    const posted = [];
+    const webview = { postMessage: async (message) => posted.push(message) };
+    colorTheme = 'auto';
+    activeColorThemeKind = 2;
+    await provider.sendTheme(model, webview);
+    assert.deepEqual(posted.at(-1), { type: 'theme', preference: 'auto', effective: 'dark' });
+
+    await provider.setTheme(model, webview, 'light');
+    assert.equal(colorTheme, 'light');
+    assert.deepEqual(posted.at(-1), { type: 'theme', preference: 'light', effective: 'light' });
+
+    activeColorThemeKind = 1;
+    await provider.setTheme(model, webview, 'auto');
+    assert.deepEqual(posted.at(-1), { type: 'theme', preference: 'auto', effective: 'light' });
+    await assert.rejects(provider.setTheme(model, webview, 'sepia'), /Unsupported HNNX color theme/);
 });
 
 test('Save As copies an unedited ONNX to the chosen URI and permits overwrite', async () => {

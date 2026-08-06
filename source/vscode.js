@@ -41,6 +41,10 @@ vscode.Host = class extends browser.Host {
             this._api.postMessage({ type: 'inferOnnxShapes', edits: value.edits });
             return undefined;
         }
+        if (name === 'set-theme') {
+            this._api.postMessage({ type: 'setTheme', value });
+            return undefined;
+        }
         return super.execute(name, value);
     }
 
@@ -116,6 +120,10 @@ vscode.Host = class extends browser.Host {
             }
             case 'graphEditShapeInferenceResult': {
                 await this._view.graphEditShapeInferenceResult(message);
+                break;
+            }
+            case 'theme': {
+                this._view.setTheme(message.preference, message.effective);
                 break;
             }
             default:

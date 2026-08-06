@@ -86,7 +86,7 @@ def build_model() -> onnx.ModelProto:
     model = helper.make_model(
         graph,
         producer_name="HNNX",
-        producer_version="0.1.8",
+        producer_version="0.1.9",
         opset_imports=[helper.make_opsetid("", 17)],
         ir_version=8,
     )

@@ -201,6 +201,12 @@ Node badges represent explicit Graph Input/output QParams (`Q:A8`), parameter QP
 shown only on graph edges as a muted dashed label such as `~A8`, so
 precision-preserving operations are not mistaken for quantization points.
 
+HNNX provides **Auto**, **Light**, and **Dark** appearance modes. In the
+macOS app, choose **View > Theme**; Auto follows the macOS appearance. In the
+VS Code extension, choose **View > Theme** from the HNNX menu or set
+`hnnx.colorTheme`; Auto follows the active VS Code color theme, including
+theme changes made while the model is open.
+
 ## Development
 
 ```bash
@@ -219,7 +225,7 @@ Apple Silicon:
 npm run build:mac-hnnx
 ```
 
-The unsigned DMG is written to `dist/HNNX-0.1.8-arm64.dmg`.
+The unsigned DMG is written to `dist/HNNX-0.1.9-arm64.dmg`.
 The custom build uses a separate application identifier and settings folder,
 and official Netron auto-updates are disabled.
 
