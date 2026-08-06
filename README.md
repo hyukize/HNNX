@@ -50,8 +50,8 @@ VS Code extension:
 npm run build:vscode-hnnx
 ```
 
-Generated packages are written to `dist/HNNX-0.1.4-arm64.dmg` and
-`vscode-extension/hnnx-0.1.4.vsix`.
+Generated packages are written to `dist/HNNX-0.1.5-arm64.dmg` and
+`vscode-extension/hnnx-0.1.5.vsix`.
 
 ## Attribution
 

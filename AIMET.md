@@ -147,7 +147,9 @@ validation during `SAVE AS`.
 Connected edit ports are positioned from the already-computed graph edge
 endpoints after layout. The position index is built in one linear edge scan
 per rendered graph; it does not continuously measure the DOM or run per-frame
-tracking. `RESET` discards every unsaved command, clears inferred shape
+tracking. Fan-out connections that carry the same output tensor share one
+source anchor and one edit port; their downstream routes remain independently
+laid out. `RESET` discards every unsaved command, clears inferred shape
 overlays and restores the model to the state at which the current edit session
 started.
 
@@ -217,7 +219,7 @@ Apple Silicon:
 npm run build:mac-hnnx
 ```
 
-The unsigned DMG is written to `dist/HNNX-0.1.4-arm64.dmg`.
+The unsigned DMG is written to `dist/HNNX-0.1.5-arm64.dmg`.
 The custom build uses a separate application identifier and settings folder,
 and official Netron auto-updates are disabled.
 

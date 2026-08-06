@@ -105,13 +105,19 @@ TensorFlow, and TensorFlow Lite.
     application now share a serialized render queue with immediate `LAYOUT…`
     feedback. Rapid repeated layout requests and the explicit connection
     `REPLACE` workflow are covered by browser regression tests.
+25. Netron's native fan-out routing could draw one output tensor from several
+    attachment points on the producer node, making paths look laterally shifted
+    from their edit port. Fan-out paths now share one producer anchor and one
+    output port while retaining their independently computed downstream routes.
+    This was verified with both the synthetic fan-out fixture and the real
+    `decode_layer_05` ONNX/data/encodings set.
 
 ## Package artifacts
 
 | Artifact | Size | SHA-256 |
 | --- | --- | --- |
-| `dist/HNNX-0.1.4-arm64.dmg` | 121 MB | `1a29d8b083bfcd29c42a9c7087dc9215d4cf348c338e31abbc1394754a5eaf1c` |
-| `vscode-extension/hnnx-0.1.4.vsix` | 3.5 MB | `979e225ea9dc249b00200a72f70ead0023baf89b205280d01fce8c78b7686978` |
+| `dist/HNNX-0.1.5-arm64.dmg` | 121 MB | `cd5a4826030b5a7d6b0ce6f2b389d9419a2b721b2a8ba7213e1f21907b77a195` |
+| `vscode-extension/hnnx-0.1.5.vsix` | 3.5 MB | `317c130542bb13503e5c89728aa48ddfe1200489220023a3605182a3166f0b39` |
 
 ## Manual checks still required
 

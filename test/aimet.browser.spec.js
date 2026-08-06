@@ -975,7 +975,7 @@ playwright.test('ONNX GraphSurgeon Editor keeps close multi-output routes compac
         .toContainText('require the macOS app or VS Code extension');
 });
 
-playwright.test('fan-out edit ports follow every native Netron edge attachment', async ({ page }) => {
+playwright.test('fan-out edges and edit ports share one tensor output origin', async ({ page }) => {
     await page.goto('http://127.0.0.1:8765/dist/web/');
     await page.waitForLoadState('domcontentloaded');
     await page.waitForSelector('body.welcome', { timeout: 10000 });
@@ -992,9 +992,23 @@ playwright.test('fan-out edit ports follow every native Netron edge attachment',
     });
     await page.waitForSelector('body.default', { timeout: 10000 });
     await playwright.expect(page.locator('.edge-paths path[id^="edge-a"]')).toHaveCount(2);
+    const initial = await page.context().newCDPSession(page);
+    const initialResult = await initial.send('Runtime.evaluate', {
+        expression: `Array.from(document.querySelectorAll('.edge-paths path[id^="edge-a"]')).map((path) => {
+            const point = path.getPointAtLength(0).matrixTransform(path.getScreenCTM());
+            return { x: point.x, y: point.y };
+        })`,
+        returnByValue: true
+    });
+    await initial.detach();
+    playwright.expect(initialResult.result.value).toHaveLength(2);
+    playwright.expect(Math.hypot(
+        initialResult.result.value[0].x - initialResult.result.value[1].x,
+        initialResult.result.value[0].y - initialResult.result.value[1].y
+    )).toBeLessThan(1);
     await page.locator('#graph-edit-button').click();
     const ports = page.locator('.graph-edit-output-port[aria-label="Use output a"]:visible');
-    await playwright.expect(ports).toHaveCount(2);
+    await playwright.expect(ports).toHaveCount(1);
     const session = await page.context().newCDPSession(page);
     const result = await session.send('Runtime.evaluate', {
         expression: `(() => {
@@ -1027,7 +1041,7 @@ playwright.test('fan-out edit ports follow every native Netron edge attachment',
     await page.locator('#graph-edit-add-form button', { hasText: 'ADD RELU' }).click();
     await ports.first().click();
     await page.locator('.graph-edit-input-port[aria-label="Connect to relu_fanout.X"]').click();
-    await playwright.expect(ports).toHaveCount(3);
+    await playwright.expect(ports).toHaveCount(1);
     const updated = await page.context().newCDPSession(page);
     const updatedResult = await updated.send('Runtime.evaluate', {
         expression: `(() => {

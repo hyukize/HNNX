@@ -76,6 +76,7 @@ smoke test has no blocker.
 | D12 | Deferred refresh affordance | `REFRESH VIEW` stays visibly subdued and disabled until a deferred view refresh is pending | Automated + manual UI |
 | D13 | Re-layout serialization | Rapid repeated re-layout requests finish in order and restore the enabled `RE-LAYOUT` control | Automated |
 | D14 | Connection replacement | Select an existing edge, choose `REPLACE`, select an orange output, then Undo; source path and model connection change and restore | Automated |
+| D15 | Fan-out source identity | Multiple connections carrying one output tensor leave one shared source anchor and expose one edit port | Automated + real-model visual check |
 
 ## E. Add, rename, delete, validate, and save
 

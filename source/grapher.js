@@ -946,7 +946,12 @@ grapher.Edge = class {
         };
         const curvePath = (edge, tail, head) => {
             const points = edge.points.slice(1, edge.points.length - 1);
-            points.unshift(intersectRect(tail, points[0]));
+            const anchor = edge.sourceAnchor;
+            const source = anchor ? {
+                x: tail.x + (anchor.x - 0.5) * tail.width,
+                y: tail.y + (anchor.y - 0.5) * tail.height
+            } : intersectRect(tail, points[0]);
+            points.unshift(source);
             points.push(intersectRect(head, points[points.length - 1]));
             return {
                 data: new grapher.Edge.Curve(points).path.data,

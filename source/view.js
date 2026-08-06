@@ -4929,6 +4929,7 @@ view.View = class {
             const status = await viewGraph.layout(this._worker);
             if (status === '') {
                 this._applyGraphEditPositions(viewGraph);
+                viewGraph.alignFanoutSources();
                 for (const child of oldChildren) {
                     if (child.parentNode === origin) {
                         origin.removeChild(child);
@@ -5409,6 +5410,7 @@ view.View = class {
             status = await viewGraph.layout(this._worker);
             if (status === '') {
                 this._applyGraphEditPositions(viewGraph);
+                viewGraph.alignFanoutSources();
                 viewGraph.update();
                 viewGraph.updateTunnels();
                 viewGraph.restore(state);
@@ -6372,6 +6374,35 @@ view.Graph = class extends grapher.Graph {
         return this._selection;
     }
 
+    alignFanoutSources() {
+        const groups = new Map();
+        for (const entry of this.edges.values()) {
+            const edge = entry && entry.label;
+            if (!edge) {
+                continue;
+            }
+            edge.sourceAnchor = null;
+            const value = edge.value && edge.value.value;
+            if (!value || edge.hidden || edge._tunnel) {
+                continue;
+            }
+            if (!groups.has(value)) {
+                groups.set(value, []);
+            }
+            groups.get(value).push(edge);
+        }
+        const horizontal = this.options.direction === 'horizontal';
+        const anchor = horizontal ? { x: 1, y: 0.5 } : { x: 0.5, y: 1 };
+        for (const edges of groups.values()) {
+            if (edges.length > 1) {
+                for (const edge of edges) {
+                    edge.sourceAnchor = anchor;
+                }
+            }
+        }
+        delete this._graphEditPorts;
+    }
+
     _graphEditPortIndex() {
         if (!this._graphEditPorts) {
             const inputs = new WeakMap();
@@ -6432,7 +6463,12 @@ view.Graph = class extends grapher.Graph {
                 const value = edge.value && edge.value.value;
                 if (value && !edge.hidden) {
                     let point = intersect(edge.from, edge.points[1]);
-                    if (edge.sourcePoint) {
+                    if (edge.sourceAnchor) {
+                        point = {
+                            x: edge.sourceAnchor.x * edge.from.width,
+                            y: edge.sourceAnchor.y * edge.from.height
+                        };
+                    } else if (edge.sourcePoint) {
                         point = local(edge.from, edge.sourcePoint);
                     } else if (route) {
                         point = local(edge.from, route[0]);
@@ -6461,16 +6497,7 @@ view.Graph = class extends grapher.Graph {
     }
 
     graphEditOutputPortCount(value) {
-        let count = 0;
-        for (const entry of this.edges.values()) {
-            const edge = entry.label;
-            const disconnected = edge && edge.element &&
-                edge.element.classList.contains('graph-edit-edge-disconnected');
-            if (edge && !edge.hidden && !disconnected && edge.value && edge.value.value === value) {
-                count++;
-            }
-        }
-        return Math.max(1, count);
+        return value ? 1 : 0;
     }
 
     graphEditGraphOutputPortPosition(argument, valueIndex) {
