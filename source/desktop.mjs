@@ -1,6 +1,7 @@
 
 import * as base from './base.js';
 import * as child_process from 'child_process';
+import * as drop from './drop.js';
 import * as electron from 'electron';
 import * as fs from 'fs';
 import * as http from 'http';
@@ -266,8 +267,7 @@ desktop.Host = class {
             e.preventDefault();
             const files = Array.from(e.dataTransfer.files);
             const paths = files.map((file) => electron.webUtils.getPathForFile(file));
-            const attachments = paths.filter((path) => path.toLowerCase().endsWith('.encodings'));
-            const models = paths.filter((path) => !path.toLowerCase().endsWith('.encodings'));
+            const { attachments, models } = drop.classify(paths, (path) => path, (path) => this._view.accept(path));
             if (models.length === 1 && attachments.length > 0) {
                 await this._open({ path: models[0], label: models[0] });
                 await this._open({ path: attachments[0], label: attachments[0] });

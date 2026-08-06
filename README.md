@@ -8,6 +8,7 @@ analysis, and NVIDIA ONNX GraphSurgeon-backed editing.
 ## Highlights
 
 - Visualize ONNX models together with AIMET encodings
+- Drop an ONNX model, its external `.data` sidecar, and encodings together
 - Trace activation precision through encoding-free graph operations
 - Inspect mixed precision, QParams, parameter bit widths, and encoding mismatches
 - Edit graph connections, nodes, inputs, outputs, and common Opset 17 operators
@@ -48,8 +49,8 @@ VS Code extension:
 npm run build:vscode-hnnx
 ```
 
-Generated packages are written to `dist/HNNX-0.1.0-arm64.dmg` and
-`vscode-extension/hnnx-0.1.0.vsix`.
+Generated packages are written to `dist/HNNX-0.1.1-arm64.dmg` and
+`vscode-extension/hnnx-0.1.1.vsix`.
 
 ## Attribution
 

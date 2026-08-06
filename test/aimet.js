@@ -1,5 +1,21 @@
+import * as drop from '../source/drop.js';
 import { EncodingFile, Utility } from '../source/aimet.js';
 import assert from 'assert/strict';
+
+const dropped = drop.classify(
+    ['model.onnx', 'model.onnx.data', 'model.encodings'],
+    (file) => file,
+    (file) => file.endsWith('.onnx') || file.endsWith('.data')
+);
+assert.deepEqual(dropped.models, ['model.onnx']);
+assert.deepEqual(dropped.attachments, ['model.encodings']);
+const droppedJson = drop.classify(
+    ['model.onnx', 'weights.data', 'model.encodings.json'],
+    (file) => file,
+    () => true
+);
+assert.deepEqual(droppedJson.models, ['model.onnx']);
+assert.deepEqual(droppedJson.attachments, ['model.encodings.json']);
 
 const value = (name, dimensions, initializer = false) => ({
     name,

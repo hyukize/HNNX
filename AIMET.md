@@ -18,8 +18,8 @@ in the license and project documentation.
 - Transparent scrollbar tracks with visible, draggable position indicators
 - VS Code Webview-specific horizontal and vertical scroll thumbs
 - Fine-grained zoom controls with an extended 4% overview scale
-- Simultaneous ONNX and encodings drag-and-drop
-- VS Code read-only ONNX Custom Editor with remote-workspace support
+- Simultaneous ONNX, external `.data`, and encodings drag-and-drop
+- VS Code ONNX Custom Editor with remote-workspace support
 - VS Code ONNX tabs are automatically kept open by default when switching files
 - HNNX welcome screen and product identity
 - ONNX GraphSurgeon Editor with direct connection-line selection
@@ -113,7 +113,7 @@ operators. Operator forms expose the required tensor inputs and commonly used
 attributes such as `axis`, `perm` and `to`. Additions participate in undo/redo,
 shape inference, graph refresh and `SAVE AS`.
 A
-disconnected slot remains editable: right-click its node to search for a
+disconnected slot remains editable: click its node to search for a
 tensor, use `PICK` to reconnect from the graph, or use `CLEAR` to remove the
 current connection. Optional ports use purple markers, with a dashed hollow
 marker for a disconnected slot. Missing required inputs use red markers and
@@ -134,7 +134,7 @@ residual-style connection. The editor validates tensor data types, rejects
 cycles, and routes residual shortcuts outside the sequential branch.
 Rewiring a graph output preserves its external output name instead of adopting
 the selected source tensor name. GraphSurgeon inserts an `Identity` boundary
-when required to keep the ONNX interface valid. Right-click the graph output
+when required to keep the ONNX interface valid. Click the graph output
 endpoint itself to edit its external name with undo/redo.
 Its context menu can also disconnect the current source. A disconnected graph
 output remains visible as a red port and must be reconnected before save.
@@ -211,7 +211,7 @@ Apple Silicon:
 npm run build:mac-hnnx
 ```
 
-The unsigned DMG is written to `dist/HNNX-0.1.0-arm64.dmg`.
+The unsigned DMG is written to `dist/HNNX-0.1.1-arm64.dmg`.
 The custom build uses a separate application identifier and settings folder,
 and official Netron auto-updates are disabled.
 

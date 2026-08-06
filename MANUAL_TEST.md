@@ -9,7 +9,7 @@ Use a copy of the ONNX file when testing `SAVE AS`.
 
 ## 1. macOS installation and GraphSurgeon setup
 
-1. Install the latest `dist/HNNX-0.1.0-arm64.dmg`.
+1. Install the latest `dist/HNNX-0.1.1-arm64.dmg`.
 2. Open **HNNX > GraphSurgeon Settings…** or press `Cmd+,`.
 3. Select the Python executable that contains `onnx` and
    `onnx_graphsurgeon`.
@@ -21,8 +21,8 @@ Expected: an invalid interpreter is rejected and cannot be saved.
 
 ## 2. Open ONNX and AIMET encodings
 
-1. Drag `manual-editor.onnx` and `manual-editor.encodings` into the window
-   together.
+1. Drag `manual-editor.onnx`, `test/aimet.onnx.data`, and
+   `manual-editor.encodings` into the window together.
 2. Confirm that the graph opens without a second attachment step.
 3. Open Model Properties and confirm that AIMET encodings version `2.0.0`
    is shown.
@@ -86,8 +86,9 @@ Output-port gestures:
 1. Click the line `alternative → Neg`.
 2. Confirm that the selected line turns orange.
 3. Confirm that the action bar says `alternative → neg.X`.
-4. Confirm that `DISCONNECT` is disabled because `Neg.X` is required.
-5. Press `REPLACE`.
+4. Press `DISCONNECT` and confirm that `Neg.X` becomes a red missing-required
+   port and that Save As is blocked.
+5. Undo the disconnect, select the line again, and press `REPLACE`.
 6. Select the orange output port for tensor `a`.
 
 Expected:
@@ -108,12 +109,12 @@ Expected:
 
 - Only the maximum input line disappears.
 - The Clip node remains.
-- Right-click `Clip`; `min` and `max` are listed and `max` is OFF.
+- Click `Clip`; `min` and `max` are listed and `max` is OFF.
 - Choose `maximum` (or another compatible tensor) for `max`; its line returns.
 - Turn `max` OFF again; only that optional line disappears.
 - Undo and redo both connection and disconnection.
 
-Right-click the unused `Clip` leaf node and confirm that `DELETE NODE` is
+Click the unused `Clip` leaf node and confirm that `DELETE NODE` is
 enabled. Delete it, undo, and confirm that the node returns. On a node whose
 output is still consumed, confirm that deletion is disabled with an
 explanation.
@@ -170,7 +171,7 @@ Expected:
 
 ## 12. VS Code and remote workspace
 
-1. Install `vscode-extension/hnnx-0.1.0.vsix`.
+1. Install `vscode-extension/hnnx-0.1.1.vsix`.
 2. Reload VS Code.
 3. Run **HNNX: Configure GraphSurgeon Python** from the Command
    Palette.

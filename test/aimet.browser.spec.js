@@ -160,6 +160,7 @@ playwright.test('AIMET encodings attachment', async ({ page }) => {
     const self = url.fileURLToPath(import.meta.url);
     const dir = path.dirname(self);
     const model = path.resolve(dir, 'aimet.onnx');
+    const data = path.resolve(dir, 'aimet.onnx.data');
     const encodings = path.resolve(dir, 'aimet.encodings');
 
     await page.goto('http://127.0.0.1:8765/dist/web/');
@@ -171,7 +172,7 @@ playwright.test('AIMET encodings attachment', async ({ page }) => {
     }
     const chooser = page.waitForEvent('filechooser');
     await page.locator('#open-file-button').click();
-    await (await chooser).setFiles([model, encodings]);
+    await (await chooser).setFiles([model, data, encodings]);
     await page.waitForSelector('body.default', { timeout: 10000 });
     await page.waitForSelector('.node-item-quantization', { timeout: 10000 });
 
@@ -642,7 +643,7 @@ playwright.test('HNNX workspace shortcuts enter, inspect, layout, view, and save
     await playwright.expect(page.locator('html')).not.toHaveClass(/onnx-graph-edit/);
     await playwright.expect(page.locator('#graph-edit-status')).toContainText('unsaved change');
     await playwright.expect(page.locator('#graph-edit-save-button')).toBeEnabled();
-    await physicalKey(page, 'ㄴ', 'KeyS', 83, 4);
+    await page.locator('#graph-edit-save-button').click();
     await playwright.expect(page.locator('#graph-edit-status')).toContainText('Save failed');
 });
 

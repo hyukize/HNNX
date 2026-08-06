@@ -86,13 +86,17 @@ TensorFlow, and TensorFlow Lite.
     confirmed overwrite, and remains accessible in a wrapped narrow toolbar.
     View/Edit now controls only the editing UI: saving always serializes the
     current session state, and incomplete edited graphs remain blocked in either mode.
+20. A simultaneous ONNX, external `.data`, and AIMET encodings drop treated the
+    `.data` sidecar as a second model and skipped the attachment path. File
+    classification now selects the explicit `.onnx` as the model, preserves
+    sidecar access, and recognizes both `.encodings` and `.encodings.json`.
 
 ## Package artifacts
 
 | Artifact | Size | SHA-256 |
 | --- | --- | --- |
-| `dist/HNNX-0.1.0-arm64.dmg` | 127 MB | `2b2da8d48ca20a6b1f73b6ab604340090098ba0d95a93eab57206cd8c79c2898` |
-| `vscode-extension/hnnx-0.1.0.vsix` | 3.6 MB | `c9f8774c94e68f0dbb98972fb357f3958cc81bb8828df0948feebcff76380250` |
+| `dist/HNNX-0.1.1-arm64.dmg` | 127 MB | `b6d81894f0e635f6e037e6f266b1f0b0f7b30fba61b96d1620e4f855faea719d` |
+| `vscode-extension/hnnx-0.1.1.vsix` | 3.6 MB | `446afa5eb7c5b5689183bc51a9cb188d33c25e284ab600ded9ed686da387dc1d` |
 
 ## Manual checks still required
 

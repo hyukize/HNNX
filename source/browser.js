@@ -1,5 +1,6 @@
 
 import * as base from './base.js';
+import * as drop from './drop.js';
 
 const browser = {};
 
@@ -477,8 +478,11 @@ browser.Host = class {
     }
 
     async _openFiles(files) {
-        const attachments = files.filter((file) => file.name.toLowerCase().endsWith('.encodings'));
-        const models = files.filter((file) => !file.name.toLowerCase().endsWith('.encodings') && this._view.accept(file.name, file.size));
+        const { attachments, models } = drop.classify(
+            files,
+            (file) => file.name,
+            (file) => this._view.accept(file.name, file.size)
+        );
         if (models.length > 0) {
             await this._open(models[0], files);
             if (attachments.length > 0) {

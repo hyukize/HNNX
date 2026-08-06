@@ -26,7 +26,7 @@ smoke test has no blocker.
 
 | ID | Test | Expected | Coverage |
 | --- | --- | --- | --- |
-| B1 | Open ONNX and encodings together | Model opens and encodings attach in one operation | Automated |
+| B1 | Open ONNX, external data and encodings together | ONNX is selected as the model, `.data` remains a sidecar, and encodings attach in one operation | Automated |
 | B2 | Quantization badges | Explicit and inferred precision use the correct label and color | Automated |
 | B3 | QParam details | Input tensor precision, output QParams, and parameter encodings are separated | Automated |
 | B4 | Statistics | A8/A16/mixed and matched/mismatched counts are present | Automated |

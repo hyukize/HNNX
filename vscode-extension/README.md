@@ -16,6 +16,9 @@ on Windows/Linux. These shortcuts do not intercept typing in form controls.
 The extension automatically attaches a neighboring encoding file named
 `<model>.encodings`, `<model>.onnx.encodings`, or `<model>.encodings.json`.
 Use **File > Open...** inside the viewer to select a different encoding file.
+In the desktop app or browser viewer, an ONNX model, its external `.data`
+sidecar, and one of these encoding files can also be dropped together; HNNX
+selects the ONNX as the model and keeps the other files as attachments.
 
 Use the `EDIT · BETA` toolbar button to enter **ONNX GraphSurgeon Editor**. Select a
 connection line directly to see its exact destination input. Choose `REPLACE`
@@ -34,7 +37,7 @@ the same way; `RESET` restores the automatic layout. Use the searchable
 existing tensor, or a common ONNX operator with its tensor inputs and relevant
 attributes. Additions participate in undo/redo, shape inference, refresh and
 `SAVE AS`.
-Right-click an operator to search its inputs,
+Click an operator to search its inputs,
 reconnect a disconnected slot, clear an existing connection, or delete an
 unused leaf node. Purple markers distinguish optional ports; missing required
 inputs use red markers and `REQUIRED · MISSING`. The editor permits this
@@ -55,7 +58,7 @@ Connected edit markers are aligned with the actual routed wire attachment
 points. `RESET` discards the complete unsaved edit history and restores the
 graph to the beginning of the current edit session.
 Graph output rewiring preserves the existing external output name through an
-`Identity` boundary when needed. Right-click the graph output endpoint to
+`Identity` boundary when needed. Click the graph output endpoint to
 rename that external interface explicitly or disconnect its current source.
 A disconnected graph output remains visible as a red port until reconnected.
 
