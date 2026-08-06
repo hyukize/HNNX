@@ -151,6 +151,10 @@ tracking. `RESET` discards every unsaved command, clears inferred shape
 overlays and restores the model to the state at which the current edit session
 started.
 
+`REFRESH VIEW` is a secondary fallback for the few edits whose incremental
+preview is pending. It stays hidden otherwise and appears as a neutral control
+at the end of the toolbar. `RE-LAYOUT` remains the primary full graph rebuild.
+
 `INFER SHAPES` applies the current unsaved edit commands to a temporary model,
 runs the ONNX checker and strict `onnx.shape_inference`, then displays inferred
 tensor types and dimensions in the current graph. The source ONNX and external
@@ -212,7 +216,7 @@ Apple Silicon:
 npm run build:mac-hnnx
 ```
 
-The unsigned DMG is written to `dist/HNNX-0.1.2-arm64.dmg`.
+The unsigned DMG is written to `dist/HNNX-0.1.3-arm64.dmg`.
 The custom build uses a separate application identifier and settings folder,
 and official Netron auto-updates are disabled.
 

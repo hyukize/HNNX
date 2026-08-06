@@ -104,7 +104,6 @@ html.onnx-graph-edit .toolbar > * { flex-shrink: 0; }
 .graph-edit-encodings-warning { display: none; position: fixed; top: 49px; left: 50%; z-index: 3; transform: translateX(-50%); padding: 5px 10px; border-radius: 6px; color: #ffffff; background: #b45309; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); font-size: 9px; font-weight: 800; letter-spacing: 0.06em; pointer-events: none; }
 .graph-edit-reset-button:disabled { cursor: default; opacity: 0.3; }
 .graph-edit-redraw-button:disabled { cursor: default; opacity: 0.3; }
-html.onnx-graph-edit-view-dirty .graph-edit-redraw-button:not(:disabled) { color: #ffffff; border-color: #ea580c; background: #ea580c; }
 .graph-edit-save-button { display: block; width: auto; padding: 0 9px; border: 1px solid #808080; color: #666666; background: rgba(255, 255, 255, 0.8); font-size: 10px; font-weight: 700; letter-spacing: 0.04em; }
 .graph-edit-save-button:disabled { cursor: default; opacity: 0.3; }
 .graph-edit-status { display: none; position: fixed; top: 12px; left: 50%; z-index: 3; max-width: min(720px, calc(100vw - 48px)); transform: translateX(-50%); padding: 7px 13px; border: 1px solid #d97706; border-radius: 999px; color: #7c2d12; background: rgba(255, 247, 237, 0.96); box-shadow: 0 2px 9px rgba(0, 0, 0, 0.14); font-size: 11px; font-weight: 600; text-align: center; pointer-events: none; }
@@ -168,6 +167,8 @@ html.onnx-graph-edit-view-dirty .graph-edit-redraw-button:not(:disabled) { color
 html.onnx-graph-edit .graph-edit-button { color: #ffffff; border-color: #c2410c; background: #c2410c; }
 html.onnx-graph-edit .graph-edit-history-button { display: block; }
 html.onnx-graph-edit .graph-edit-layout-button { display: block; }
+html.onnx-graph-edit .graph-edit-redraw-button { display: none; }
+html.onnx-graph-edit.onnx-graph-edit-view-dirty .graph-edit-redraw-button:not(:disabled) { display: block; margin-left: 10px; opacity: 0.82; }
 html.onnx-graph-edit .graph-edit-status { display: block; }
 html.onnx-graph-edit.onnx-graph-edit-encodings-disabled .graph-edit-encodings-warning { display: block; }
 html.onnx-graph-edit-connection .graph-edit-connection-actions { display: flex; }
@@ -349,7 +350,6 @@ html.onnx-graph-edit .graph-edit-graph-output-port-missing { display: block; poi
 .graph-edit-save-button:hover { color: #ffffff; border-color: #dfdfdf; background: #383838; }
 .graph-edit-layout-button { color: #aaaaaa; border-color: #777777; background: rgba(45, 45, 45, 0.85); }
 .graph-edit-layout-button:hover { color: #ffffff; border-color: #dfdfdf; background: #383838; }
-html.onnx-graph-edit-view-dirty .graph-edit-redraw-button:not(:disabled) { color: #ffffff; border-color: #f97316; background: #c2410c; }
 .graph-edit-status { color: #fed7aa; border-color: #c2410c; background: rgba(67, 33, 20, 0.96); }
 .graph-edit-status.invalid { color: #fecaca; border-color: #ef4444; background: rgba(69, 10, 10, 0.97); }
 .graph-edit-connection-actions { color: #fed7aa; border-color: #c2410c; background: rgba(55, 31, 20, 0.98); }
@@ -677,7 +677,6 @@ html.onnx-graph-edit-view-dirty .graph-edit-redraw-button:not(:disabled) { color
     <button id="graph-edit-reset-button" class="toolbar-button graph-edit-layout-button graph-edit-reset-button" title="Discard all unsaved edits and restore the graph to the state at the start of this edit session" disabled>RESET</button>
     <button id="graph-edit-add-button" class="toolbar-button graph-edit-layout-button graph-edit-add-button" title="Add a graph input, graph output, or ONNX operator">+ ADD</button>
     <button id="graph-edit-infer-button" class="toolbar-button graph-edit-layout-button graph-edit-infer-button" title="Run strict ONNX shape inference without modifying the open model (I)">INFER SHAPES</button>
-    <button id="graph-edit-redraw-button" class="toolbar-button graph-edit-layout-button graph-edit-redraw-button" title="Refresh the graph view from the edited model without changing the layout" disabled>REFRESH VIEW</button>
     <button id="graph-edit-save-button" class="toolbar-button graph-edit-save-button" title="Save the current ONNX to a chosen file (Cmd/Ctrl+S)">SAVE AS</button>
     <button id="graph-edit-layout-button" class="toolbar-button graph-edit-layout-button" title="Rebuild and re-layout the current graph (R)">RE-LAYOUT</button>
     <button id="graph-edit-button" class="toolbar-button graph-edit-button" title="Enter ONNX GraphSurgeon Editor (Beta) (E)">EDIT</button>
@@ -699,6 +698,7 @@ html.onnx-graph-edit-view-dirty .graph-edit-redraw-button:not(:disabled) { color
             &#x276E;
         </button>
     </div>
+    <button id="graph-edit-redraw-button" class="toolbar-button graph-edit-layout-button graph-edit-redraw-button" title="Refresh the graph view without re-layout; shown only when the incremental view is pending" disabled>REFRESH VIEW</button>
 </div>
 <div id="graph-edit-status" class="graph-edit-status">ONNX GRAPHSURGEON</div>
 <div id="graph-edit-encodings-warning" class="graph-edit-encodings-warning">ENCODINGS DISABLED DURING EDIT</div>

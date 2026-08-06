@@ -73,6 +73,7 @@ smoke test has no blocker.
 | D9 | Re-layout | Graph rebuild retains the current edit model | Automated |
 | D10 | Redo branch invalidation | Undo followed by a different edit clears the stale redo branch | Automated |
 | D11 | Missing external data inference | Remove referenced external tensor data; inference continues and reports a warning | Automated |
+| D12 | Deferred refresh affordance | `REFRESH VIEW` is hidden normally and appears neutrally at the toolbar end only while a view refresh is pending | Automated + manual UI |
 
 ## E. Add, rename, delete, validate, and save
 

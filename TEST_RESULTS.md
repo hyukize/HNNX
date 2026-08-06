@@ -93,13 +93,17 @@ TensorFlow, and TensorFlow Lite.
 21. An explicit QParam attached to a Graph Input was visible only on its edge.
     Graph Input endpoints now use the same `Q:A8`/`Q:A16` badge policy as other
     tensor producers and open a dedicated `Graph Input QParam` detail section.
+22. `REFRESH VIEW` occupied a central toolbar position and became the only
+    orange control when pending. It is now hidden during normal editing and
+    appears neutrally at the toolbar end only as an incremental-render fallback;
+    `RE-LAYOUT` remains the primary full redraw action.
 
 ## Package artifacts
 
 | Artifact | Size | SHA-256 |
 | --- | --- | --- |
-| `dist/HNNX-0.1.2-arm64.dmg` | 127 MB | `b027572f6d52bd9c2799312ee51d6214722831d6729499968f1984b867320755` |
-| `vscode-extension/hnnx-0.1.2.vsix` | 3.6 MB | `e78403135c3bc5423185352b831c3f0d6a639bee81a01b72843440e0b46d53c8` |
+| `dist/HNNX-0.1.3-arm64.dmg` | 127 MB | `d54c9f0eec9e9a9d4ebc4b0d1ddecb8967cfb5f24dff737e5a1565f23ce7052c` |
+| `vscode-extension/hnnx-0.1.3.vsix` | 3.6 MB | `fe2d00f12a002457d1d804c1de7ffd6c9222006cff090e66e9830760e061177a` |
 
 ## Manual checks still required
 
