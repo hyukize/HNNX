@@ -111,13 +111,18 @@ TensorFlow, and TensorFlow Lite.
     output port while retaining their independently computed downstream routes.
     This was verified with both the synthetic fan-out fixture and the real
     `decode_layer_05` ONNX/data/encodings set.
+26. AIMET attachment refresh previously animated every node against already-final
+    edge paths. On large graphs this extended the mismatch window and could race
+    with the first Re-layout interaction. Attachment refresh is now atomic, and
+    regression coverage verifies stable node transforms plus a one-activation
+    Re-layout after manual movement.
 
 ## Package artifacts
 
 | Artifact | Size | SHA-256 |
 | --- | --- | --- |
-| `dist/HNNX-0.1.5-arm64.dmg` | 121 MB | `cd5a4826030b5a7d6b0ce6f2b389d9419a2b721b2a8ba7213e1f21907b77a195` |
-| `vscode-extension/hnnx-0.1.5.vsix` | 3.5 MB | `317c130542bb13503e5c89728aa48ddfe1200489220023a3605182a3166f0b39` |
+| `dist/HNNX-0.1.6-arm64.dmg` | 121 MB | `35c205cbf91cc0d03c20a8bf05072c65298cf6ffa662fb49e0e3acf8a750237c` |
+| `vscode-extension/hnnx-0.1.6.vsix` | 3.5 MB | `a9b25c463e553f1551f9dd1042789cedab85ac72366b111c1658a1757c7833e2` |
 
 ## Manual checks still required
 

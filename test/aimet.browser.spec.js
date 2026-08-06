@@ -176,6 +176,20 @@ playwright.test('AIMET encodings attachment', async ({ page }) => {
     await page.waitForSelector('body.default', { timeout: 10000 });
     await page.waitForSelector('.node-item-quantization', { timeout: 10000 });
 
+    const attachmentSession = await page.context().newCDPSession(page);
+    const attachmentStability = await attachmentSession.send('Runtime.evaluate', {
+        expression: `new Promise((resolve) => {
+            const snapshot = () => JSON.stringify(Array.from(document.querySelectorAll('.graph-node'))
+                .map((node) => node.getAttribute('transform')));
+            const before = snapshot();
+            requestAnimationFrame(() => requestAnimationFrame(() => resolve(before === snapshot())));
+        })`,
+        awaitPromise: true,
+        returnByValue: true
+    });
+    await attachmentSession.detach();
+    playwright.expect(attachmentStability.result.value).toBe(true);
+
     const canvas = page.locator('#canvas');
     const zoomBefore = await canvas.boundingBox();
     await page.mouse.move(300, 200);
@@ -646,7 +660,6 @@ playwright.test('HNNX workspace shortcuts enter, inspect, layout, view, and save
     await page.locator('#graph-edit-add-close').click();
 
     await physicalKey(page, 'ㄱ', 'KeyR', 82);
-    await physicalKey(page, 'ㄱ', 'KeyR', 82);
     await playwright.expect(page.locator('#graph-edit-status')).toContainText('re-laid out');
     await playwright.expect(page.locator('#graph-edit-layout-button')).toBeEnabled();
     await playwright.expect(page.locator('#graph-edit-layout-button')).toHaveText('RE-LAYOUT');
@@ -915,6 +928,12 @@ playwright.test('ONNX GraphSurgeon Editor keeps close multi-output routes compac
     await page.mouse.down();
     await page.mouse.move(bounds.x + bounds.width / 2 + 20, bounds.y + bounds.height / 2 + 12);
     await page.mouse.up();
+
+    const movedTransform = await concat.getAttribute('transform');
+    await relayout.click();
+    await playwright.expect(page.locator('#graph-edit-status')).toContainText('re-laid out');
+    const restoredTransform = await concat.getAttribute('transform');
+    playwright.expect(restoredTransform).not.toEqual(movedTransform);
 
     const routes = [page.locator('.edge-paths #edge-left').first(), page.locator('.edge-paths #edge-right').first()];
     const paths = await Promise.all(routes.map((route) => route.getAttribute('d')));

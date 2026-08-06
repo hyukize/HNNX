@@ -5237,7 +5237,10 @@ view.View = class {
             if (await attachment.open(context)) {
                 attachment.bind(this._model);
                 this._model.attachment = attachment;
-                await this.refresh();
+                // Quantization badges can change measured node widths. Swap
+                // the refreshed nodes and edges as one frame so a transition
+                // cannot temporarily leave the nodes beside final edge paths.
+                await this.refresh(null, { animate: false });
                 return true;
             }
         }
