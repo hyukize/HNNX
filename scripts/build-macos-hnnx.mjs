@@ -25,12 +25,12 @@ await run([
     '--config.appId=ai.mrxrunway.hnnx',
     '--config.extraMetadata.name=hnnx',
     '--config.extraMetadata.productName=HNNX',
-    '--config.extraMetadata.version=0.1.7',
+    '--config.extraMetadata.version=0.1.8',
     '--config.extraMetadata.appId=ai.mrxrunway.hnnx',
     '--config.extraMetadata.aimet=true',
     '--config.extraMetadata.disableUpdates=true',
     '--config.asarUnpack=source/onnx-graphsurgeon.py',
-    '--config.mac.artifactName=HNNX-0.1.7-arm64.${ext}',
-    '--config.dmg.artifactName=HNNX-0.1.7-arm64.${ext}',
-    '--config.dmg.title=HNNX 0.1.7'
+    '--config.mac.artifactName=HNNX-0.1.8-arm64.${ext}',
+    '--config.dmg.artifactName=HNNX-0.1.8-arm64.${ext}',
+    '--config.dmg.title=HNNX 0.1.8'
 ]);

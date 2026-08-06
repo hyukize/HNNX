@@ -18,10 +18,10 @@ The test scope is defined in `REGRESSION_TEST.md`.
 | Stage 3 adversarial UI | PASS | 100 / 100 unique high-speed history and renderer workflows; 98 in the full pass plus 2 setup-timeout cases rerun unchanged and passed |
 | AIMET precision policy | PASS | TopK `values` inherits activation bitwidth; `indices` remains unlabelled |
 | VS Code extension | PASS | VSIX package built successfully; remote-runtime smoke test remains manual |
-| AIMET browser/editor E2E | PASS | 13 / 13, including the HNNX showcase model, workspace shortcuts, fixed Split-Concat bundles, fan-out port alignment and physical D/Q/Z with Korean IME |
+| AIMET browser/editor E2E | PASS | 14 / 14, including the post-connection first-click Re-layout regression, HNNX showcase model, workspace shortcuts, fixed Split-Concat bundles, fan-out port alignment and physical D/Q/Z with Korean IME |
 | Netron validation models | NOT RUN | Not rerun in this focused editor audit |
 | Upstream browser/Electron E2E | NOT RUN | Not rerun in this focused editor audit |
-| VSIX packaging | PASS | 183 files; web app and Python backend present |
+| VSIX packaging | PASS | 184 files; web app and Python backend present |
 | Apple Silicon DMG build | PASS | DMG mounted; app executable is arm64; backend is unpacked |
 
 Validation formats included Core ML, ExecuTorch, GGUF, Keras, ncnn, ONNX,
@@ -120,15 +120,17 @@ TensorFlow, and TensorFlow Lite.
     suppressor. When the expected synthetic trailing click was absent, the
     listener consumed the next unrelated toolbar click, so Re-layout appeared
     to require two presses. Suppression is now limited to the pointer-up target
-    and coordinates. The old implementation fails the deterministic regression
-    while the scoped implementation passes it.
+    or its descendant, within 4 pixels and 100 milliseconds of pointer-up.
+    Clicks on another target or position—including Re-layout—pass immediately.
+    The old implementation fails the deterministic regression while the scoped
+    implementation passes it.
 
 ## Package artifacts
 
 | Artifact | Size | SHA-256 |
 | --- | --- | --- |
-| `dist/HNNX-0.1.7-arm64.dmg` | 121 MB | `b1dabba34ee3511b840a8f30dd45c96116db3f87d964a2625cb2516af0e88881` |
-| `vscode-extension/hnnx-0.1.7.vsix` | 3.5 MB | `6e83f003c6399dc0026b18940a529ac6385a7980c23f36b7da256de9abd1841c` |
+| `dist/HNNX-0.1.8-arm64.dmg` | 121 MB | `659c963acabedc61d256d9eb5fd68cf6fca94cee1151ae882d5d9d9ee79d2829` |
+| `vscode-extension/hnnx-0.1.8.vsix` | 3.5 MB | `0ec4ceee4dc91f2446b2d2da777f946de0c1de820b0f78a44a0dc980e2aeca38` |
 
 ## Manual checks still required
 

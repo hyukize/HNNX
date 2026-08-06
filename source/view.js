@@ -2204,12 +2204,15 @@ view.View = class {
         const target = pointerEvent ? pointerEvent.target : null;
         const clientX = pointerEvent && Number.isFinite(pointerEvent.clientX) ? pointerEvent.clientX : null;
         const clientY = pointerEvent && Number.isFinite(pointerEvent.clientY) ? pointerEvent.clientY : null;
+        const timeStamp = pointerEvent && Number.isFinite(pointerEvent.timeStamp) ? pointerEvent.timeStamp : null;
         const suppress = (event) => {
             const sameTarget = !target || event.target === target ||
                 (typeof target.contains === 'function' && target.contains(event.target));
             const samePoint = clientX === null || clientY === null ||
-                Math.hypot(event.clientX - clientX, event.clientY - clientY) <= 3;
-            if (sameTarget && samePoint) {
+                Math.hypot(event.clientX - clientX, event.clientY - clientY) <= 4;
+            const elapsed = timeStamp === null ? 0 : event.timeStamp - timeStamp;
+            const immediate = elapsed >= 0 && elapsed <= 100;
+            if (sameTarget && samePoint && immediate) {
                 event.preventDefault();
                 event.stopPropagation();
                 this._host.document.removeEventListener('click', suppress, true);
@@ -2218,7 +2221,7 @@ view.View = class {
         this._host.document.addEventListener('click', suppress, true);
         this._host.window.setTimeout(() => {
             this._host.document.removeEventListener('click', suppress, true);
-        }, 250);
+        }, 100);
     }
 
     _focusGraphEditCanvas() {
