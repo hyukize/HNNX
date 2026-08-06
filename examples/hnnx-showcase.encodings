@@ -1,0 +1,96 @@
+{
+  "version": "2.0.0",
+  "activation_encodings": [
+    {
+      "name": "input",
+      "output_dtype": "uint8",
+      "y_scale": 0.03125,
+      "y_zero_point": 7
+    },
+    {
+      "name": "conv_out",
+      "output_dtype": "int16",
+      "y_scale": 0.0009765625,
+      "y_zero_point": 0
+    },
+    {
+      "name": "relu_out",
+      "output_dtype": "uint8",
+      "y_scale": 0.03125,
+      "y_zero_point": 7
+    },
+    {
+      "name": "part_0",
+      "output_dtype": "uint8",
+      "y_scale": 0.03125,
+      "y_zero_point": 7
+    },
+    {
+      "name": "part_1",
+      "output_dtype": "uint8",
+      "y_scale": 0.03125,
+      "y_zero_point": 7
+    },
+    {
+      "name": "part_2",
+      "output_dtype": "uint8",
+      "y_scale": 0.03125,
+      "y_zero_point": 7
+    },
+    {
+      "name": "part_3",
+      "output_dtype": "uint8",
+      "y_scale": 0.03125,
+      "y_zero_point": 7
+    },
+    {
+      "name": "merged",
+      "output_dtype": "uint8",
+      "y_scale": 0.03125,
+      "y_zero_point": 7
+    },
+    {
+      "name": "residual",
+      "output_dtype": "int16",
+      "y_scale": 0.0009765625,
+      "y_zero_point": 0
+    },
+    {
+      "name": "clipped",
+      "output_dtype": "int16",
+      "y_scale": 0.0009765625,
+      "y_zero_point": 0
+    },
+    {
+      "name": "cast_out",
+      "output_dtype": "int16",
+      "y_scale": 0.0009765625,
+      "y_zero_point": 0
+    },
+    {
+      "name": "top_values",
+      "output_dtype": "int16",
+      "y_scale": 0.0009765625,
+      "y_zero_point": 0
+    }
+  ],
+  "param_encodings": [
+    {
+      "name": "conv.weight",
+      "output_dtype": "int8",
+      "y_scale": [
+        0.0038,
+        0.0041,
+        0.0036,
+        0.004
+      ],
+      "y_zero_point": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "axis": 0
+    }
+  ]
+}

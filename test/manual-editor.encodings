@@ -1,0 +1,43 @@
+{
+    "version": "2.0.0",
+    "activation_encodings": [
+        {
+            "name": "x",
+            "output_dtype": "uint8",
+            "y_scale": 0.03125,
+            "y_zero_point": 7
+        },
+        {
+            "name": "a",
+            "output_dtype": "uint8",
+            "y_scale": 0.03125,
+            "y_zero_point": 7
+        },
+        {
+            "name": "b",
+            "output_dtype": "uint8",
+            "y_scale": 0.0625,
+            "y_zero_point": 3
+        },
+        {
+            "name": "clipped",
+            "output_dtype": "int16",
+            "y_scale": 0.0009765625,
+            "y_zero_point": 0
+        },
+        {
+            "name": "y",
+            "output_dtype": "int16",
+            "y_scale": 0.0009765625,
+            "y_zero_point": 0
+        }
+    ],
+    "param_encodings": [
+        {
+            "name": "weight",
+            "output_dtype": "int8",
+            "y_scale": 0.00390625,
+            "y_zero_point": 0
+        }
+    ]
+}

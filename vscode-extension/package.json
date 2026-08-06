@@ -1,0 +1,69 @@
+{
+    "name": "hnnx",
+    "displayName": "HNNX",
+    "description": "Visualize, analyze, and edit ONNX models with AIMET encoding support, including remote workspaces.",
+    "version": "0.1.0",
+    "publisher": "local",
+    "license": "MIT",
+    "engines": {
+        "vscode": "^1.90.0"
+    },
+    "categories": [
+        "Visualization",
+        "Machine Learning"
+    ],
+    "extensionKind": [
+        "workspace"
+    ],
+    "main": "./extension.js",
+    "activationEvents": [
+        "onCustomEditor:hnnx.onnxViewer",
+        "onCommand:hnnx.configureGraphSurgeonPython"
+    ],
+    "contributes": {
+        "commands": [
+            {
+                "command": "hnnx.configureGraphSurgeonPython",
+                "title": "HNNX: Configure GraphSurgeon Python"
+            }
+        ],
+        "customEditors": [
+            {
+                "viewType": "hnnx.onnxViewer",
+                "displayName": "HNNX",
+                "selector": [
+                    {
+                        "filenamePattern": "*.onnx"
+                    }
+                ],
+                "priority": "default"
+            }
+        ],
+        "configuration": {
+            "title": "HNNX",
+            "properties": {
+                "hnnx.autoPinOnnxEditors": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Keep ONNX editor tabs open so switching to another file does not discard and reload the graph."
+                },
+                "hnnx.pythonPath": {
+                    "type": "string",
+                    "default": "",
+                    "markdownDescription": "Python interpreter containing `onnx` and NVIDIA `onnx_graphsurgeon`. In remote workspaces this path is resolved on the remote extension host. Use the **HNNX: Configure GraphSurgeon Python** command to validate and save it."
+                }
+            }
+        }
+    },
+    "scripts": {
+        "build:media": "node ./scripts/build-media.mjs",
+        "package": "npm run build:media && npx --yes @vscode/vsce package --no-dependencies --out hnnx-0.1.0.vsix",
+        "test": "node --test ./test/*.test.js"
+    },
+    "files": [
+        "extension.js",
+        "media/**",
+        "README.md",
+        "LICENSE"
+    ]
+}
