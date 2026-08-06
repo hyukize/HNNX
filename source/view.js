@@ -2155,7 +2155,7 @@ view.View = class {
             const target = active && portTarget ? this._graphEditDropTarget(portTarget, drag.value) : null;
             if (!active) {
                 this._disposeGraphEditLinkDrag();
-                this._suppressGraphEditNativeClick();
+                this._suppressGraphEditNativeClick(upEvent);
                 const result = drag.entries && drag.entries.length > 1 ?
                     this.graphEditChooseOutput(drag.entries, drag.port, upEvent) :
                     this.graphEditOutput(drag.value, drag.port);
@@ -2167,7 +2167,7 @@ view.View = class {
             this._disposeGraphEditLinkDrag();
             upEvent.preventDefault();
             upEvent.stopPropagation();
-            this._suppressGraphEditNativeClick();
+            this._suppressGraphEditNativeClick(upEvent);
             if (cancelled) {
                 this._cancelGraphEditSelection(false);
                 this._updateGraphEditStatus('DRAG CANCELLED · Select or drag an orange output to try again.');
@@ -2200,11 +2200,20 @@ view.View = class {
         return true;
     }
 
-    _suppressGraphEditNativeClick() {
+    _suppressGraphEditNativeClick(pointerEvent) {
+        const target = pointerEvent ? pointerEvent.target : null;
+        const clientX = pointerEvent && Number.isFinite(pointerEvent.clientX) ? pointerEvent.clientX : null;
+        const clientY = pointerEvent && Number.isFinite(pointerEvent.clientY) ? pointerEvent.clientY : null;
         const suppress = (event) => {
-            event.preventDefault();
-            event.stopPropagation();
-            this._host.document.removeEventListener('click', suppress, true);
+            const sameTarget = !target || event.target === target ||
+                (typeof target.contains === 'function' && target.contains(event.target));
+            const samePoint = clientX === null || clientY === null ||
+                Math.hypot(event.clientX - clientX, event.clientY - clientY) <= 3;
+            if (sameTarget && samePoint) {
+                event.preventDefault();
+                event.stopPropagation();
+                this._host.document.removeEventListener('click', suppress, true);
+            }
         };
         this._host.document.addEventListener('click', suppress, true);
         this._host.window.setTimeout(() => {
@@ -3780,12 +3789,7 @@ view.View = class {
                 this._updateGraphEditStatus(
                     `Moved ${node.value.name || node.value.type.name} · Only ${edges.length} connected line${edges.length === 1 ? '' : 's'} redrawn.`
                 );
-                const suppress = (clickEvent) => {
-                    clickEvent.preventDefault();
-                    clickEvent.stopPropagation();
-                    this._host.document.removeEventListener('click', suppress, true);
-                };
-                this._host.document.addEventListener('click', suppress, true);
+                this._suppressGraphEditNativeClick(upEvent);
             }
             upEvent.preventDefault();
             upEvent.stopPropagation();

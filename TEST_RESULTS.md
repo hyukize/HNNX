@@ -116,13 +116,19 @@ TensorFlow, and TensorFlow Lite.
     with the first Re-layout interaction. Attachment refresh is now atomic, and
     regression coverage verifies stable node transforms plus a one-activation
     Re-layout after manual movement.
+27. Connection and node drag cleanup used a document-wide one-shot click
+    suppressor. When the expected synthetic trailing click was absent, the
+    listener consumed the next unrelated toolbar click, so Re-layout appeared
+    to require two presses. Suppression is now limited to the pointer-up target
+    and coordinates. The old implementation fails the deterministic regression
+    while the scoped implementation passes it.
 
 ## Package artifacts
 
 | Artifact | Size | SHA-256 |
 | --- | --- | --- |
-| `dist/HNNX-0.1.6-arm64.dmg` | 121 MB | `35c205cbf91cc0d03c20a8bf05072c65298cf6ffa662fb49e0e3acf8a750237c` |
-| `vscode-extension/hnnx-0.1.6.vsix` | 3.5 MB | `a9b25c463e553f1551f9dd1042789cedab85ac72366b111c1658a1757c7833e2` |
+| `dist/HNNX-0.1.7-arm64.dmg` | 121 MB | `b1dabba34ee3511b840a8f30dd45c96116db3f87d964a2625cb2516af0e88881` |
+| `vscode-extension/hnnx-0.1.7.vsix` | 3.5 MB | `6e83f003c6399dc0026b18940a529ac6385a7980c23f36b7da256de9abd1841c` |
 
 ## Manual checks still required
 

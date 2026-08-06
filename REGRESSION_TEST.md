@@ -78,6 +78,7 @@ smoke test has no blocker.
 | D14 | Connection replacement | Select an existing edge, choose `REPLACE`, select an orange output, then Undo; source path and model connection change and restore | Automated |
 | D15 | Fan-out source identity | Multiple connections carrying one output tensor leave one shared source anchor and expose one edit port | Automated + real-model visual check |
 | D16 | Atomic attachment layout | ONNX + data + encodings leaves node transforms stable, and one Re-layout activation restores a moved node | Automated + real-model visual check |
+| D17 | Post-drag toolbar click | A connection or node drag guard suppresses only its own trailing click and never consumes Re-layout | Automated A/B regression |
 
 ## E. Add, rename, delete, validate, and save
 

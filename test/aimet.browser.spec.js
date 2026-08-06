@@ -478,7 +478,7 @@ playwright.test('ONNX GraphSurgeon Editor previews input and graph output edits 
     await playwright.expect(page.getByText('Clip', { exact: true })).toHaveCount(0);
     await page.locator('#graph-edit-undo-button').click();
     await playwright.expect(page.locator('#graph-edit-status')).toContainText('Undid');
-    await page.locator('#hit-edge-alt').click({ force: true });
+    await page.locator('#hit-edge-alt').first().click({ force: true });
     await playwright.expect(page.locator('#graph-edit-status')).toContainText('CONNECTION SELECTED');
     await playwright.expect(page.locator('#target')).toBeFocused();
     await playwright.expect(page.locator('#graph-edit-connection-actions')).toBeVisible();
@@ -545,6 +545,10 @@ playwright.test('ONNX GraphSurgeon Editor previews input and graph output edits 
     await playwright.expect(page.locator('#graph-edit-status')).toContainText(/Changed|Graph view updated/);
     await playwright.expect(page.locator('html')).not.toHaveClass(/onnx-graph-edit-source/);
     await playwright.expect(page.locator('.edge-path[id^="edge-a"]')).toHaveCount(2);
+    // The drag gesture installs a guard for its own synthetic trailing click.
+    // It must never consume an immediate click on an unrelated toolbar button.
+    await page.locator('#graph-edit-layout-button').click();
+    await playwright.expect(page.locator('#graph-edit-status')).toContainText('re-laid out');
     if (await page.locator('#graph-edit-redraw-button').isEnabled()) {
         await redraw();
     }
@@ -683,6 +687,51 @@ playwright.test('HNNX workspace shortcuts enter, inspect, layout, view, and save
     await playwright.expect(page.locator('#graph-edit-status')).toContainText('Save failed');
 });
 
+playwright.test('connection drag guard does not consume the next toolbar click', async ({ page }) => {
+    await page.goto('http://127.0.0.1:8765/dist/web/');
+    await page.waitForSelector('body.welcome', { timeout: 10000 });
+    const consent = page.locator('#message-button');
+    if (await consent.isVisible()) {
+        await consent.click();
+    }
+    const chooser = page.waitForEvent('filechooser');
+    await page.locator('#open-file-button').click();
+    await (await chooser).setFiles({
+        name: 'drag-guard.onnx', mimeType: 'application/octet-stream', buffer: editableOnnx()
+    });
+    await page.waitForSelector('body.default', { timeout: 10000 });
+    await page.locator('#graph-edit-button').click();
+    await page.locator('#hit-edge-alt').first().click({ force: true });
+    await page.locator('#graph-edit-connection-disconnect').click();
+    if (await page.locator('#graph-edit-redraw-button').isEnabled()) {
+        await page.locator('#graph-edit-redraw-button').click();
+        await playwright.expect(page.locator('#graph-edit-redraw-button')).toBeDisabled();
+    }
+
+    const session = await page.context().newCDPSession(page);
+    const dragResult = await session.send('Runtime.evaluate', {
+        expression: `(() => {
+            const source = document.querySelector('.graph-edit-output-port[aria-label="Use output a"]');
+            const target = document.querySelector('.graph-edit-input-port[aria-label="Connect to neg.X"]');
+            const from = source.getBoundingClientRect();
+            const to = target.getBoundingClientRect();
+            const event = (type, x, y, buttons) => new PointerEvent(type, {
+                bubbles: true, cancelable: true, pointerId: 73, pointerType: 'mouse',
+                isPrimary: true, button: 0, buttons, clientX: x, clientY: y
+            });
+            source.dispatchEvent(event('pointerdown', from.x + from.width / 2, from.y + from.height / 2, 1));
+            document.dispatchEvent(event('pointermove', to.x + to.width / 2, to.y + to.height / 2, 1));
+            document.dispatchEvent(event('pointerup', to.x + to.width / 2, to.y + to.height / 2, 0));
+            document.getElementById('graph-edit-layout-button').click();
+            return true;
+        })()`,
+        returnByValue: true
+    });
+    await session.detach();
+    playwright.expect(dragResult.result.value).toBe(true);
+    await playwright.expect(page.locator('#graph-edit-status')).toContainText('re-laid out');
+});
+
 playwright.test('ONNX GraphSurgeon Editor deletes a Cast and reconnects without rebuilding the graph', async ({ page }) => {
     const errors = [];
     page.on('pageerror', (error) => errors.push(error.message));
@@ -751,7 +800,31 @@ playwright.test('ONNX GraphSurgeon Editor restores delete and reconnect history 
 
     // Shape inference and re-layout both replace the complete SVG tree. The
     // history must stop referring to the detached pre-render node and edges.
+    await page.waitForTimeout(1000);
     await page.locator('#graph-edit-layout-button').click();
+    await playwright.expect(page.locator('#graph-edit-status')).toContainText('re-laid out');
+    const firstLayout = await page.context().newCDPSession(page);
+    const firstLayoutResult = await firstLayout.send('Runtime.evaluate', {
+        expression: `JSON.stringify({
+            nodes: Array.from(document.querySelectorAll('.graph-node')).map((node) => node.getAttribute('transform')),
+            edges: Array.from(document.querySelectorAll('.edge-paths path')).map((edge) => edge.getAttribute('d'))
+        })`,
+        returnByValue: true
+    });
+    await firstLayout.detach();
+    await page.waitForTimeout(1000);
+    await page.locator('#graph-edit-layout-button').click();
+    await playwright.expect(page.locator('#graph-edit-status')).toContainText('re-laid out');
+    const secondLayout = await page.context().newCDPSession(page);
+    const secondLayoutResult = await secondLayout.send('Runtime.evaluate', {
+        expression: `JSON.stringify({
+            nodes: Array.from(document.querySelectorAll('.graph-node')).map((node) => node.getAttribute('transform')),
+            edges: Array.from(document.querySelectorAll('.edge-paths path')).map((edge) => edge.getAttribute('d'))
+        })`,
+        returnByValue: true
+    });
+    await secondLayout.detach();
+    playwright.expect(secondLayoutResult.result.value).toEqual(firstLayoutResult.result.value);
     await page.locator('#graph-edit-button').click();
     await page.locator('#graph-edit-button').click();
 
