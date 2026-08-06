@@ -21,6 +21,8 @@
         "lint": "node package.js lint",
         "build": "node package.js build",
         "build:mac-hnnx": "node scripts/build-macos-hnnx.mjs",
+        "build:windows-hnnx": "node scripts/build-platform-hnnx.mjs windows",
+        "build:linux-hnnx": "node scripts/build-platform-hnnx.mjs linux",
         "build:vscode-hnnx": "npm --prefix vscode-extension run package",
         "publish": "node package.js publish",
         "release": "node package.js release",

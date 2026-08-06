@@ -433,8 +433,13 @@ const pythonCandidates = (configured) => {
     if (process.env.HNNX_PYTHON) {
         candidates.push(process.env.HNNX_PYTHON);
     }
-    candidates.push(path.join(os.homedir(), '.hnnx', 'venv', 'bin', 'python3'));
-    candidates.push('/opt/homebrew/bin/python3', '/usr/local/bin/python3', 'python3', 'python');
+    if (process.platform === 'win32') {
+        candidates.push(path.join(os.homedir(), '.hnnx', 'venv', 'Scripts', 'python.exe'));
+        candidates.push('python.exe', 'python', 'py.exe', 'py', 'python3.exe', 'python3');
+    } else {
+        candidates.push(path.join(os.homedir(), '.hnnx', 'venv', 'bin', 'python3'));
+        candidates.push('/opt/homebrew/bin/python3', '/usr/local/bin/python3', 'python3', 'python');
+    }
     return Array.from(new Set(candidates.map((candidate) => normalizePython(candidate))));
 };
 

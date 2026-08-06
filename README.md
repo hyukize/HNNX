@@ -14,9 +14,9 @@ analysis, and NVIDIA ONNX GraphSurgeon-backed editing.
 - See explicit Graph Input quantizers as `Q:A8`/`Q:A16` endpoint badges
 - Edit graph connections, nodes, inputs, outputs, and common Opset 17 operators
 - Undo, redo, reset, shape inference, validation, and Save As
-- Use the native Apple Silicon macOS app or VS Code extension
+- Use the native Apple Silicon macOS app, Windows/Linux desktop packages, or VS Code extension
 - Open models from VS Code Remote and Kubernetes workspaces
-- Select Auto, Light, or Dark appearance; Auto follows macOS or VS Code
+- Select Auto, Light, or Dark appearance; Auto follows the operating system or VS Code
 
 See [AIMET.md](AIMET.md) for the complete feature guide and editor behavior.
 See [MANUAL_TEST.md](MANUAL_TEST.md) for the hands-on test workflow.
@@ -45,14 +45,31 @@ Apple Silicon macOS app:
 npm run build:mac-hnnx
 ```
 
+Windows x64 installer:
+
+```bash
+npm run build:windows-hnnx
+```
+
+Linux x64 AppImage and Debian package:
+
+```bash
+npm run build:linux-hnnx
+```
+
 VS Code extension:
 
 ```bash
 npm run build:vscode-hnnx
 ```
 
-Generated packages are written to `dist/HNNX-0.1.9-arm64.dmg` and
-`vscode-extension/hnnx-0.1.9.vsix`.
+Generated packages are written to:
+
+- `dist/HNNX-0.1.10-arm64.dmg`
+- `dist/HNNX-0.1.10-x64-setup.exe`
+- `dist/HNNX-0.1.10-x64.AppImage`
+- `dist/HNNX-0.1.10-x64.deb`
+- `vscode-extension/hnnx-0.1.10.vsix`
 
 ## Attribution
 

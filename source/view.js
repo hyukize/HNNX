@@ -162,6 +162,10 @@ view.View = class {
             for (const [name, value] of Object.entries(options)) {
                 this._options[name] = value;
             }
+            const themePreference = this._host.get('theme');
+            if (['auto', 'light', 'dark'].includes(themePreference)) {
+                this._themePreference = themePreference;
+            }
             this._element('sidebar-model-button').addEventListener('click', () => {
                 this.showModelProperties();
             });
@@ -454,13 +458,17 @@ view.View = class {
                     execute: () => this.toggle('mousewheel'),
                     enabled: () => this.activeTarget
                 });
-                if (this._host.type === 'VS Code') {
+                if (this._host.type === 'VS Code' || this._host.type === 'Electron') {
                     const theme = view.group('&Theme');
                     for (const value of ['auto', 'light', 'dark']) {
                         const name = value.charAt(0).toUpperCase() + value.slice(1);
                         theme.add({
                             label: () => `${this._themePreference === value ? '✓ ' : ''}${name}`,
-                            execute: async () => await this._host.execute('set-theme', value)
+                            execute: async () => {
+                                this._themePreference = value;
+                                const command = this._host.type === 'VS Code' ? 'set-theme' : 'theme';
+                                await this._host.execute(command, value);
+                            }
                         });
                     }
                 }

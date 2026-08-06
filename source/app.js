@@ -354,6 +354,7 @@ app.Application = class {
         /* eslint-disable no-await-in-loop */
         const owner = window || electron.BrowserWindow.getFocusedWindow();
         const key = 'graphsurgeon.pythonPath';
+        const recommended = this._graphSurgeonEnvironmentPython();
         for (;;) {
             const current = this._configuration.has(key) ? this._configuration.get(key) : '';
             const buttons = ['Create Recommended Environment', 'Choose Python…', 'Auto Detect'];
@@ -370,7 +371,7 @@ app.Application = class {
                 detail: `${current ? `Current interpreter:\n${current}\n\n` : ''}` +
                     'Select the Python executable from an environment containing both ' +
                     "'onnx' and 'onnx_graphsurgeon'.\n\n" +
-                    'Recommended environment:\n~/.hnnx/venv/bin/python3',
+                    `Recommended environment:\n${recommended}`,
                 buttons,
                 defaultId: 0,
                 cancelId: buttons.length - 1,
@@ -403,7 +404,7 @@ app.Application = class {
             } else if (choice === 'Choose Python…') {
                 const selection = await electron.dialog.showOpenDialog(owner, {
                     title: 'Select GraphSurgeon Python Interpreter',
-                    defaultPath: current || path.join(os.homedir(), '.hnnx', 'venv', 'bin'),
+                    defaultPath: current || path.dirname(recommended),
                     buttonLabel: 'Use Python',
                     properties: ['openFile']
                 });
@@ -431,7 +432,7 @@ app.Application = class {
                 title: 'ONNX GraphSurgeon Settings',
                 message: 'The selected Python environment is not ready.',
                 detail: "Install 'onnx' and 'onnx_graphsurgeon' in that environment, then try again.\n\n" +
-                    'python3 -m pip install onnx onnx_graphsurgeon ' +
+                    `${process.platform === 'win32' ? 'python' : 'python3'} -m pip install onnx onnx_graphsurgeon ` +
                     '--extra-index-url https://pypi.ngc.nvidia.com',
                 buttons: ['Try Again']
             });
@@ -442,7 +443,7 @@ app.Application = class {
 
     async _createGraphSurgeonEnvironment(owner) {
         const directory = path.join(os.homedir(), '.hnnx', 'venv');
-        const interpreter = path.join(directory, 'bin', 'python3');
+        const interpreter = this._graphSurgeonEnvironmentPython(directory);
         const response = await electron.dialog.showMessageBox(owner, {
             type: 'info',
             title: 'Create ONNX GraphSurgeon Environment',
@@ -473,7 +474,9 @@ app.Application = class {
     }
 
     async _findPythonForVenv() {
-        const candidates = ['/opt/homebrew/bin/python3', '/usr/local/bin/python3', 'python3'];
+        const candidates = process.platform === 'win32' ?
+            ['python.exe', 'python', 'py.exe', 'py', 'python3.exe', 'python3'] :
+            ['/opt/homebrew/bin/python3', '/usr/local/bin/python3', 'python3'];
         for (const candidate of candidates) {
             /* eslint-disable-next-line no-await-in-loop */
             const available = await new Promise((resolve) => {
@@ -507,14 +510,19 @@ app.Application = class {
     }
 
     async _findGraphSurgeonPython(configured = '') {
+        const platformCandidates = process.platform === 'win32' ?
+            [this._graphSurgeonEnvironmentPython(), 'python.exe', 'python', 'py.exe', 'py', 'python3.exe', 'python3'] :
+            [
+                this._graphSurgeonEnvironmentPython(),
+                '/opt/homebrew/bin/python3',
+                '/usr/local/bin/python3',
+                'python3',
+                'python'
+            ];
         const candidates = [
             configured,
             process.env.HNNX_PYTHON,
-            path.join(os.homedir(), '.hnnx', 'venv', 'bin', 'python3'),
-            '/opt/homebrew/bin/python3',
-            '/usr/local/bin/python3',
-            'python3',
-            'python'
+            ...platformCandidates
         ].filter((candidate, index, values) => candidate && values.indexOf(candidate) === index);
         for (const candidate of candidates) {
             /* eslint-disable-next-line no-await-in-loop */
@@ -523,6 +531,12 @@ app.Application = class {
             }
         }
         return '';
+    }
+
+    _graphSurgeonEnvironmentPython(directory = path.join(os.homedir(), '.hnnx', 'venv')) {
+        return process.platform === 'win32' ?
+            path.join(directory, 'Scripts', 'python.exe') :
+            path.join(directory, 'bin', 'python3');
     }
 
     _validateGraphSurgeonPython(candidate) {

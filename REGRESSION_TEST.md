@@ -128,6 +128,13 @@ smoke test has no blocker.
    inference.
 5. Confirm that closing all model tabs leaves no sustained CPU usage from the
    extension host or WindowServer attributable to HNNX.
+6. Install the Windows x64 NSIS package and verify file open, theme persistence,
+   `Scripts/python.exe`, Infer Shapes and Save As on Windows.
+7. Run the Linux x64 AppImage and install the deb package; verify desktop
+   identity, theme persistence, `bin/python3`, Infer Shapes and Save As.
 
 Expected: no crash, stale loading state, runaway CPU, missing scrollbar, or
 unexpected model reload.
+
+Cross-built Windows and Linux package structure is automated. Native Windows
+and Linux GUI execution remains a release smoke test on those operating systems.

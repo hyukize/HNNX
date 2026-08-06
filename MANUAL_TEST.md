@@ -9,7 +9,7 @@ Use a copy of the ONNX file when testing `SAVE AS`.
 
 ## 1. macOS installation and GraphSurgeon setup
 
-1. Install the latest `dist/HNNX-0.1.9-arm64.dmg`.
+1. Install the latest `dist/HNNX-0.1.10-arm64.dmg`.
 2. Open **HNNX > GraphSurgeon Settings…** or press `Cmd+,`.
 3. Select the Python executable that contains `onnx` and
    `onnx_graphsurgeon`.
@@ -182,7 +182,7 @@ Expected:
 
 ## 12. VS Code and remote workspace
 
-1. Install `vscode-extension/hnnx-0.1.9.vsix`.
+1. Install `vscode-extension/hnnx-0.1.10.vsix`.
 2. Reload VS Code.
 3. Run **HNNX: Configure GraphSurgeon Python** from the Command
    Palette.
@@ -248,6 +248,29 @@ Expected:
   keyboard input language.
 - Backspace edits text normally and never triggers graph navigation, reset or
   deletion.
+
+## 15. Windows and Linux desktop packages
+
+### Windows x64
+
+1. Install `dist/HNNX-0.1.10-x64-setup.exe`.
+2. Open an ONNX file through HNNX and by double-clicking the associated file.
+3. Open **View > Theme**, test Auto/Light/Dark, and restart the app.
+4. Open GraphSurgeon Settings and create the recommended environment.
+5. Confirm the interpreter is `~/.hnnx/venv/Scripts/python.exe`, then run
+   Infer Shapes and Save As.
+
+### Linux x64
+
+1. Mark `dist/HNNX-0.1.10-x64.AppImage` executable and launch it.
+2. Install `dist/HNNX-0.1.10-x64.deb` on a Debian/Ubuntu test machine.
+3. Confirm both packages use the HNNX icon and `hnnx` executable identity.
+4. Test Auto/Light/Dark, GraphSurgeon environment creation, Infer Shapes and
+   Save As.
+
+Expected: both platforms open and save ONNX files, retain appearance settings,
+and use their platform-correct Python virtual-environment path. Unsigned
+Windows builds may show a SmartScreen warning.
 
 ## Not implemented yet
 

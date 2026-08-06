@@ -225,7 +225,7 @@ Apple Silicon:
 npm run build:mac-hnnx
 ```
 
-The unsigned DMG is written to `dist/HNNX-0.1.9-arm64.dmg`.
+The unsigned DMG is written to `dist/HNNX-0.1.10-arm64.dmg`.
 The custom build uses a separate application identifier and settings folder,
 and official Netron auto-updates are disabled.
 
@@ -236,3 +236,16 @@ npm run build:vscode-hnnx
 ```
 
 The VSIX is written under `vscode-extension/`.
+
+## Build Windows and Linux desktop packages
+
+```bash
+npm run build:windows-hnnx
+npm run build:linux-hnnx
+```
+
+The Windows build produces an unsigned x64 NSIS installer. The Linux build
+produces an x64 AppImage and Debian package. HNNX uses
+`~/.hnnx/venv/Scripts/python.exe` on Windows and
+`~/.hnnx/venv/bin/python3` on Linux for its recommended GraphSurgeon
+environment.

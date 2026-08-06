@@ -23,14 +23,18 @@ await run([
     '--config.mac.notarize=false',
     '--config.productName=HNNX',
     '--config.appId=ai.mrxrunway.hnnx',
+    '--config.copyright=Copyright © 2026 Jonghyuk Park',
     '--config.extraMetadata.name=hnnx',
     '--config.extraMetadata.productName=HNNX',
-    '--config.extraMetadata.version=0.1.9',
+    '--config.extraMetadata.version=0.1.10',
     '--config.extraMetadata.appId=ai.mrxrunway.hnnx',
+    '--config.extraMetadata.description=ONNX graph workbench for visualization, AIMET analysis, and graph editing',
+    '--config.extraMetadata.author=Jonghyuk Park',
+    '--config.extraMetadata.homepage=https://github.com/hyukize/HNNX',
     '--config.extraMetadata.aimet=true',
     '--config.extraMetadata.disableUpdates=true',
     '--config.asarUnpack=source/onnx-graphsurgeon.py',
-    '--config.mac.artifactName=HNNX-0.1.9-arm64.${ext}',
-    '--config.dmg.artifactName=HNNX-0.1.9-arm64.${ext}',
-    '--config.dmg.title=HNNX 0.1.9'
+    '--config.mac.artifactName=HNNX-0.1.10-arm64.${ext}',
+    '--config.dmg.artifactName=HNNX-0.1.10-arm64.${ext}',
+    '--config.dmg.title=HNNX 0.1.10'
 ]);

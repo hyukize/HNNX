@@ -23,6 +23,8 @@ The test scope is defined in `REGRESSION_TEST.md`.
 | Upstream browser/Electron E2E | NOT RUN | Not rerun in this focused editor audit |
 | VSIX packaging | PASS | 184 files; web app and Python backend present |
 | Apple Silicon DMG build | PASS | DMG mounted; app executable is arm64; backend is unpacked |
+| Windows x64 NSIS build | PASS | Cross-build completed; PE32+ HNNX executable and unpacked GraphSurgeon backend present |
+| Linux x64 AppImage/deb build | PASS | Cross-build completed; x86-64 ELF executable, HNNX desktop identity and unpacked backend present |
 
 Validation formats included Core ML, ExecuTorch, GGUF, Keras, ncnn, ONNX,
 ONNX Runtime, OpenVINO, Pickle, PyTorch, Safetensors, scikit-learn,
@@ -129,18 +131,29 @@ TensorFlow, and TensorFlow Lite.
     offered an override. HNNX now provides persistent Auto, Light and Dark
     modes. Auto follows macOS in the desktop app and the active VS Code theme
     in the extension; runtime host-theme changes update without reloading.
+29. Desktop packaging was HNNX-specific only on macOS, and GraphSurgeon's
+    recommended environment assumed the Unix `bin/python3` layout. Dedicated
+    Windows x64 NSIS and Linux x64 AppImage/deb targets now preserve HNNX
+    branding. Windows uses `Scripts/python.exe`; Linux and macOS use
+    `bin/python3`. Non-macOS desktop menus also expose the persistent theme
+    selector.
 
 ## Package artifacts
 
 | Artifact | Size | SHA-256 |
 | --- | --- | --- |
-| `dist/HNNX-0.1.9-arm64.dmg` | 121 MB | `eb9c95f622f1658c63b9379d59f3857268a25cec95b81025356d6cc9c6a70b0c` |
-| `vscode-extension/hnnx-0.1.9.vsix` | 3.5 MB | `c7219c3c25065fb97712b00efe91d084f2c220d9383c242d240c40465e0561a7` |
+| `dist/HNNX-0.1.10-arm64.dmg` | 127,149,711 bytes | `f06c6a865de075bad74f0d19ca26da87b0fc4c54ac7ac29f52003b79ab8e10ad` |
+| `dist/HNNX-0.1.10-x64-setup.exe` | 91,802,183 bytes | `78051ffa3aac264c59cb83929ecdde86ad71a8ef2deae599f887491a5f374f50` |
+| `dist/HNNX-0.1.10-x64.AppImage` | 131,358,356 bytes | `f4f03375aaca5821f6e50587b3af62d7d639988304175ba8abc05b89a4d618be` |
+| `dist/HNNX-0.1.10-x64.deb` | 103,185,172 bytes | `28602c44eb1bd4177a242312d4bda37e6b5c2b8f7ea9d33876ac26471142e345` |
+| `vscode-extension/hnnx-0.1.10.vsix` | 3,622,272 bytes | `98cb36cc1bde95a6952c118057a972966ac8b7941ed170a64413c95abdeee262` |
 
 ## Manual checks still required
 
 - Install the DMG and exercise one complete edit/save/reopen flow.
 - Install the VSIX in a real local and Kubernetes/remote VS Code window.
+- Run the NSIS installer on native Windows x64 and both Linux packages on a
+  native x64 Debian/Ubuntu desktop.
 - Confirm vertical and horizontal webview scroll thumbs with a large model.
 - Close all model tabs and observe the extension host and WindowServer CPU for
   several minutes.
@@ -150,7 +163,7 @@ These are not counted as automated passes.
 
 ## Environment note
 
-The generic `npm run build` also attempts Windows, Linux DEB, and Linux RPM
-packages. macOS, Windows, and DEB stages completed, but the RPM stage was
-blocked because `rpmbuild` is not installed on this Mac. The dedicated
-Apple Silicon `build:mac-hnnx` target completed successfully.
+Dedicated HNNX build targets now produce macOS arm64 DMG, Windows x64 NSIS,
+Linux x64 AppImage/deb, and VSIX packages. Windows and Linux artifacts were
+cross-built on Apple Silicon macOS and structurally inspected; native GUI
+smoke tests remain manual.

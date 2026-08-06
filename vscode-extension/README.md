@@ -86,6 +86,10 @@ that both `onnx` and `onnx_graphsurgeon` can be imported before saving the
 path. If automatic discovery fails while saving, the extension offers to
 enter a path or open the relevant Settings page.
 
+The recommended environment path is `~/.hnnx/venv/Scripts/python.exe` on
+Windows and `~/.hnnx/venv/bin/python3` on macOS/Linux. Auto-detection also
+checks the platform's conventional `python` and `python3` commands.
+
 The extension is workspace-side compatible, so the same workflow works after
 VS Code attaches to a running Kubernetes container. ONNX external data files
 are loaded from the model directory only when the viewer requests them.
