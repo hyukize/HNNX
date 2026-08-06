@@ -9,7 +9,7 @@ Use a copy of the ONNX file when testing `SAVE AS`.
 
 ## 1. macOS installation and GraphSurgeon setup
 
-1. Install the latest `dist/HNNX-0.1.1-arm64.dmg`.
+1. Install the latest `dist/HNNX-0.1.2-arm64.dmg`.
 2. Open **HNNX > GraphSurgeon Settings…** or press `Cmd+,`.
 3. Select the Python executable that contains `onnx` and
    `onnx_graphsurgeon`.
@@ -54,6 +54,8 @@ Expected:
   precision.
 - Clicking a quantization badge shows input tensor precision, output QParams
   and parameter details in the right sidebar.
+- The encoded Graph Input shows `Q:A8`; clicking it opens `Graph Input QParam`
+  details rather than making the input boundary look like an inferred value.
 
 ## 4. General viewer UX
 
@@ -171,7 +173,7 @@ Expected:
 
 ## 12. VS Code and remote workspace
 
-1. Install `vscode-extension/hnnx-0.1.1.vsix`.
+1. Install `vscode-extension/hnnx-0.1.2.vsix`.
 2. Reload VS Code.
 3. Run **HNNX: Configure GraphSurgeon Python** from the Command
    Palette.

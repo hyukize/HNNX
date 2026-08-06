@@ -90,13 +90,16 @@ TensorFlow, and TensorFlow Lite.
     `.data` sidecar as a second model and skipped the attachment path. File
     classification now selects the explicit `.onnx` as the model, preserves
     sidecar access, and recognizes both `.encodings` and `.encodings.json`.
+21. An explicit QParam attached to a Graph Input was visible only on its edge.
+    Graph Input endpoints now use the same `Q:A8`/`Q:A16` badge policy as other
+    tensor producers and open a dedicated `Graph Input QParam` detail section.
 
 ## Package artifacts
 
 | Artifact | Size | SHA-256 |
 | --- | --- | --- |
-| `dist/HNNX-0.1.1-arm64.dmg` | 127 MB | `b6d81894f0e635f6e037e6f266b1f0b0f7b30fba61b96d1620e4f855faea719d` |
-| `vscode-extension/hnnx-0.1.1.vsix` | 3.6 MB | `446afa5eb7c5b5689183bc51a9cb188d33c25e284ab600ded9ed686da387dc1d` |
+| `dist/HNNX-0.1.2-arm64.dmg` | 127 MB | `b027572f6d52bd9c2799312ee51d6214722831d6729499968f1984b867320755` |
+| `vscode-extension/hnnx-0.1.2.vsix` | 3.6 MB | `e78403135c3bc5423185352b831c3f0d6a639bee81a01b72843440e0b46d53c8` |
 
 ## Manual checks still required
 

@@ -12,6 +12,7 @@ in the license and project documentation.
 - Bit-width inference through encoding-free precision-preserving operations
 - Mixed-precision heatmap
 - Input, parameter and output quantization details
+- Explicit Graph Input QParam badges and endpoint details
 - Model statistics and encoding mismatch counts
 - KV-cache classification
 - Resizable property sidebar
@@ -188,7 +189,7 @@ original model so its existing `.data` files remain valid. Graph editing is
 available in the macOS app and VS Code extension; a standalone browser cannot
 run the Python backend.
 
-Node badges represent explicit output QParams (`Q:A8`), parameter QParams
+Node badges represent explicit Graph Input/output QParams (`Q:A8`), parameter QParams
 (`W8`) or quantization signatures (`Q:A8→A16`, `Q:A8/A16→A16`). Propagated precision is
 shown only on graph edges as a muted dashed label such as `~A8`, so
 precision-preserving operations are not mistaken for quantization points.
@@ -211,7 +212,7 @@ Apple Silicon:
 npm run build:mac-hnnx
 ```
 
-The unsigned DMG is written to `dist/HNNX-0.1.1-arm64.dmg`.
+The unsigned DMG is written to `dist/HNNX-0.1.2-arm64.dmg`.
 The custom build uses a separate application identifier and settings folder,
 and official Netron auto-updates are disabled.
 

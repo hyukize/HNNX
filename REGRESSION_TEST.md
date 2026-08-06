@@ -33,6 +33,7 @@ smoke test has no blocker.
 | B5 | Resizable sidebar | Sidebar grows leftward and width persists across views | Automated |
 | B6 | Find panel | Search field stays inside the sidebar and scroll thumbs remain usable | Automated + manual |
 | B7 | Zoom | Control-wheel and Command-wheel zoom in fine steps; overview zoom-out remains usable | Automated + manual |
+| B8 | Graph Input QParam | An explicitly encoded model input shows a colored `Q:A*` badge and `Graph Input QParam` details | Automated |
 
 ## C. Graph editor connections
 

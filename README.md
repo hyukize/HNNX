@@ -11,6 +11,7 @@ analysis, and NVIDIA ONNX GraphSurgeon-backed editing.
 - Drop an ONNX model, its external `.data` sidecar, and encodings together
 - Trace activation precision through encoding-free graph operations
 - Inspect mixed precision, QParams, parameter bit widths, and encoding mismatches
+- See explicit Graph Input quantizers as `Q:A8`/`Q:A16` endpoint badges
 - Edit graph connections, nodes, inputs, outputs, and common Opset 17 operators
 - Undo, redo, reset, shape inference, validation, and Save As
 - Use the native Apple Silicon macOS app or VS Code extension
@@ -49,8 +50,8 @@ VS Code extension:
 npm run build:vscode-hnnx
 ```
 
-Generated packages are written to `dist/HNNX-0.1.1-arm64.dmg` and
-`vscode-extension/hnnx-0.1.1.vsix`.
+Generated packages are written to `dist/HNNX-0.1.2-arm64.dmg` and
+`vscode-extension/hnnx-0.1.2.vsix`.
 
 ## Attribution
 

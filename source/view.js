@@ -5635,12 +5635,13 @@ view.View = class {
         }
     }
 
-    showTensorProperties(value, source) {
+    showTensorProperties(value, source, options) {
         try {
             if (this._menu) {
                 this._menu.close();
             }
-            const sidebar = new view.TensorSidebar(this, value);
+            options = options || {};
+            const sidebar = new view.TensorSidebar(this, value, options.quantizationTitle);
             sidebar.on('focus', (sender, value) => {
                 this._target.focus([value]);
             });
@@ -5653,7 +5654,7 @@ view.View = class {
             sidebar.on('activate', (sender, value) => {
                 this._target.scrollTo(this._target.activate(value, 'sidebar'));
             });
-            this._sidebar.open(sidebar, 'Tensor Properties', source);
+            this._sidebar.open(sidebar, options.title || 'Tensor Properties', source);
         } catch (error) {
             this.error(error, 'Error showing tensor properties.', null);
         }
@@ -8298,7 +8299,28 @@ view.Input = class extends grapher.Node {
         const title = header.add(null, ['graph-item-input']);
         title.content = name;
         title.tooltip = types;
-        title.on('click', () => this.context.view.showTargetProperties(this.target));
+        title.on('click', () => this.context.view.showTensorProperties(this.value, null, {
+            title: 'Graph Input Properties',
+            quantizationTitle: 'Graph Input QParam'
+        }));
+        const quantization = this.context.model.attachment.quantization;
+        const producer = { inputs: [], outputs: [value] };
+        const explicit = quantization.node(producer, false);
+        const precision = quantization.node(producer);
+        const encodingBadge = aimet.EncodingFile.nodeBadge(explicit, precision);
+        if (encodingBadge.labels.length > 0) {
+            const heatmap = aimet.EncodingFile.precision(precision);
+            const badge = header.add(null, ['node-item-quantization', `node-item-quantization-${heatmap}`]);
+            badge.content = encodingBadge.labels.join(' ');
+            badge.tooltip = encodingBadge.descriptions
+                .map((description) => description.replace('Output QParams', 'Graph Input QParam'))
+                .join(', ');
+            badge.padding = 5;
+            badge.on('click', () => this.context.view.showTensorProperties(this.value, null, {
+                title: 'Graph Input Properties',
+                quantizationTitle: 'Graph Input QParam'
+            }));
+        }
         this.id = `input-${name ? `name-${name}` : `id-${(view.Input.counter++)}`}`;
         this._graphEditOutputPorts = new view.GraphEditOutputPorts(this);
     }
@@ -8320,7 +8342,10 @@ view.Input = class extends grapher.Node {
     }
 
     activate() {
-        this.context.view.showTargetProperties(this.target);
+        this.context.view.showTensorProperties(this.value, null, {
+            title: 'Graph Input Properties',
+            quantizationTitle: 'Graph Input QParam'
+        });
     }
 
     build(document, parent) {
@@ -9906,9 +9931,10 @@ view.ConnectionSidebar = class extends view.ObjectSidebar {
 
 view.TensorSidebar = class extends view.ObjectSidebar {
 
-    constructor(context, value) {
+    constructor(context, value, quantizationTitle) {
         super(context);
         this._value = value;
+        this._quantizationTitle = quantizationTitle;
     }
 
     get identifier() {
@@ -9921,6 +9947,11 @@ view.TensorSidebar = class extends view.ObjectSidebar {
         const name = tensor && tensor.name ? tensor.name : value.name.split('\n')[0];
         if (name) {
             this.addProperty('name', name);
+        }
+        if (!tensor && value.type) {
+            const item = new view.ValueView(this._view, value);
+            this.addEntry('type', item);
+            item.toggle();
         }
         if (tensor) {
             const category = tensor.category;
@@ -9972,8 +10003,11 @@ view.TensorSidebar = class extends view.ObjectSidebar {
                     this.addArgument(argument.name, argument, 'attribute');
                 }
             }
-            this.addQuantization(this._view.model.attachment.quantization.tensor(tensor, value));
         }
+        this.addQuantization(
+            this._view.model.attachment.quantization.tensor(tensor, value),
+            this._quantizationTitle
+        );
         // Metrics
         if (value.initializer) {
             const tensor = value.initializer;

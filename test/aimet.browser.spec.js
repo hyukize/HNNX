@@ -194,8 +194,15 @@ playwright.test('AIMET encodings attachment', async ({ page }) => {
     const commandZoomAfter = await canvas.boundingBox();
     playwright.expect(commandZoomAfter.width / commandZoomBefore.width).toBeGreaterThan(1);
 
-    const badge = page.locator('.node-item-quantization');
-    playwright.expect(await badge.textContent()).toContain('Q:A8→A16');
+    const inputBadge = page.locator('#input-name-x .node-item-quantization');
+    await playwright.expect(inputBadge).toContainText('Q:A8');
+    await inputBadge.click();
+    const inputSidebar = page.locator('#sidebar-content');
+    await playwright.expect(inputSidebar).toContainText('Graph Input QParam');
+    await playwright.expect(inputSidebar).toContainText('A8');
+
+    const badge = page.locator('.node-item-quantization', { hasText: 'Q:A8→A16' });
+    await playwright.expect(badge).toBeVisible();
     await badge.click();
     const nodeSidebar = page.locator('#sidebar-content');
     await playwright.expect(nodeSidebar).toContainText('Input Tensor Precision');
@@ -247,7 +254,7 @@ playwright.test('AIMET encodings attachment', async ({ page }) => {
     await playwright.expect(warning).toContainText('AIMET encodings are not updated');
     await page.locator('#graph-edit-warning-cancel').click();
     await playwright.expect(page.locator('html')).not.toHaveClass(/onnx-graph-edit/);
-    await playwright.expect(page.locator('.node-item-quantization')).toHaveCount(1);
+    await playwright.expect(page.locator('.node-item-quantization')).toHaveCount(2);
 
     await page.locator('#graph-edit-button').click();
     await playwright.expect(warning).toBeVisible();
