@@ -13,7 +13,11 @@ if (!['windows', 'linux'].includes(platform)) {
 }
 
 const run = (args) => new Promise((resolve, reject) => {
-    const child = spawn(npx, args, { cwd: root, stdio: 'inherit' });
+    const child = spawn(npx, args, {
+        cwd: root,
+        stdio: 'inherit',
+        shell: process.platform === 'win32'
+    });
     child.on('error', reject);
     child.on('exit', (code) => code === 0 ? resolve() : reject(new Error(`npx exited with ${code}`)));
 });
