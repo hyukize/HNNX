@@ -6,7 +6,7 @@ import { spawn } from 'child_process';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const npx = process.platform === 'win32' ? 'npx.cmd' : 'npx';
 const platform = process.argv[2];
-const version = '0.1.14';
+const version = '0.1.15';
 
 if (!['windows', 'linux'].includes(platform)) {
     throw new Error(`Unsupported HNNX desktop build platform '${platform || ''}'.`);

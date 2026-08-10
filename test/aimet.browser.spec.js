@@ -184,6 +184,8 @@ playwright.test('AIMET encodings attachment', async ({ page }) => {
     await (await chooser).setFiles([model, data, encodings]);
     await page.waitForSelector('body.default', { timeout: 10000 });
     await page.waitForSelector('.node-item-quantization', { timeout: 10000 });
+    await playwright.expect(page.locator('html')).toHaveClass(/has-encodings/);
+    await playwright.expect(page.locator('#encodings-toggle-button')).toBeVisible();
 
     const attachmentSession = await page.context().newCDPSession(page);
     const attachmentStability = await attachmentSession.send('Runtime.evaluate', {

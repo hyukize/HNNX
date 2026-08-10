@@ -530,6 +530,10 @@ browser.Host = class {
         try {
             const attachment = await this._view.attach(context);
             if (attachment) {
+                // Browser and Electron hosts attach encoding files directly.
+                // Preserve the source name so the ENC control becomes visible
+                // and can subsequently hide/show the attached quantization.
+                this._view.setEncodingsSource(context.identifier || context.name || null);
                 this._view.show(null);
                 return 'context-open-attachment';
             }

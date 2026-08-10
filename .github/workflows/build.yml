@@ -15,8 +15,20 @@ jobs:
     name: Quality and browser tests
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    outputs:
+      github-host: ${{ steps.ci-host.outputs.github-host }}
 
     steps:
+      - name: Detect CI host
+        id: ci-host
+        shell: bash
+        run: |
+          if [ "${GITHUB_SERVER_URL:-}" = "https://github.com" ]; then
+            echo "github-host=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "github-host=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Check out repository
         uses: actions/checkout@v4
 
@@ -79,10 +91,10 @@ jobs:
       - name: Inspect VSIX
         shell: bash
         run: |
-          test -f vscode-extension/hnnx-0.1.14.vsix
-          unzip -t vscode-extension/hnnx-0.1.14.vsix
-          unzip -p vscode-extension/hnnx-0.1.14.vsix extension/package.json | grep '"version": "0.1.14"'
-          unzip -l vscode-extension/hnnx-0.1.14.vsix | grep 'extension/media/icon.png'
+          test -f vscode-extension/hnnx-0.1.15.vsix
+          unzip -t vscode-extension/hnnx-0.1.15.vsix
+          unzip -p vscode-extension/hnnx-0.1.15.vsix extension/package.json | grep '"version": "0.1.15"'
+          unzip -l vscode-extension/hnnx-0.1.15.vsix | grep 'extension/media/icon.png'
 
   linux-desktop:
     name: Linux desktop smoke and package
@@ -119,14 +131,87 @@ jobs:
           ELECTRON_RUN_AS_NODE=1 ./node_modules/.bin/electron -e \
             "if (!process.versions.electron) process.exit(1); console.log('Electron ' + process.versions.electron)"
 
+      - name: Run Linux Electron smoke test
+        shell: bash
+        env:
+          ELECTRON_DISABLE_GPU: '1'
+        run: xvfb-run -a npx playwright test --config=test/playwright.config.js --project=desktop --workers=1
+
       - name: Build Linux AppImage and deb
         run: npm run build:linux-hnnx
 
       - name: Inspect Linux packages
         shell: bash
         run: |
-          test -f dist/HNNX-0.1.14-x64.AppImage
-          test -f dist/HNNX-0.1.14-x64.deb
+          test -f dist/HNNX-0.1.15-x64.AppImage
+          test -f dist/HNNX-0.1.15-x64.deb
           test -f dist/linux-unpacked/resources/app.asar.unpacked/source/onnx-graphsurgeon.py
-          file dist/HNNX-0.1.14-x64.AppImage | grep 'x86-64'
-          file dist/HNNX-0.1.14-x64.deb | grep 'Debian binary package'
+          file dist/HNNX-0.1.15-x64.AppImage | grep 'x86-64'
+          file dist/HNNX-0.1.15-x64.deb | grep 'Debian binary package'
+
+  macos-desktop:
+    name: macOS desktop smoke and package
+    needs: quality
+    if: needs.quality.outputs.github-host == 'true'
+    runs-on: macos-latest
+    timeout-minutes: 40
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24.15'
+
+      - name: Install project dependencies
+        run: npm run install
+
+      - name: Run macOS Electron smoke test
+        run: npx playwright test --config=test/playwright.config.js --project=desktop --workers=1
+
+      - name: Build macOS arm64 DMG
+        run: npm run build:mac-hnnx
+
+      - name: Inspect macOS package
+        shell: bash
+        run: |
+          test -f dist/HNNX-0.1.15-arm64.dmg
+          hdiutil verify dist/HNNX-0.1.15-arm64.dmg
+
+  windows-desktop:
+    name: Windows desktop smoke and package
+    needs: quality
+    if: needs.quality.outputs.github-host == 'true'
+    runs-on: windows-latest
+    timeout-minutes: 40
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24.15'
+
+      - name: Install project dependencies
+        run: npm run install
+
+      - name: Run Windows Electron smoke test
+        run: npx playwright test --config=test/playwright.config.js --project=desktop --workers=1
+
+      - name: Build Windows x64 installer
+        run: npm run build:windows-hnnx
+
+      - name: Inspect Windows package
+        shell: pwsh
+        run: |
+          if (!(Test-Path 'dist/HNNX-0.1.15-x64-setup.exe')) {
+            throw 'Windows installer was not created.'
+          }
+          $header = [System.IO.File]::ReadAllBytes('dist/HNNX-0.1.15-x64-setup.exe')[0..1]
+          if ($header[0] -ne 0x4d -or $header[1] -ne 0x5a) {
+            throw 'Windows installer does not have a PE executable header.'
+          }
