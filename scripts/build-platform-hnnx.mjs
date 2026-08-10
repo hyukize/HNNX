@@ -4,22 +4,18 @@ import process from 'process';
 import { spawn } from 'child_process';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const npx = process.platform === 'win32' ? 'npx.cmd' : 'npx';
 const platform = process.argv[2];
 const version = '0.1.15';
+const electronBuilder = path.join(root, 'node_modules', 'electron-builder', 'out', 'cli', 'cli.js');
 
 if (!['windows', 'linux'].includes(platform)) {
     throw new Error(`Unsupported HNNX desktop build platform '${platform || ''}'.`);
 }
 
 const run = (args) => new Promise((resolve, reject) => {
-    const child = spawn(npx, args, {
-        cwd: root,
-        stdio: 'inherit',
-        shell: process.platform === 'win32'
-    });
+    const child = spawn(process.execPath, [electronBuilder, ...args], { cwd: root, stdio: 'inherit' });
     child.on('error', reject);
-    child.on('exit', (code) => code === 0 ? resolve() : reject(new Error(`npx exited with ${code}`)));
+    child.on('exit', (code) => code === 0 ? resolve() : reject(new Error(`electron-builder exited with ${code}`)));
 });
 
 const common = [
@@ -40,10 +36,10 @@ const common = [
     '--config.asarUnpack=source/onnx-graphsurgeon.py'
 ];
 
-await run(['electron-builder', 'install-app-deps']);
+await run(['install-app-deps']);
 if (platform === 'windows') {
     await run([
-        'electron-builder', '--win', 'nsis', '--x64',
+        '--win', 'nsis', '--x64',
         ...common,
         '--config.win.icon=publish/icon.ico',
         '--config.win.azureSignOptions=',
@@ -51,7 +47,7 @@ if (platform === 'windows') {
     ]);
 } else {
     await run([
-        'electron-builder', '--linux', 'AppImage', 'deb', '--x64',
+        '--linux', 'AppImage', 'deb', '--x64',
         ...common,
         '--config.linux.icon=publish/icon.png',
         '--config.linux.executableName=hnnx',
