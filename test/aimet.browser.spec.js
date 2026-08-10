@@ -257,7 +257,8 @@ playwright.test('AIMET encodings attachment', async ({ page }) => {
     await playwright.expect(statistics.locator('input[value="A8"]')).toHaveCount(1);
     await playwright.expect(statistics.locator('input[value="A16"]')).toHaveCount(1);
 
-    await page.keyboard.press('Meta+f');
+    const findModifier = primaryModifier();
+    await page.keyboard.press(`${findModifier.key}+f`);
     const findSearch = page.locator('.sidebar-find-search');
     await playwright.expect(findSearch).toBeVisible();
     const findBounds = await findSearch.boundingBox();
