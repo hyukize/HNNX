@@ -106,6 +106,9 @@ jobs:
       - name: Install project dependencies
         run: npm run install
 
+      - name: Install Electron runtime libraries
+        run: npx playwright install-deps chromium
+
       - name: Validate Electron runtime
         shell: bash
         run: |
