@@ -66,11 +66,11 @@ npm run build:vscode-hnnx
 
 Generated packages are written to:
 
-- `dist/HNNX-0.1.14-arm64.dmg`
-- `dist/HNNX-0.1.14-x64-setup.exe`
-- `dist/HNNX-0.1.14-x64.AppImage`
-- `dist/HNNX-0.1.14-x64.deb`
-- `vscode-extension/hnnx-0.1.14.vsix`
+- `dist/HNNX-0.1.15-arm64.dmg`
+- `dist/HNNX-0.1.15-x64-setup.exe`
+- `dist/HNNX-0.1.15-x64.AppImage`
+- `dist/HNNX-0.1.15-x64.deb`
+- `vscode-extension/hnnx-0.1.15.vsix`
 
 ## Attribution
 

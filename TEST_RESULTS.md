@@ -152,16 +152,24 @@ TensorFlow, and TensorFlow Lite.
 33. The compact `ENC` control appeared between the model-information icon
     buttons. It now sits with the text actions, between `SAVE AS` and
     `RE-LAYOUT`, keeping the icon and action groups visually distinct.
+34. Desktop packages attached AIMET encodings without updating the view's
+    encodings-source state, so quantization styling could appear while the
+    `ENC` control remained hidden. Browser/Electron attachment now updates that
+    state, with a regression assertion that the control becomes visible.
+35. CI now gates native desktop jobs on the shared quality suite, then runs
+    Electron smoke tests and package validation on actual macOS, Windows, and
+    Linux runners. Gitea's Linux runner executes the Linux path; GitHub-hosted
+    native runners execute all three operating-system paths.
 
 ## Package artifacts
 
 | Artifact | Size | SHA-256 |
 | --- | --- | --- |
-| `dist/HNNX-0.1.14-arm64.dmg` | 127,152,773 bytes | `6ef2cdaec42a73b0fa1346385bdf8263f590a2d08125fb75ecaba557cae0591e` |
-| `dist/HNNX-0.1.14-x64-setup.exe` | 91,803,630 bytes | `b3558b19d6738681f69814b954c708cec9d4beb0efa063ff90271947c6c3250d` |
-| `dist/HNNX-0.1.14-x64.AppImage` | 131,362,566 bytes | `eecfa4305ec1f4f7b4a464bdb90f17a51aaf2da19b71e853fa4ba08653c9e6d0` |
-| `dist/HNNX-0.1.14-x64.deb` | 103,187,820 bytes | `35ea323e2554025a3e1f7aa4b69101f3eba581bebfe1b47452aefce28d5a5847` |
-| `vscode-extension/hnnx-0.1.14.vsix` | 3,623,703 bytes | `fa2d072148c960c8dbb4208f0a5ddf5ac292a4490d8f1b134f35eaf770b02751` |
+| `dist/HNNX-0.1.15-arm64.dmg` | 127,024,868 bytes | `e2f9cd098a275a99b087d451ea1b087cbd20b7ad785f580474dc66108dc56127` |
+| `dist/HNNX-0.1.15-x64-setup.exe` | 91,729,849 bytes | `c5279afce7379e2714c456c6295b4dd66763494a602b72d681fe2f7f1ec8fc13` |
+| `dist/HNNX-0.1.15-x64.AppImage` | 131,223,076 bytes | `f7e87b090c5fa9514f7b50b557003b73eb66ca2953caf16e11df63a0206056ef` |
+| `dist/HNNX-0.1.15-x64.deb` | 103,113,488 bytes | `1d36de4203db3ba8da1e8bbc64ffe0182b808a54f8a116846c309cc84089c367` |
+| `vscode-extension/hnnx-0.1.15.vsix` | 3,623,851 bytes | `8713317be2077ab9f6ff01c586f977d1d4cf81782f4d7dd6e205ea135cf95a3e` |
 
 ## Manual checks still required
 
@@ -178,7 +186,7 @@ These are not counted as automated passes.
 
 ## Environment note
 
-Dedicated HNNX build targets now produce macOS arm64 DMG, Windows x64 NSIS,
-Linux x64 AppImage/deb, and VSIX packages. Windows and Linux artifacts were
-cross-built on Apple Silicon macOS and structurally inspected; native GUI
-smoke tests remain manual.
+Dedicated HNNX build targets produce macOS arm64 DMG, Windows x64 NSIS, Linux
+x64 AppImage/deb, and VSIX packages. CI runs Electron smoke tests and package
+inspection on native macOS, Windows, and Linux runners. Installation and
+interactive end-to-end checks remain manual.
