@@ -1,0 +1,83 @@
+name: HNNX native desktop CI
+
+# Keep native jobs out of the push workflow consumed by the company Gitea
+# instance, which currently has only an Ubuntu runner. GitHub starts this
+# workflow only after the portable HNNX CI workflow succeeds.
+on:
+  workflow_run:
+    workflows: [HNNX CI]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  macos-desktop:
+    name: macOS desktop smoke and package
+    if: github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push')
+    runs-on: macos-latest
+    timeout-minutes: 40
+
+    steps:
+      - name: Check out tested revision
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24.15'
+
+      - name: Install project dependencies
+        run: npm run install
+
+      - name: Run macOS Electron smoke test
+        run: npx playwright test --config=test/playwright.config.js --project=desktop --workers=1
+
+      - name: Build macOS arm64 DMG
+        run: npm run build:mac-hnnx
+
+      - name: Inspect macOS package
+        shell: bash
+        run: |
+          test -f dist/HNNX-0.1.15-arm64.dmg
+          hdiutil verify dist/HNNX-0.1.15-arm64.dmg
+
+  windows-desktop:
+    name: Windows desktop smoke and package
+    if: github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push')
+    runs-on: windows-latest
+    timeout-minutes: 40
+
+    steps:
+      - name: Check out tested revision
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24.15'
+
+      - name: Install project dependencies
+        run: npm run install
+
+      - name: Run Windows Electron smoke test
+        run: npx playwright test --config=test/playwright.config.js --project=desktop --workers=1
+
+      - name: Build Windows x64 installer
+        run: npm run build:windows-hnnx
+
+      - name: Inspect Windows package
+        shell: pwsh
+        run: |
+          if (!(Test-Path 'dist/HNNX-0.1.15-x64-setup.exe')) {
+            throw 'Windows installer was not created.'
+          }
+          $header = [System.IO.File]::ReadAllBytes('dist/HNNX-0.1.15-x64-setup.exe')[0..1]
+          if ($header[0] -ne 0x4d -or $header[1] -ne 0x5a) {
+            throw 'Windows installer does not have a PE executable header.'
+          }
