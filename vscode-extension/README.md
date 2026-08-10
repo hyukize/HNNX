@@ -19,7 +19,11 @@ same persistent preference is available as `hnnx.colorTheme` in Settings.
 
 The extension automatically attaches a neighboring encoding file named
 `<model>.encodings`, `<model>.onnx.encodings`, or `<model>.encodings.json`.
-Use **File > Open...** inside the viewer to select a different encoding file.
+This behavior is controlled by `hnnx.autoLoadEncodings` in Settings. When an
+encoding file is attached, the compact `ENC` button toggles its visualization.
+Use **File > Load AIMET Encodings...** to select a different file,
+**Reload Encodings** to reread the same local or remote URI, and
+**Detach Encodings** to remove only the attachment.
 In the desktop app or browser viewer, an ONNX model, its external `.data`
 sidecar, and one of these encoding files can also be dropped together; HNNX
 selects the ONNX as the model and keeps the other files as attachments.

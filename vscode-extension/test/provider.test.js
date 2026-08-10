@@ -10,7 +10,11 @@ const test = require('node:test');
 const commands = [];
 const copies = [];
 const messages = [];
+const reads = [];
+const stats = [];
+const workspaceFiles = new Map();
 let autoPinOnnxEditors = true;
+let autoLoadEncodings = true;
 let colorTheme = 'auto';
 let activeColorThemeKind = 2;
 let saveDialogResult = null;
@@ -23,6 +27,7 @@ Module._load = function(request, parent, isMain) {
                     return { kind: activeColorThemeKind };
                 },
                 createOutputChannel: () => ({ appendLine() {} }),
+                withProgress: async (options, task) => await task(),
                 showSaveDialog: async () => saveDialogResult,
                 showInformationMessage: (message) => messages.push(message)
             },
@@ -31,6 +36,9 @@ Module._load = function(request, parent, isMain) {
                     get: (name, fallback) => {
                         if (name === 'autoPinOnnxEditors') {
                             return autoPinOnnxEditors;
+                        }
+                        if (name === 'autoLoadEncodings') {
+                            return autoLoadEncodings;
                         }
                         if (name === 'colorTheme') {
                             return colorTheme;
@@ -44,14 +52,30 @@ Module._load = function(request, parent, isMain) {
                     }
                 }),
                 fs: {
-                    copy: async (source, target, options) => copies.push({ source, target, options })
+                    copy: async (source, target, options) => copies.push({ source, target, options }),
+                    readFile: async (uri) => {
+                        reads.push(uri.path);
+                        if (!workspaceFiles.has(uri.path)) {
+                            throw new Error(`File not found: ${uri.path}`);
+                        }
+                        return workspaceFiles.get(uri.path);
+                    },
+                    stat: async (uri) => {
+                        stats.push(uri.path);
+                        if (!workspaceFiles.has(uri.path)) {
+                            throw new Error(`File not found: ${uri.path}`);
+                        }
+                        return { type: 1 };
+                    }
                 }
             },
             commands: {
                 executeCommand: async (command) => commands.push(command)
             },
             ColorThemeKind: { Light: 1, Dark: 2, HighContrast: 3, HighContrastLight: 4 },
+            FileType: { File: 1 },
             ConfigurationTarget: { Global: 1 },
+            ProgressLocation: { Notification: 15 },
             Uri: {
                 joinPath: (uri, ...parts) => ({
                     ...uri,
@@ -117,6 +141,53 @@ test('resolves Auto from VS Code and persists explicit HNNX themes', async () =>
     await provider.setTheme(model, webview, 'auto');
     assert.deepEqual(posted.at(-1), { type: 'theme', preference: 'auto', effective: 'light' });
     await assert.rejects(provider.setTheme(model, webview, 'sepia'), /Unsupported HNNX color theme/);
+});
+
+test('auto-detects conventional encodings and reloads the exact attached URI', async () => {
+    const encodings = { ...model, path: '/models/demo.encodings' };
+    const bytes = Uint8Array.from([123, 125]);
+    workspaceFiles.set(encodings.path, bytes);
+    assert.equal((await provider.findEncodings(model)).path, encodings.path);
+
+    const posted = [];
+    const document = { uri: model, encodingUri: encodings };
+    reads.length = 0;
+    await provider.reloadEncodings(document, { postMessage: async (message) => posted.push(message) });
+    assert.deepEqual(reads, [encodings.path]);
+    assert.equal(posted.at(-1).type, 'attach');
+    assert.equal(posted.at(-1).encodings.path, encodings.path);
+    assert.equal(posted.at(-1).encodings.name, 'demo.encodings');
+});
+
+test('auto-load setting controls neighboring encodings during model open', async () => {
+    const encodings = { ...model, path: '/models/demo.encodings' };
+    workspaceFiles.set(model.path, Uint8Array.from([8, 1]));
+    workspaceFiles.set(encodings.path, Uint8Array.from([123, 125]));
+    const posted = [];
+    const document = { uri: model, encodingUri: null };
+    const webview = { postMessage: async (message) => posted.push(message) };
+
+    autoLoadEncodings = false;
+    stats.length = 0;
+    await provider.open(document, webview);
+    assert.equal(document.encodingUri, null);
+    assert.equal(posted.at(-1).encodings, null);
+    assert.deepEqual(stats, []);
+
+    autoLoadEncodings = true;
+    await provider.open(document, webview);
+    assert.equal(document.encodingUri.path, encodings.path);
+    assert.equal(posted.at(-1).encodings.path, encodings.path);
+});
+
+test('detaching clears the document URI and tells only the current webview', async () => {
+    const document = { uri: model, encodingUri: { ...model, path: '/models/demo.encodings' } };
+    const posted = [];
+    await provider.onMessage(document, { postMessage: async (message) => posted.push(message) }, {
+        type: 'detachEncodings'
+    });
+    assert.equal(document.encodingUri, null);
+    assert.deepEqual(posted, [{ type: 'detachEncodings' }]);
 });
 
 test('Save As copies an unedited ONNX to the chosen URI and permits overwrite', async () => {

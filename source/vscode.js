@@ -29,8 +29,16 @@ vscode.Host = class extends browser.Host {
     }
 
     async execute(name, value) {
-        if (name === 'open') {
+        if (name === 'open' || name === 'load-encodings') {
             this._api.postMessage({ type: 'pickEncodings' });
+            return undefined;
+        }
+        if (name === 'reload-encodings') {
+            this._api.postMessage({ type: 'reloadEncodings' });
+            return undefined;
+        }
+        if (name === 'detach-encodings') {
+            this._api.postMessage({ type: 'detachEncodings' });
             return undefined;
         }
         if (name === 'save-onnx-as') {
@@ -91,13 +99,20 @@ vscode.Host = class extends browser.Host {
                     files.push(new File([this._bytes(message.encodings.data)], message.encodings.name));
                 }
                 await this._openFiles(files);
+                this._view.setEncodingsSource(message.encodings ?
+                    (message.encodings.path || message.encodings.name) : null);
                 break;
             }
             case 'attach': {
                 if (message.encodings) {
                     const file = new File([this._bytes(message.encodings.data)], message.encodings.name);
                     await this._openFiles([file]);
+                    this._view.setEncodingsSource(message.encodings.path || message.encodings.name);
                 }
+                break;
+            }
+            case 'detachEncodings': {
+                await this._view.detachEncodings();
                 break;
             }
             case 'fetchResult': {

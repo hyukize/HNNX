@@ -13,6 +13,7 @@ class OnnxDocument {
 
     constructor(uri) {
         this.uri = uri;
+        this.encodingUri = null;
     }
 
     dispose() {
@@ -71,13 +72,20 @@ class OnnxEditorProvider {
         switch (message.type) {
             case 'ready':
                 await this.sendTheme(document.uri, webview);
-                await this.open(document.uri, webview);
+                await this.open(document, webview);
                 break;
             case 'fetch':
                 await this.fetch(document.uri, webview, message);
                 break;
             case 'pickEncodings':
-                await this.pickEncodings(document.uri, webview);
+                await this.pickEncodings(document, webview);
+                break;
+            case 'reloadEncodings':
+                await this.reloadEncodings(document, webview);
+                break;
+            case 'detachEncodings':
+                document.encodingUri = null;
+                await webview.postMessage({ type: 'detachEncodings' });
                 break;
             case 'saveOnnxAs':
                 await this.saveOnnxAs(document.uri, webview, message.edits);
@@ -127,14 +135,17 @@ class OnnxEditorProvider {
         await webview.postMessage({ type: 'theme', preference, effective });
     }
 
-    async open(uri, webview) {
+    async open(document, webview) {
+        const uri = document.uri;
         await vscode.window.withProgress({
             location: vscode.ProgressLocation.Notification,
-            title: `Opening ${path.posix.basename(uri.path)} in Netron`,
+            title: `Opening ${path.posix.basename(uri.path)} in HNNX`,
             cancellable: false
         }, async () => {
             const model = await vscode.workspace.fs.readFile(uri);
-            const encodingUri = await this.findEncodings(uri);
+            const configuration = vscode.workspace.getConfiguration('hnnx', uri);
+            const encodingUri = configuration.get('autoLoadEncodings', true) ? await this.findEncodings(uri) : null;
+            document.encodingUri = encodingUri;
             const encodings = encodingUri ? await vscode.workspace.fs.readFile(encodingUri) : null;
             await webview.postMessage({
                 type: 'open',
@@ -144,6 +155,7 @@ class OnnxEditorProvider {
                 },
                 encodings: encodingUri ? {
                     name: path.posix.basename(encodingUri.path),
+                    path: encodingUri.path,
                     data: this.arrayBuffer(encodings)
                 } : null
             });
@@ -164,7 +176,8 @@ class OnnxEditorProvider {
         }
     }
 
-    async pickEncodings(modelUri, webview) {
+    async pickEncodings(document, webview) {
+        const modelUri = document.uri;
         const selection = await vscode.window.showOpenDialog({
             title: 'Select AIMET encodings',
             defaultUri: vscode.Uri.joinPath(modelUri, '..'),
@@ -176,15 +189,38 @@ class OnnxEditorProvider {
             }
         });
         if (selection && selection.length === 1) {
-            const data = await vscode.workspace.fs.readFile(selection[0]);
-            await webview.postMessage({
-                type: 'attach',
-                encodings: {
-                    name: path.posix.basename(selection[0].path),
-                    data: this.arrayBuffer(data)
-                }
-            });
+            document.encodingUri = selection[0];
+            await this.attachEncodings(document.encodingUri, webview);
         }
+    }
+
+    async reloadEncodings(document, webview) {
+        if (!document.encodingUri) {
+            document.encodingUri = await this.findEncodings(document.uri);
+        }
+        if (!document.encodingUri) {
+            const action = await vscode.window.showInformationMessage(
+                'HNNX: No encodings file is attached or auto-detected.',
+                'Load Encodings…'
+            );
+            if (action === 'Load Encodings…') {
+                await this.pickEncodings(document, webview);
+            }
+            return;
+        }
+        await this.attachEncodings(document.encodingUri, webview);
+    }
+
+    async attachEncodings(uri, webview) {
+        const data = await vscode.workspace.fs.readFile(uri);
+        await webview.postMessage({
+            type: 'attach',
+            encodings: {
+                name: path.posix.basename(uri.path),
+                path: uri.path,
+                data: this.arrayBuffer(data)
+            }
+        });
     }
 
     async saveOnnxAs(modelUri, webview, edits) {

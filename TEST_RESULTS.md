@@ -17,7 +17,7 @@ The test scope is defined in `REGRESSION_TEST.md`.
 | Stage 3 model state machine | PASS | 100 / 100 deterministic round-trip, partial-history, atomic-failure and recovery workflows |
 | Stage 3 adversarial UI | PASS | 100 / 100 unique high-speed history and renderer workflows; 98 in the full pass plus 2 setup-timeout cases rerun unchanged and passed |
 | AIMET precision policy | PASS | TopK `values` inherits activation bitwidth; `indices` remains unlabelled |
-| VS Code extension | PASS | Auto/Light/Dark theme resolution and persistence unit test passed; remote-runtime smoke test remains manual |
+| VS Code extension | PASS | 9 unit tests passed, including auto-load control, exact-URI reload and document-scoped detach; 3 configured-Python tests skipped |
 | AIMET browser/editor E2E | PASS | 15 / 15, including runtime Light/Dark overrides, post-connection first-click Re-layout, HNNX showcase model, fixed Split-Concat bundles and fan-out alignment |
 | Netron validation models | NOT RUN | Not rerun in this focused editor audit |
 | Upstream browser/Electron E2E | NOT RUN | Not rerun in this focused editor audit |
@@ -141,6 +141,11 @@ TensorFlow, and TensorFlow Lite.
     manifest, so VS Code showed the default extension placeholder. The
     manifest now declares `media/icon.png`; the packaged VSIX manifest and
     256×256 image entry were both inspected.
+31. VS Code's native drag-and-drop handling prevented an encodings-only drop
+    from reliably reaching the Webview. HNNX now offers optional neighboring
+    file auto-load, a compact `ENC` visibility toggle, and File-menu Load,
+    exact-URI Reload, and Detach actions. These operations replace only the
+    AIMET attachment and do not reload the ONNX model.
 
 ## Package artifacts
 
@@ -150,7 +155,7 @@ TensorFlow, and TensorFlow Lite.
 | `dist/HNNX-0.1.10-x64-setup.exe` | 91,802,183 bytes | `78051ffa3aac264c59cb83929ecdde86ad71a8ef2deae599f887491a5f374f50` |
 | `dist/HNNX-0.1.10-x64.AppImage` | 131,358,356 bytes | `f4f03375aaca5821f6e50587b3af62d7d639988304175ba8abc05b89a4d618be` |
 | `dist/HNNX-0.1.10-x64.deb` | 103,185,172 bytes | `28602c44eb1bd4177a242312d4bda37e6b5c2b8f7ea9d33876ac26471142e345` |
-| `vscode-extension/hnnx-0.1.11.vsix` | 3,622,316 bytes | `2c1bead096c9e01f1b75762767e53c566441f69a957e444d52edc0cfe2b894bf` |
+| `vscode-extension/hnnx-0.1.12.vsix` | 3,623,703 bytes | `f976cc6461246931f986daa35308aabb26f16f1cef669184b7cc6a8ff4bc67a6` |
 
 ## Manual checks still required
 

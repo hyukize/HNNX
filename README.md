@@ -8,6 +8,7 @@ analysis, and NVIDIA ONNX GraphSurgeon-backed editing.
 ## Highlights
 
 - Visualize ONNX models together with AIMET encodings
+- Optionally auto-load neighboring encodings, then toggle, reload, or detach them without reopening the ONNX model
 - Drop an ONNX model, its external `.data` sidecar, and encodings together
 - Trace activation precision through encoding-free graph operations
 - Inspect mixed precision, QParams, parameter bit widths, and encoding mismatches
@@ -69,7 +70,7 @@ Generated packages are written to:
 - `dist/HNNX-0.1.10-x64-setup.exe`
 - `dist/HNNX-0.1.10-x64.AppImage`
 - `dist/HNNX-0.1.10-x64.deb`
-- `vscode-extension/hnnx-0.1.11.vsix`
+- `vscode-extension/hnnx-0.1.12.vsix`
 
 ## Attribution
 

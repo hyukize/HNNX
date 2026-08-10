@@ -2,7 +2,7 @@
     "name": "hnnx",
     "displayName": "HNNX",
     "description": "Visualize, analyze, and edit ONNX models with AIMET encoding support, including remote workspaces.",
-    "version": "0.1.11",
+    "version": "0.1.12",
     "publisher": "local",
     "icon": "media/icon.png",
     "license": "MIT",
@@ -48,6 +48,11 @@
                     "default": true,
                     "description": "Keep ONNX editor tabs open so switching to another file does not discard and reload the graph."
                 },
+                "hnnx.autoLoadEncodings": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Automatically load a conventionally named AIMET encodings file from the ONNX model directory when the model opens."
+                },
                 "hnnx.pythonPath": {
                     "type": "string",
                     "default": "",
@@ -73,7 +78,7 @@
     },
     "scripts": {
         "build:media": "node ./scripts/build-media.mjs",
-        "package": "npm run build:media && npx --yes @vscode/vsce package --no-dependencies --out hnnx-0.1.11.vsix",
+        "package": "npm run build:media && npx --yes @vscode/vsce package --no-dependencies --out hnnx-0.1.12.vsix",
         "test": "node --test ./test/*.test.js"
     },
     "files": [

@@ -182,7 +182,7 @@ Expected:
 
 ## 12. VS Code and remote workspace
 
-1. Install `vscode-extension/hnnx-0.1.11.vsix`.
+1. Install `vscode-extension/hnnx-0.1.12.vsix`.
 2. Reload VS Code.
 3. Run **HNNX: Configure GraphSurgeon Python** from the Command
    Palette.
@@ -194,6 +194,12 @@ Expected:
    `SAVE AS`.
 8. Set HNNX Theme to Auto, switch the active VS Code color theme, then verify
    explicit Light and Dark overrides through the HNNX View menu.
+9. With a neighboring encodings file present, confirm the `ENC` button appears.
+10. Toggle `ENC` off and on, modify the file externally, then choose
+    **File > Reload Encodings**.
+11. Confirm reload uses the existing URI without a picker. Test
+    **Detach Encodings** and **Load AIMET Encodings...**.
+12. Disable `HNNX: Auto Load Encodings` in Settings and reopen the model.
 
 Expected:
 
@@ -202,6 +208,8 @@ Expected:
 - Shape inference and saving execute through the configured remote Python.
 - Missing Python offers **Enter Python Path** and **Open Settings**.
 - Auto follows the active VS Code theme immediately; explicit overrides persist.
+- Encodings visibility changes without reloading the ONNX model, reload reads
+  the exact attached local/remote URI, and automatic loading follows the setting.
 
 ## 13. Move endpoints and add graph items
 

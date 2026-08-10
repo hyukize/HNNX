@@ -122,6 +122,9 @@ view.View = class {
         this._events = {};
         this._events.selectionchange = () => this._selectionChangeHandler();
         this._model = null;
+        this._encodingsSource = null;
+        this._encodingsVisible = true;
+        this._encodingsQuantization = null;
         this._path = [];
         this._selection = [];
         this._sidebar = new view.Sidebar(this._host);
@@ -171,6 +174,9 @@ view.View = class {
             });
             this._element('sidebar-info-button').addEventListener('click', () => {
                 this.showModelStatistics();
+            });
+            this._element('encodings-toggle-button').addEventListener('click', async () => {
+                await this.toggleEncodings();
             });
             this._element('sidebar-target-button').addEventListener('click', () => {
                 this.showTargetProperties();
@@ -383,11 +389,30 @@ view.View = class {
                 const button = this._element('menu-button');
                 this._menu.attach(menu, button);
                 const file = this._menu.group('&File');
-                file.add({
-                    label: '&Open...',
-                    accelerator: 'CmdOrCtrl+O',
-                    execute: async () => await this._host.execute('open')
-                });
+                if (this._host.type === 'VS Code') {
+                    file.add({
+                        label: 'Load AIMET &Encodings...',
+                        accelerator: 'CmdOrCtrl+O',
+                        execute: async () => await this._host.execute('load-encodings'),
+                        enabled: () => !this._graphEdit.enabled
+                    });
+                    file.add({
+                        label: '&Reload Encodings',
+                        execute: async () => await this._host.execute('reload-encodings'),
+                        enabled: () => Boolean(this._encodingsSource) && !this._graphEdit.enabled
+                    });
+                    file.add({
+                        label: '&Detach Encodings',
+                        execute: async () => await this._host.execute('detach-encodings'),
+                        enabled: () => Boolean(this._encodingsSource) && !this._graphEdit.enabled
+                    });
+                } else {
+                    file.add({
+                        label: '&Open...',
+                        accelerator: 'CmdOrCtrl+O',
+                        execute: async () => await this._host.execute('open')
+                    });
+                }
                 if (this._host.type === 'Electron') {
                     this._recents = file.group('Open &Recent');
                     file.add({
@@ -458,6 +483,13 @@ view.View = class {
                     execute: () => this.toggle('mousewheel'),
                     enabled: () => this.activeTarget
                 });
+                if (this._host.type === 'VS Code') {
+                    view.add({
+                        label: () => this._encodingsVisible ? 'Hide AIMET &Encodings' : 'Show AIMET &Encodings',
+                        execute: async () => await this.toggleEncodings(),
+                        enabled: () => Boolean(this._encodingsSource) && !this._graphEdit.enabled
+                    });
+                }
                 if (this._host.type === 'VS Code' || this._host.type === 'Electron') {
                     const theme = view.group('&Theme');
                     for (const value of ['auto', 'light', 'dark']) {
@@ -705,6 +737,74 @@ view.View = class {
         }
     }
 
+    setEncodingsSource(source) {
+        this._encodingsSource = typeof source === 'string' && source.length > 0 ? source : null;
+        if (this._encodingsSource && this._model && this._model.attachment) {
+            const quantization = this._model.attachment.quantization;
+            this._encodingsQuantization = quantization && !quantization.empty ? quantization : null;
+            this._encodingsVisible = Boolean(this._encodingsQuantization);
+            this._graphEdit.encodingsDisabled = false;
+            this._host.document.documentElement.classList.remove('onnx-graph-edit-encodings-disabled');
+        } else if (!this._encodingsSource) {
+            this._encodingsQuantization = null;
+            this._encodingsVisible = true;
+        }
+        this._updateEncodingsControl();
+    }
+
+    async toggleEncodings() {
+        if (!this._encodingsSource || !this._model || !this._model.attachment || this._graphEdit.enabled) {
+            return;
+        }
+        if (!this._encodingsVisible && !this._encodingsQuantization) {
+            await this._host.execute('reload-encodings');
+            return;
+        }
+        const anchor = this._graphViewportAnchor();
+        if (this._encodingsVisible) {
+            const quantization = this._model.attachment.quantization;
+            this._encodingsQuantization = quantization && !quantization.empty ? quantization : this._encodingsQuantization;
+            this._model.attachment.quantization = new aimet.EncodingFile();
+            this._encodingsVisible = false;
+        } else {
+            this._model.attachment.quantization = this._encodingsQuantization;
+            this._encodingsVisible = true;
+        }
+        this._updateEncodingsControl();
+        await this.refresh(anchor, { animate: false });
+    }
+
+    async detachEncodings() {
+        if (this._model && this._model.attachment) {
+            this._model.attachment.quantization = new aimet.EncodingFile();
+        }
+        this._encodingsSource = null;
+        this._encodingsQuantization = null;
+        this._encodingsVisible = true;
+        this._graphEdit.encodingsDisabled = false;
+        this._host.document.documentElement.classList.remove('onnx-graph-edit-encodings-disabled');
+        this._updateEncodingsControl();
+        if (this.activeTarget) {
+            await this.refresh(this._graphViewportAnchor(), { animate: false });
+        }
+    }
+
+    _updateEncodingsControl() {
+        const root = this._host.document.documentElement;
+        root.classList.toggle('has-encodings', Boolean(this._encodingsSource));
+        root.classList.toggle('encodings-hidden', Boolean(this._encodingsSource) && !this._encodingsVisible);
+        const button = this._element('encodings-toggle-button');
+        if (button) {
+            button.disabled = !this._encodingsSource || this._graphEdit.enabled;
+            button.setAttribute('aria-pressed', this._encodingsVisible ? 'true' : 'false');
+            if (!this._encodingsVisible && !this._encodingsQuantization) {
+                button.title = `Reload AIMET encodings from ${this._encodingsSource}`;
+            } else {
+                button.title = `${this._encodingsVisible ? 'Hide' : 'Show'} AIMET encodings · ${this._encodingsSource}`;
+            }
+        }
+    }
+
     recents(recents) {
         if (this._recents) {
             this._recents.clear();
@@ -858,12 +958,20 @@ view.View = class {
         button.setAttribute('title', this._graphEdit.enabled ?
             'Exit ONNX GraphSurgeon Editor (Beta) (V)' :
             'Enter ONNX GraphSurgeon Editor (Beta) (E)');
+        this._updateEncodingsControl();
         this._updateGraphEditStatus();
     }
 
     async _confirmGraphEditWithoutEncodings() {
         const quantization = this.model && this.model.attachment ? this.model.attachment.quantization : null;
         if (!quantization || quantization.empty) {
+            if (this._encodingsSource) {
+                this._encodingsQuantization = null;
+                this._encodingsVisible = false;
+                this._graphEdit.encodingsDisabled = true;
+                this._host.document.documentElement.classList.add('onnx-graph-edit-encodings-disabled');
+                this._updateEncodingsControl();
+            }
             return true;
         }
         const overlay = this._element('graph-edit-warning-overlay');
@@ -879,8 +987,11 @@ view.View = class {
             return false;
         }
         this.model.attachment.quantization = new aimet.EncodingFile();
+        this._encodingsQuantization = null;
+        this._encodingsVisible = false;
         this._graphEdit.encodingsDisabled = true;
         this._host.document.documentElement.classList.add('onnx-graph-edit-encodings-disabled');
+        this._updateEncodingsControl();
         const anchor = this._graphViewportAnchor();
         await this.refresh(anchor, { animate: false });
         return true;
@@ -5256,6 +5367,10 @@ view.View = class {
         await this._timeout(2);
         try {
             const model = await this._modelFactoryService.open(context);
+            this._encodingsSource = null;
+            this._encodingsVisible = true;
+            this._encodingsQuantization = null;
+            this._updateEncodingsControl();
             this._resetGraphEdit();
             const format = [];
             if (model.format) {
@@ -5297,6 +5412,8 @@ view.View = class {
             if (await attachment.open(context)) {
                 attachment.bind(this._model);
                 this._model.attachment = attachment;
+                this._encodingsQuantization = attachment.quantization.empty ? null : attachment.quantization;
+                this._encodingsVisible = Boolean(this._encodingsQuantization);
                 // Quantization badges can change measured node widths. Swap
                 // the refreshed nodes and edges as one frame so a transition
                 // cannot temporarily leave the nodes beside final edge paths.
