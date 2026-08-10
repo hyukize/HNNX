@@ -137,6 +137,10 @@ TensorFlow, and TensorFlow Lite.
     branding. Windows uses `Scripts/python.exe`; Linux and macOS use
     `bin/python3`. Non-macOS desktop menus also expose the persistent theme
     selector.
+30. The VSIX contained the HNNX PNG but did not declare it in the extension
+    manifest, so VS Code showed the default extension placeholder. The
+    manifest now declares `media/icon.png`; the packaged VSIX manifest and
+    256×256 image entry were both inspected.
 
 ## Package artifacts
 
@@ -146,7 +150,7 @@ TensorFlow, and TensorFlow Lite.
 | `dist/HNNX-0.1.10-x64-setup.exe` | 91,802,183 bytes | `78051ffa3aac264c59cb83929ecdde86ad71a8ef2deae599f887491a5f374f50` |
 | `dist/HNNX-0.1.10-x64.AppImage` | 131,358,356 bytes | `f4f03375aaca5821f6e50587b3af62d7d639988304175ba8abc05b89a4d618be` |
 | `dist/HNNX-0.1.10-x64.deb` | 103,185,172 bytes | `28602c44eb1bd4177a242312d4bda37e6b5c2b8f7ea9d33876ac26471142e345` |
-| `vscode-extension/hnnx-0.1.10.vsix` | 3,622,272 bytes | `98cb36cc1bde95a6952c118057a972966ac8b7941ed170a64413c95abdeee262` |
+| `vscode-extension/hnnx-0.1.11.vsix` | 3,622,316 bytes | `2c1bead096c9e01f1b75762767e53c566441f69a957e444d52edc0cfe2b894bf` |
 
 ## Manual checks still required
 

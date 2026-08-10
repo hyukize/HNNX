@@ -69,7 +69,7 @@ Generated packages are written to:
 - `dist/HNNX-0.1.10-x64-setup.exe`
 - `dist/HNNX-0.1.10-x64.AppImage`
 - `dist/HNNX-0.1.10-x64.deb`
-- `vscode-extension/hnnx-0.1.10.vsix`
+- `vscode-extension/hnnx-0.1.11.vsix`
 
 ## Attribution
 
