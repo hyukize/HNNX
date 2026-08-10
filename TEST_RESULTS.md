@@ -1,6 +1,6 @@
 # HNNX Regression Results
 
-Run date: 2026-08-06  
+Run date: 2026-08-10
 Host: Apple Silicon macOS
 
 The test scope is defined in `REGRESSION_TEST.md`.
@@ -146,16 +146,19 @@ TensorFlow, and TensorFlow Lite.
     file auto-load, a compact `ENC` visibility toggle, and File-menu Load,
     exact-URI Reload, and Detach actions. These operations replace only the
     AIMET attachment and do not reload the ONNX model.
+32. The encodings lifecycle update was initially packaged only as a VSIX.
+    Release 0.1.13 synchronizes the same source and version across the macOS
+    arm64 DMG, Windows x64 installer, Linux x64 AppImage/deb, and VSIX.
 
 ## Package artifacts
 
 | Artifact | Size | SHA-256 |
 | --- | --- | --- |
-| `dist/HNNX-0.1.10-arm64.dmg` | 127,149,711 bytes | `f06c6a865de075bad74f0d19ca26da87b0fc4c54ac7ac29f52003b79ab8e10ad` |
-| `dist/HNNX-0.1.10-x64-setup.exe` | 91,802,183 bytes | `78051ffa3aac264c59cb83929ecdde86ad71a8ef2deae599f887491a5f374f50` |
-| `dist/HNNX-0.1.10-x64.AppImage` | 131,358,356 bytes | `f4f03375aaca5821f6e50587b3af62d7d639988304175ba8abc05b89a4d618be` |
-| `dist/HNNX-0.1.10-x64.deb` | 103,185,172 bytes | `28602c44eb1bd4177a242312d4bda37e6b5c2b8f7ea9d33876ac26471142e345` |
-| `vscode-extension/hnnx-0.1.12.vsix` | 3,623,703 bytes | `f976cc6461246931f986daa35308aabb26f16f1cef669184b7cc6a8ff4bc67a6` |
+| `dist/HNNX-0.1.13-arm64.dmg` | 127,152,789 bytes | `97e5078f7f139f145b5aebb7e22dce9fb8e4715bf3dceacbec5cf8a866bcc5fe` |
+| `dist/HNNX-0.1.13-x64-setup.exe` | 91,802,962 bytes | `cf4d1b1742133db1e15e236830841d56ef181d47bf1e7815f1e37139dbd616ba` |
+| `dist/HNNX-0.1.13-x64.AppImage` | 131,362,586 bytes | `7027df5ecf9c9ee8b693daad95d2d4f12acf4fcb5a148929e0ff4e36c5422521` |
+| `dist/HNNX-0.1.13-x64.deb` | 103,187,984 bytes | `7f10ba5658664249b4520db2e06182cc793e3f7dd9d08fa7c767555a7a5a00f8` |
+| `vscode-extension/hnnx-0.1.13.vsix` | 3,623,704 bytes | `8ce4b5eb614384b7693c096227dc4ffa1e5a5f6ec4fe5c81ec3c24e6b16b2e74` |
 
 ## Manual checks still required
 

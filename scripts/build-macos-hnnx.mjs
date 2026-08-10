@@ -4,6 +4,7 @@ import { spawn } from 'child_process';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const npx = process.platform === 'win32' ? 'npx.cmd' : 'npx';
+const version = '0.1.13';
 
 const run = (args) => new Promise((resolve, reject) => {
     const child = spawn(npx, args, { cwd: root, stdio: 'inherit' });
@@ -26,7 +27,7 @@ await run([
     '--config.copyright=Copyright © 2026 Jonghyuk Park',
     '--config.extraMetadata.name=hnnx',
     '--config.extraMetadata.productName=HNNX',
-    '--config.extraMetadata.version=0.1.10',
+    `--config.extraMetadata.version=${version}`,
     '--config.extraMetadata.appId=ai.mrxrunway.hnnx',
     '--config.extraMetadata.description=ONNX graph workbench for visualization, AIMET analysis, and graph editing',
     '--config.extraMetadata.author=Jonghyuk Park',
@@ -34,7 +35,7 @@ await run([
     '--config.extraMetadata.aimet=true',
     '--config.extraMetadata.disableUpdates=true',
     '--config.asarUnpack=source/onnx-graphsurgeon.py',
-    '--config.mac.artifactName=HNNX-0.1.10-arm64.${ext}',
-    '--config.dmg.artifactName=HNNX-0.1.10-arm64.${ext}',
-    '--config.dmg.title=HNNX 0.1.10'
+    `--config.mac.artifactName=HNNX-${version}-arm64.\${ext}`,
+    `--config.dmg.artifactName=HNNX-${version}-arm64.\${ext}`,
+    `--config.dmg.title=HNNX ${version}`
 ]);
