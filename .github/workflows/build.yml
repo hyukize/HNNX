@@ -1,25 +1,23 @@
-
-name: Build
+name: HNNX CI
 
 on:
   push:
-    branches: [ '**' ]
-    tags-ignore: [ '**' ]
+    branches: [main]
+    tags-ignore: ['**']
   pull_request:
-    branches: [ main ]
+    branches: [main]
+
+permissions:
+  contents: read
 
 jobs:
-  build:
-    name: Build
-    runs-on: ${{ matrix.os }}
+  quality:
+    name: Quality and browser tests
+    runs-on: ubuntu-latest
     timeout-minutes: 30
 
-    strategy:
-      matrix:
-        os: [ macos-latest, ubuntu-latest, windows-latest ]
-
     steps:
-      - name: Clone Git repository
+      - name: Check out repository
         uses: actions/checkout@v4
 
       - name: Install Node.js
@@ -30,57 +28,144 @@ jobs:
       - name: Install Python
         uses: actions/setup-python@v5
         with:
-          python-version: 3.x
+          python-version: '3.12'
 
-      - name: Install Packages
+      - name: Install project dependencies
         run: npm run install
 
-      - name: Validate
-        run: npm run validate
+      - name: Install Python quality tools
+        run: python3 -m pip install ruff==0.16.1
 
-      - name: Build Python Server
-        run: npm run build python
+      - name: Run JavaScript and Python static analysis
+        run: npm run lint
 
-      - name: Build Electron
+      - name: Run VS Code extension tests
+        run: npm --prefix vscode-extension test
+
+      - name: Build browser application
+        run: node package.js build web
+
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+
+      - name: Run HNNX browser regression tests
         shell: bash
         run: |
-          npx electron-builder install-app-deps
-          case "${{ matrix.os }}" in
-            macos*)
-              npm run build electron mac
-              ;;
-            ubuntu*)
-              sudo apt-get install rpm --yes
-              npm run build electron linux
-              ;;
-            windows*)
-              npm run build electron windows
-              ;;
-          esac
+          python3 -m http.server 8765 > /tmp/hnnx-http.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          npx playwright test --config=test/aimet.playwright.config.js --workers=1
 
-  analyze:
-    name: Analyze
+  vscode-package:
+    name: VS Code package
     runs-on: ubuntu-latest
+    timeout-minutes: 20
 
-    permissions:
-      security-events: write
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
 
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24.15'
+
+      - name: Install project dependencies
+        run: npm run install
+
+      - name: Build VSIX
+        run: npm run build:vscode-hnnx
+
+      - name: Inspect VSIX
+        shell: bash
+        run: |
+          test -f vscode-extension/hnnx-0.1.14.vsix
+          unzip -t vscode-extension/hnnx-0.1.14.vsix
+          unzip -p vscode-extension/hnnx-0.1.14.vsix extension/package.json | grep '"version": "0.1.14"'
+          unzip -l vscode-extension/hnnx-0.1.14.vsix | grep 'extension/media/icon.png'
+
+  linux-desktop:
+    name: Linux desktop smoke and package
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24.15'
+
+      - name: Install Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install project dependencies
+        run: npm run install
+
+      - name: Install Electron test dependencies
+        run: npx playwright install --with-deps chromium
+
+      - name: Run Electron desktop smoke test
+        shell: bash
+        env:
+          DEBUG: pw:browser*
+          ELECTRON_ENABLE_LOGGING: '1'
+          ELECTRON_DISABLE_GPU: '1'
+        run: xvfb-run -a npx playwright test --config=test/playwright.config.js --project=desktop --workers=1
+
+      - name: Build Linux AppImage and deb
+        run: npm run build:linux-hnnx
+
+      - name: Inspect Linux packages
+        shell: bash
+        run: |
+          test -f dist/HNNX-0.1.14-x64.AppImage
+          test -f dist/HNNX-0.1.14-x64.deb
+          test -f dist/linux-unpacked/resources/app.asar.unpacked/source/onnx-graphsurgeon.py
+          file dist/HNNX-0.1.14-x64.AppImage | grep 'x86-64'
+          file dist/HNNX-0.1.14-x64.deb | grep 'Debian binary package'
+
+  github-desktop-packages:
+    name: GitHub package (${{ matrix.os }})
+    if: ${{ github.server_url == 'https://github.com' }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 35
     strategy:
       fail-fast: false
       matrix:
-        language: [ 'javascript', 'python' ]
+        os: [macos-latest, windows-latest]
 
     steps:
-      - name: Clone Git repository
+      - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
+      - name: Install Node.js
+        uses: actions/setup-node@v4
         with:
-          languages: ${{ matrix.language }}
+          node-version: '24.15'
 
-      - name: Autobuild
-        uses: github/codeql-action/autobuild@v3
+      - name: Install project dependencies
+        run: npm run install
 
-      - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
+      - name: Build macOS package
+        if: runner.os == 'macOS'
+        run: npm run build:mac-hnnx
+
+      - name: Build Windows package
+        if: runner.os == 'Windows'
+        run: npm run build:windows-hnnx
+
+      - name: Inspect macOS package
+        if: runner.os == 'macOS'
+        run: test -f dist/HNNX-0.1.14-arm64.dmg
+
+      - name: Inspect Windows package
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          if (-not (Test-Path 'dist/HNNX-0.1.14-x64-setup.exe')) { exit 1 }
+          if (-not (Test-Path 'dist/win-unpacked/resources/app.asar.unpacked/source/onnx-graphsurgeon.py')) { exit 1 }
