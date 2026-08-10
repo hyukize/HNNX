@@ -107,7 +107,11 @@ jobs:
         run: npm run install
 
       - name: Install Electron runtime libraries
-        run: npx playwright install-deps chromium
+        shell: bash
+        run: |
+          npx playwright install-deps chromium
+          apt-get update
+          apt-get install -y libgtk-3-0
 
       - name: Validate Electron runtime
         shell: bash
