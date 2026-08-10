@@ -149,16 +149,19 @@ TensorFlow, and TensorFlow Lite.
 32. The encodings lifecycle update was initially packaged only as a VSIX.
     Release 0.1.13 synchronizes the same source and version across the macOS
     arm64 DMG, Windows x64 installer, Linux x64 AppImage/deb, and VSIX.
+33. The compact `ENC` control appeared between the model-information icon
+    buttons. It now sits with the text actions, between `SAVE AS` and
+    `RE-LAYOUT`, keeping the icon and action groups visually distinct.
 
 ## Package artifacts
 
 | Artifact | Size | SHA-256 |
 | --- | --- | --- |
-| `dist/HNNX-0.1.13-arm64.dmg` | 127,152,789 bytes | `97e5078f7f139f145b5aebb7e22dce9fb8e4715bf3dceacbec5cf8a866bcc5fe` |
-| `dist/HNNX-0.1.13-x64-setup.exe` | 91,802,962 bytes | `cf4d1b1742133db1e15e236830841d56ef181d47bf1e7815f1e37139dbd616ba` |
-| `dist/HNNX-0.1.13-x64.AppImage` | 131,362,586 bytes | `7027df5ecf9c9ee8b693daad95d2d4f12acf4fcb5a148929e0ff4e36c5422521` |
-| `dist/HNNX-0.1.13-x64.deb` | 103,187,984 bytes | `7f10ba5658664249b4520db2e06182cc793e3f7dd9d08fa7c767555a7a5a00f8` |
-| `vscode-extension/hnnx-0.1.13.vsix` | 3,623,704 bytes | `8ce4b5eb614384b7693c096227dc4ffa1e5a5f6ec4fe5c81ec3c24e6b16b2e74` |
+| `dist/HNNX-0.1.14-arm64.dmg` | 127,152,773 bytes | `6ef2cdaec42a73b0fa1346385bdf8263f590a2d08125fb75ecaba557cae0591e` |
+| `dist/HNNX-0.1.14-x64-setup.exe` | 91,803,630 bytes | `b3558b19d6738681f69814b954c708cec9d4beb0efa063ff90271947c6c3250d` |
+| `dist/HNNX-0.1.14-x64.AppImage` | 131,362,566 bytes | `eecfa4305ec1f4f7b4a464bdb90f17a51aaf2da19b71e853fa4ba08653c9e6d0` |
+| `dist/HNNX-0.1.14-x64.deb` | 103,187,820 bytes | `35ea323e2554025a3e1f7aa4b69101f3eba581bebfe1b47452aefce28d5a5847` |
+| `vscode-extension/hnnx-0.1.14.vsix` | 3,623,703 bytes | `fa2d072148c960c8dbb4208f0a5ddf5ac292a4490d8f1b134f35eaf770b02751` |
 
 ## Manual checks still required
 

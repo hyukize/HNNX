@@ -4,7 +4,7 @@ import { spawn } from 'child_process';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const npx = process.platform === 'win32' ? 'npx.cmd' : 'npx';
-const version = '0.1.13';
+const version = '0.1.14';
 
 const run = (args) => new Promise((resolve, reject) => {
     const child = spawn(npx, args, { cwd: root, stdio: 'inherit' });

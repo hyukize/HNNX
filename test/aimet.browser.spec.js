@@ -646,6 +646,8 @@ playwright.test('HNNX workspace shortcuts enter, inspect, layout, view, and save
         buffer: editableOnnx()
     });
     await page.waitForSelector('body.default', { timeout: 10000 });
+    await playwright.expect(page.locator(
+        '#graph-edit-save-button + #encodings-toggle-button + #graph-edit-layout-button')).toHaveCount(1);
     await playwright.expect(page.locator('#graph-edit-save-button')).toBeVisible();
     await playwright.expect(page.locator('#graph-edit-save-button')).toBeEnabled();
     await physicalKey(page, 'ㄴ', 'KeyS', 83, 4);
