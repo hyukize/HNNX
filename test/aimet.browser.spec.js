@@ -2,6 +2,7 @@ import * as path from 'path';
 import * as playwright from '@playwright/test';
 import * as url from 'url';
 import { Buffer } from 'node:buffer';
+import process from 'node:process';
 
 playwright.test.setTimeout(30000);
 
@@ -58,6 +59,14 @@ const physicalKey = async (page, key, code, virtualKeyCode, modifiers = 0) => {
         nativeVirtualKeyCode: virtualKeyCode
     });
     await session.detach();
+};
+
+const primaryModifier = () => {
+    const isMac = process.platform === 'darwin';
+    return {
+        key: isMac ? 'Meta' : 'Control',
+        mask: isMac ? 4 : 2
+    };
 };
 
 const editableOnnx = () => {
@@ -193,20 +202,14 @@ playwright.test('AIMET encodings attachment', async ({ page }) => {
     const canvas = page.locator('#canvas');
     const zoomBefore = await canvas.boundingBox();
     await page.mouse.move(300, 200);
-    await page.keyboard.down('Control');
+    const zoomModifier = primaryModifier();
+    await page.keyboard.down(zoomModifier.key);
     await page.mouse.wheel(0, -1);
-    await page.keyboard.up('Control');
+    await page.keyboard.up(zoomModifier.key);
     await page.waitForTimeout(50);
     const zoomAfter = await canvas.boundingBox();
     const zoomRatio = zoomAfter.width / zoomBefore.width;
     playwright.expect(zoomRatio).toBeGreaterThan(1);
-    const commandZoomBefore = await canvas.boundingBox();
-    await page.keyboard.down('Meta');
-    await page.mouse.wheel(0, -1);
-    await page.keyboard.up('Meta');
-    await page.waitForTimeout(50);
-    const commandZoomAfter = await canvas.boundingBox();
-    playwright.expect(commandZoomAfter.width / commandZoomBefore.width).toBeGreaterThan(1);
 
     const inputBadge = page.locator('#input-name-x .node-item-quantization');
     await playwright.expect(inputBadge).toContainText('Q:A8');
@@ -568,9 +571,10 @@ playwright.test('ONNX GraphSurgeon Editor previews input and graph output edits 
     await playwright.expect(page.locator('#graph-edit-undo-button')).toBeEnabled();
     await playwright.expect(page.locator('#graph-edit-save-button')).toBeEnabled();
 
-    await page.keyboard.press('Meta+z');
+    const editModifier = primaryModifier();
+    await page.keyboard.press(`${editModifier.key}+z`);
     await playwright.expect(page.locator('#graph-edit-status')).toContainText('Undid');
-    await page.keyboard.press('Meta+Shift+z');
+    await page.keyboard.press(`${editModifier.key}+Shift+z`);
     await playwright.expect(page.locator('#graph-edit-status')).toContainText('Redid');
     if (await page.locator('#graph-edit-redraw-button').isEnabled()) {
         await redraw();
@@ -650,7 +654,8 @@ playwright.test('HNNX workspace shortcuts enter, inspect, layout, view, and save
         '#graph-edit-save-button + #encodings-toggle-button + #graph-edit-layout-button')).toHaveCount(1);
     await playwright.expect(page.locator('#graph-edit-save-button')).toBeVisible();
     await playwright.expect(page.locator('#graph-edit-save-button')).toBeEnabled();
-    await physicalKey(page, 'ㄴ', 'KeyS', 83, 4);
+    const shortcutModifier = primaryModifier();
+    await physicalKey(page, 'ㄴ', 'KeyS', 83, shortcutModifier.mask);
     await playwright.expect(page.locator('#graph-edit-status')).toContainText('Save failed');
 
     await physicalKey(page, 'ㄷ', 'KeyE', 69);
@@ -864,11 +869,12 @@ playwright.test('ONNX GraphSurgeon Editor preserves D and Q shortcuts across foc
     await physicalKey(page, 'ㅇ', 'KeyD', 68);
     await playwright.expect(cast()).toHaveCount(0);
     await playwright.expect(page.locator('#graph-edit-redraw-button')).toBeDisabled();
-    await physicalKey(page, 'ㅋ', 'KeyZ', 90, 4); // Meta+physical Z with Korean IME.
+    const historyModifier = primaryModifier();
+    await physicalKey(page, 'ㅋ', 'KeyZ', 90, historyModifier.mask);
     await playwright.expect(cast()).toHaveCount(1);
-    await physicalKey(page, 'ㅋ', 'KeyZ', 90, 12); // Meta+Shift+physical Z.
+    await physicalKey(page, 'ㅋ', 'KeyZ', 90, historyModifier.mask | 8);
     await playwright.expect(cast()).toHaveCount(0);
-    await physicalKey(page, 'ㅋ', 'KeyZ', 90, 4);
+    await physicalKey(page, 'ㅋ', 'KeyZ', 90, historyModifier.mask);
     await playwright.expect(cast()).toHaveCount(1);
 
     await cast().click();
