@@ -1,4 +1,4 @@
-name: HNNX native desktop CI
+name: GitHub macOS & Windows CI
 
 # Keep native jobs out of the push workflow consumed by the company Gitea
 # instance, which currently has only an Ubuntu runner. GitHub starts this
@@ -15,7 +15,7 @@ permissions:
 jobs:
   macos-desktop:
     name: macOS desktop smoke and package
-    if: github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push')
+    if: github.server_url == 'https://github.com' && (github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push'))
     runs-on: macos-latest
     timeout-minutes: 40
 
@@ -53,7 +53,7 @@ jobs:
 
   windows-desktop:
     name: Windows desktop smoke and package
-    if: github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push')
+    if: github.server_url == 'https://github.com' && (github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push'))
     runs-on: windows-latest
     timeout-minutes: 40
 
