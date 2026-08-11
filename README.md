@@ -3,7 +3,7 @@
 HNNX is an ONNX graph workbench for model inspection, AIMET quantization
 analysis, and NVIDIA ONNX GraphSurgeon-backed editing.
 
-<img src="publish/pampam-hnnx-icon.png" alt="HNNX icon" width="180">
+<img src="publish/pampam-hnnx-icon.png" alt="HNNX icon" width="256">
 
 **Current release:** [HNNX v0.1.19](https://gitea.fde2.mrxrunway.ai/mrx-armstrong/hnnx/releases/tag/v0.1.19) · [Source repository](https://gitea.fde2.mrxrunway.ai/mrx-armstrong/hnnx)
 
@@ -39,15 +39,16 @@ The complete first-run walkthrough is in
 
 ## Documentation
 
-| Guide | Use it when you want to… |
-| --- | --- |
-| [Getting Started](docs/getting-started.md) | Open a first model and understand the main controls |
-| [Installation](docs/installation.md) | Install HNNX on macOS, Windows, Linux, VS Code, or from source |
-| [Graph Editing](docs/graph-editing.md) | Rewire, add, delete, validate, and save ONNX graph changes |
-| [AIMET Encodings](docs/aimet-encodings.md) | Load encodings and interpret precision and QParam visualization |
-| [Troubleshooting](docs/troubleshooting.md) | Resolve Python, package, external-data, remote, or inference issues |
-| [Complete feature reference](AIMET.md) | Review detailed behavior and implementation-specific constraints |
-| [Manual test guide](MANUAL_TEST.md) | Exercise the full release workflow before distribution |
+| Guide | English | 한국어 |
+| --- | --- | --- |
+| Getting Started | [Open](docs/getting-started.md) | [열기](docs/ko-kr/getting-started.md) |
+| Installation | [Open](docs/installation.md) | [열기](docs/ko-kr/installation.md) |
+| Graph Editing | [Open](docs/graph-editing.md) | [열기](docs/ko-kr/graph-editing.md) |
+| AIMET Encodings | [Open](docs/aimet-encodings.md) | [열기](docs/ko-kr/aimet-encodings.md) |
+| Troubleshooting | [Open](docs/troubleshooting.md) | [열기](docs/ko-kr/troubleshooting.md) |
+
+Additional references: [complete feature reference](AIMET.md) ·
+[manual test guide](MANUAL_TEST.md)
 
 ## Quick development setup
 

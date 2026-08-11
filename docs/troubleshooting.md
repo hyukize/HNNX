@@ -1,5 +1,7 @@
 # Troubleshooting
 
+English | [한국어](ko-kr/troubleshooting.md)
+
 ## macOS says the app is damaged or cannot be verified
 
 HNNX is not Apple Developer ID-signed or notarized. A downloaded DMG can

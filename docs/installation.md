@@ -1,5 +1,7 @@
 # Installation
 
+English | [한국어](ko-kr/installation.md)
+
 HNNX is available as a desktop application, a VS Code extension, and source.
 All packages for the current version are listed on the
 [v0.1.19 release page](https://gitea.fde2.mrxrunway.ai/mrx-armstrong/hnnx/releases/tag/v0.1.19).

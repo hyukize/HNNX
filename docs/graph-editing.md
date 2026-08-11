@@ -1,5 +1,7 @@
 # Graph Editing
 
+English | [한국어](ko-kr/graph-editing.md)
+
 HNNX includes a beta ONNX editor backed by NVIDIA ONNX GraphSurgeon. It edits
 the ONNX main graph while preserving HNNX's visual inspection workflow.
 

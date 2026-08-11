@@ -1,5 +1,7 @@
 # AIMET Encodings
 
+English | [한국어](ko-kr/aimet-encodings.md)
+
 HNNX can display an ONNX model together with AIMET encodings formats 0.6.1,
 1.x, and 2.x.
 

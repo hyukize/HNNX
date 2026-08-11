@@ -1,5 +1,7 @@
 # Getting Started
 
+English | [한국어](ko-kr/getting-started.md)
+
 This guide takes you from installation to inspecting and editing a small ONNX
 model. For platform-specific details, see [Installation](installation.md).
 
