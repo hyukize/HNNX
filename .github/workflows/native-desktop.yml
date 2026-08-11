@@ -42,10 +42,10 @@ jobs:
       - name: Inspect macOS package
         shell: bash
         run: |
-          test -f dist/HNNX-0.1.18-arm64.dmg
-          hdiutil verify dist/HNNX-0.1.18-arm64.dmg
+          test -f dist/HNNX-0.1.19-arm64.dmg
+          hdiutil verify dist/HNNX-0.1.19-arm64.dmg
           mount_dir="$(mktemp -d)"
-          hdiutil attach -nobrowse -readonly -mountpoint "$mount_dir" dist/HNNX-0.1.18-arm64.dmg
+          hdiutil attach -nobrowse -readonly -mountpoint "$mount_dir" dist/HNNX-0.1.19-arm64.dmg
           trap 'hdiutil detach "$mount_dir" >/dev/null 2>&1 || true' EXIT
           codesign --verify --deep --strict --verbose=2 "$mount_dir/HNNX.app"
 
@@ -78,10 +78,10 @@ jobs:
       - name: Inspect Windows package
         shell: pwsh
         run: |
-          if (!(Test-Path 'dist/HNNX-0.1.18-x64-setup.exe')) {
+          if (!(Test-Path 'dist/HNNX-0.1.19-x64-setup.exe')) {
             throw 'Windows installer was not created.'
           }
-          $header = [System.IO.File]::ReadAllBytes('dist/HNNX-0.1.18-x64-setup.exe')[0..1]
+          $header = [System.IO.File]::ReadAllBytes('dist/HNNX-0.1.19-x64-setup.exe')[0..1]
           if ($header[0] -ne 0x4d -or $header[1] -ne 0x5a) {
             throw 'Windows installer does not have a PE executable header.'
           }

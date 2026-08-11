@@ -75,7 +75,12 @@ model and strict ONNX shape inference, then updates tensor dimensions in the
 viewer without changing the source file. Custom operators without an ONNX
 shape function may remain partially inferred.
 
-Install the Python backend in the local or remote extension host:
+Run **HNNX: Create GraphSurgeon Environment** from the Command Palette to
+create `~/.hnnx/venv` and install the Python backend. In a Remote SSH,
+Dev Container, or Kubernetes workspace, the command runs on that remote
+extension host rather than on the local computer.
+
+The equivalent manual setup is:
 
 ```bash
 python3 -m venv ~/.hnnx/venv
@@ -83,12 +88,13 @@ python3 -m venv ~/.hnnx/venv
   --extra-index-url https://pypi.ngc.nvidia.com
 ```
 
-The extension discovers this environment automatically. A different
-interpreter can be selected with **HNNX: Python Path** or the
+The extension discovers this environment automatically and saves the created
+interpreter as **HNNX: Python Path**. A different interpreter can be selected with the
 **HNNX: Configure GraphSurgeon Python** command. The command validates
 that both `onnx` and `onnx_graphsurgeon` can be imported before saving the
-path. If automatic discovery fails while saving, the extension offers to
-enter a path or open the relevant Settings page.
+path. If automatic discovery fails while saving or inferring shapes, the
+extension offers to create the recommended environment, enter a path, or open
+the relevant Settings page.
 
 The recommended environment path is `~/.hnnx/venv/Scripts/python.exe` on
 Windows and `~/.hnnx/venv/bin/python3` on macOS/Linux. Auto-detection also

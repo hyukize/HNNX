@@ -174,16 +174,24 @@ TensorFlow, and TensorFlow Lite.
     encodings were attached or detached. Primary actions now keep the fixed
     `SAVE AS`, `INFER SHAPES`, `RE-LAYOUT`, `EDIT`, `ENC` order, with desktop
     regression coverage asserting that the first four controls do not move.
+39. VS Code can now create the recommended ONNX and NVIDIA GraphSurgeon
+    environment directly on the active extension host. This includes Remote
+    SSH, Dev Container, and Kubernetes hosts, with tested launcher fallback,
+    platform-specific interpreter paths, validation, and persisted settings.
+40. Caffe2 control-flow models can represent nested graph/function containers
+    without a normal operator type. HNNX no longer attaches GraphSurgeon edit
+    ports to those non-editable containers, preventing the `undefined.name`
+    render crash while preserving normal node and Graph Input/Output editing.
 
 ## Package artifacts
 
 | Artifact | Size | SHA-256 |
 | --- | --- | --- |
-| `dist/HNNX-0.1.18-arm64.dmg` | 125,949,264 bytes | `e790862909270cf3722df888947fb5ca0a4c3e80bd9977f874ef28c9bc804648` |
-| `dist/HNNX-0.1.18-x64-setup.exe` | 91,729,848 bytes | `84eda7f3a96c80eda186dbaf9f474ae17b0d35585faf367fd20a81785b47c678` |
-| `dist/HNNX-0.1.18-x64.AppImage` | 131,223,015 bytes | `61ced5dcf560709de3beb455c935e925605d9439bcb409624e56bdacf085eb4d` |
-| `dist/HNNX-0.1.18-x64.deb` | 103,115,176 bytes | `170fdb2edad6b2bd9c90e98fb9eede927a3f6dae9577a1d0699f35a4633b3b2f` |
-| `vscode-extension/hnnx-0.1.18.vsix` | 3,623,843 bytes | `f430e89b89a66751c98f7e2d3f675a378444f040f925815f8fd073d7505bd6a3` |
+| `dist/HNNX-0.1.19-arm64.dmg` | 125,949,312 bytes | `a1d08dcef8d58e1ea3dbfe3ea2b05b3538f5379fb2d6b0afca8c944297af9641` |
+| `dist/HNNX-0.1.19-x64-setup.exe` | 91,730,911 bytes | `3a7bc9a9597133ce895081bf54db5988eaad984e8cef4199fb2308bca33855ff` |
+| `dist/HNNX-0.1.19-x64.AppImage` | 131,223,017 bytes | `c5d066bd7323d8bb756236cafe8492258179ed0513aaef7a950cdcb0d058311c` |
+| `dist/HNNX-0.1.19-x64.deb` | 103,115,176 bytes | `1ba4ff9c23fef731e71fff50f1ae7750eed888208c0e9e14b5b6168e7b1fb138` |
+| `vscode-extension/hnnx-0.1.19.vsix` | 3,625,017 bytes | `264cffeb07368327c7542c6886e174ef3f5a7d57c25199d95c1466396835e0b1` |
 
 ## Manual checks still required
 

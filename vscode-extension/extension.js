@@ -303,10 +303,13 @@ class OnnxEditorProvider {
             }
             const action = await vscode.window.showErrorMessage(
                 'HNNX could not find a Python environment containing ONNX and NVIDIA ONNX GraphSurgeon.',
+                'Create Recommended Environment',
                 'Enter Python Path',
                 'Open Settings'
             );
-            if (action === 'Enter Python Path') {
+            if (action === 'Create Recommended Environment') {
+                return await this.createGraphSurgeonEnvironment(modelUri);
+            } else if (action === 'Enter Python Path') {
                 return await this.configureGraphSurgeonPython(modelUri);
             }
             if (action === 'Open Settings') {
@@ -349,6 +352,53 @@ class OnnxEditorProvider {
         await configuration.update('pythonPath', python, vscode.ConfigurationTarget.Global);
         vscode.window.showInformationMessage(`HNNX GraphSurgeon Python: ${python}`);
         return python;
+    }
+
+    async createGraphSurgeonEnvironment(resource) {
+        const directory = recommendedEnvironmentDirectory();
+        const action = await vscode.window.showInformationMessage(
+            `Create the recommended ONNX GraphSurgeon environment at ${directory}?`,
+            {
+                modal: true,
+                detail: "HNNX will install 'onnx' and 'onnx_graphsurgeon'. This may take a few minutes and requires internet access."
+            },
+            'Create and Install'
+        );
+        if (action !== 'Create and Install') {
+            return '';
+        }
+        try {
+            const python = await vscode.window.withProgress({
+                location: vscode.ProgressLocation.Notification,
+                title: 'HNNX: Creating ONNX GraphSurgeon environment',
+                cancellable: false
+            }, async (progress) => await createGraphSurgeonEnvironment({
+                directory,
+                report: (message) => {
+                    progress.report({ message });
+                    this.output.appendLine(message);
+                }
+            }));
+            const configuration = vscode.workspace.getConfiguration('hnnx', resource);
+            await configuration.update('pythonPath', python, vscode.ConfigurationTarget.Global);
+            vscode.window.showInformationMessage(`HNNX GraphSurgeon Python is ready: ${python}`);
+            return python;
+        } catch (error) {
+            const message = error instanceof Error ? error.message : String(error);
+            this.output.appendLine(`GraphSurgeon environment setup failed: ${message}`);
+            const retry = await vscode.window.showErrorMessage(
+                `HNNX could not create the GraphSurgeon environment: ${message}`,
+                'Enter Python Path',
+                'Show Output'
+            );
+            if (retry === 'Enter Python Path') {
+                return await this.configureGraphSurgeonPython(resource);
+            }
+            if (retry === 'Show Output') {
+                this.output.show(true);
+            }
+            return '';
+        }
     }
 
     async findEncodings(modelUri) {
@@ -461,6 +511,55 @@ const execute = (command, args) => new Promise((resolve, reject) => {
 const normalizePython = (candidate) => candidate && candidate.startsWith('~/') ?
     path.join(os.homedir(), candidate.slice(2)) : candidate;
 
+const recommendedEnvironmentDirectory = () => path.join(os.homedir(), '.hnnx', 'venv');
+
+const recommendedEnvironmentPython = (directory = recommendedEnvironmentDirectory(), platform = process.platform) =>
+    platform === 'win32' ? path.join(directory, 'Scripts', 'python.exe') : path.join(directory, 'bin', 'python3');
+
+const findPythonForVenv = async (runner = execute, platform = process.platform) => {
+    const candidates = platform === 'win32' ? [
+        { command: 'py', args: ['-3'] },
+        { command: 'python3', args: [] },
+        { command: 'python', args: [] }
+    ] : [
+        { command: 'python3', args: [] },
+        { command: 'python', args: [] }
+    ];
+    for (const candidate of candidates) {
+        try {
+            await runner(candidate.command, [...candidate.args, '-c', 'import sys']);
+            return candidate;
+        } catch {
+            // Try the next Python launcher available on the extension host.
+        }
+    }
+    throw new Error('Python 3 was not found on the VS Code extension host. Install Python 3 or enter an existing interpreter path.');
+};
+
+const createGraphSurgeonEnvironment = async (options = {}) => {
+    const runner = options.runner || execute;
+    const directory = options.directory || recommendedEnvironmentDirectory();
+    const interpreter = recommendedEnvironmentPython(directory, options.platform || process.platform);
+    const report = options.report || (() => {});
+    report('Finding Python 3…');
+    const bootstrap = options.bootstrap || await findPythonForVenv(runner, options.platform || process.platform);
+    report(`Creating ${directory}…`);
+    await runner(bootstrap.command, [...bootstrap.args, '-m', 'venv', directory]);
+    report('Upgrading pip…');
+    await runner(interpreter, ['-m', 'pip', 'install', '--upgrade', 'pip']);
+    report('Installing ONNX and NVIDIA ONNX GraphSurgeon…');
+    await runner(interpreter, [
+        '-m', 'pip', 'install', 'onnx', 'onnx_graphsurgeon',
+        '--extra-index-url', 'https://pypi.ngc.nvidia.com'
+    ]);
+    const validate = options.validate || validatePython;
+    if (!await validate(interpreter)) {
+        throw new Error('The environment was created, but ONNX GraphSurgeon could not be imported.');
+    }
+    report('Environment ready.');
+    return interpreter;
+};
+
 const pythonCandidates = (configured) => {
     const candidates = [];
     if (configured) {
@@ -550,6 +649,12 @@ function activate(context) {
             vscode.window.activeTextEditor ? vscode.window.activeTextEditor.document.uri : undefined
         )
     ));
+    context.subscriptions.push(vscode.commands.registerCommand(
+        'hnnx.createGraphSurgeonEnvironment',
+        async () => await provider.createGraphSurgeonEnvironment(
+            vscode.window.activeTextEditor ? vscode.window.activeTextEditor.document.uri : undefined
+        )
+    ));
     context.subscriptions.push(vscode.window.registerCustomEditorProvider(viewType, provider, {
         webviewOptions: {
             retainContextWhenHidden: true
@@ -568,5 +673,8 @@ module.exports = {
     applyOnnxGraphSurgeonEdits,
     inferOnnxGraphSurgeonShapes,
     findPython,
-    validatePython
+    validatePython,
+    findPythonForVenv,
+    createGraphSurgeonEnvironment,
+    recommendedEnvironmentPython
 };

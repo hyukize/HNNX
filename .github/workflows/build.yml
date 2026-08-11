@@ -79,10 +79,10 @@ jobs:
       - name: Inspect VSIX
         shell: bash
         run: |
-          test -f vscode-extension/hnnx-0.1.18.vsix
-          unzip -t vscode-extension/hnnx-0.1.18.vsix
-          unzip -p vscode-extension/hnnx-0.1.18.vsix extension/package.json | grep '"version": "0.1.18"'
-          unzip -l vscode-extension/hnnx-0.1.18.vsix | grep 'extension/media/icon.png'
+          test -f vscode-extension/hnnx-0.1.19.vsix
+          unzip -t vscode-extension/hnnx-0.1.19.vsix
+          unzip -p vscode-extension/hnnx-0.1.19.vsix extension/package.json | grep '"version": "0.1.19"'
+          unzip -l vscode-extension/hnnx-0.1.19.vsix | grep 'extension/media/icon.png'
 
   linux-desktop:
     name: Linux desktop smoke and package
@@ -136,8 +136,8 @@ jobs:
       - name: Inspect Linux packages
         shell: bash
         run: |
-          test -f dist/HNNX-0.1.18-x64.AppImage
-          test -f dist/HNNX-0.1.18-x64.deb
+          test -f dist/HNNX-0.1.19-x64.AppImage
+          test -f dist/HNNX-0.1.19-x64.deb
           test -f dist/linux-unpacked/resources/app.asar.unpacked/source/onnx-graphsurgeon.py
-          file dist/HNNX-0.1.18-x64.AppImage | grep 'x86-64'
-          file dist/HNNX-0.1.18-x64.deb | grep 'Debian binary package'
+          file dist/HNNX-0.1.19-x64.AppImage | grep 'x86-64'
+          file dist/HNNX-0.1.19-x64.deb | grep 'Debian binary package'

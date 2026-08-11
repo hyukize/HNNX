@@ -8178,8 +8178,9 @@ view.Node = class extends grapher.Node {
         this.value = value;
         this.id = `node-${value.name ? `name-${value.name}` : `id-${(context.counter++)}`}`;
         this._add(value, type);
-        this._graphEditInputPorts = new view.GraphEditInputPorts(this);
-        this._graphEditOutputPorts = new view.GraphEditOutputPorts(this);
+        const editable = type !== 'graph' && type !== 'function';
+        this._graphEditInputPorts = editable ? new view.GraphEditInputPorts(this) : null;
+        this._graphEditOutputPorts = editable ? new view.GraphEditOutputPorts(this) : null;
         const inputs = value.inputs;
         if (type !== 'graph' && type !== 'function' && Array.isArray(inputs)) {
             for (const argument of inputs) {
@@ -8228,14 +8229,22 @@ view.Node = class extends grapher.Node {
         this.element.addEventListener('click', (event) => {
             this.context.view.graphEditNodeMenu(this.value, event);
         });
-        this._graphEditInputPorts.build(document, this.element);
-        this._graphEditOutputPorts.build(document, this.element);
+        if (this._graphEditInputPorts) {
+            this._graphEditInputPorts.build(document, this.element);
+        }
+        if (this._graphEditOutputPorts) {
+            this._graphEditOutputPorts.build(document, this.element);
+        }
     }
 
     update() {
         super.update();
-        this._graphEditInputPorts.update();
-        this._graphEditOutputPorts.update();
+        if (this._graphEditInputPorts) {
+            this._graphEditInputPorts.update();
+        }
+        if (this._graphEditOutputPorts) {
+            this._graphEditOutputPorts.update();
+        }
     }
 
     _add(value, type) {

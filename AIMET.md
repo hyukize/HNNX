@@ -168,9 +168,15 @@ function may remain only partially inferred.
 
 ## ONNX GraphSurgeon setup
 
-Editing requires Python 3, ONNX and NVIDIA ONNX GraphSurgeon. The application
-does not install Python packages automatically. A dedicated environment is
-recommended:
+Editing requires Python 3, ONNX and NVIDIA ONNX GraphSurgeon. A dedicated
+environment is recommended and can be created automatically. In the desktop
+app, open **HNNX > GraphSurgeon Settings…** and choose
+**Create Recommended Environment**. In VS Code, run
+**HNNX: Create GraphSurgeon Environment** from the Command Palette. The VS Code
+command runs on the active extension host, including Remote SSH, Dev Container,
+and Kubernetes environments.
+
+The equivalent manual setup is:
 
 ```bash
 python3 -m venv ~/.hnnx/venv
@@ -186,10 +192,11 @@ environment is found during `SAVE AS`, the same setup dialog opens
 automatically before a destination file is requested.
 
 For VS Code Remote or Kubernetes, create the environment on the remote
-extension host. The extension also supports the
+extension host with **HNNX: Create GraphSurgeon Environment**. The extension also supports the
 `hnnx.pythonPath` setting and the
 **HNNX: Configure GraphSurgeon Python** command. A missing environment
-offers direct actions to enter the interpreter path or open Settings.
+offers direct actions to create the environment, enter an interpreter path,
+or open Settings.
 
 Models using external tensor data must save the edited ONNX beside the
 original model so its existing `.data` files remain valid. Graph editing is
@@ -227,7 +234,7 @@ Apple Silicon macOS (local build):
 
 The script installs locked npm dependencies, builds and ad-hoc signs the app,
 verifies the complete bundle, and writes
-`dist/HNNX-0.1.18-arm64.dmg`. HNNX does not currently use a Developer ID
+`dist/HNNX-0.1.19-arm64.dmg`. HNNX does not currently use a Developer ID
 certificate or Apple notarization, so cloning and building locally is the
 recommended macOS installation path. The script does not install Python or
 GraphSurgeon packages.

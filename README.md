@@ -5,7 +5,7 @@ analysis, and NVIDIA ONNX GraphSurgeon-backed editing.
 
 ![HNNX icon](publish/pampam-hnnx-icon.png)
 
-**Current release:** [HNNX v0.1.18](https://gitea.fde2.mrxrunway.ai/mrx-armstrong/hnnx/releases/tag/v0.1.18) · [Source repository](https://gitea.fde2.mrxrunway.ai/mrx-armstrong/hnnx)
+**Current release:** [HNNX v0.1.19](https://gitea.fde2.mrxrunway.ai/mrx-armstrong/hnnx/releases/tag/v0.1.19) · [Source repository](https://gitea.fde2.mrxrunway.ai/mrx-armstrong/hnnx)
 
 Windows, Linux, and VS Code packages are available from the release page.
 Apple Silicon macOS users should build the DMG locally with
@@ -63,7 +63,12 @@ npm start
 ```
 
 Graph editing and shape inference require a Python environment containing ONNX
-and NVIDIA ONNX GraphSurgeon:
+and NVIDIA ONNX GraphSurgeon. The desktop app can create it from
+**HNNX > GraphSurgeon Settings…**. The VS Code extension provides
+**HNNX: Create GraphSurgeon Environment** in the Command Palette; remote
+workspaces create the environment on the remote extension host.
+
+The equivalent manual setup is:
 
 ```bash
 python3 -m venv ~/.hnnx/venv
@@ -82,7 +87,7 @@ Apple Silicon macOS app (recommended local build):
 The script verifies that it is running on Apple Silicon macOS, installs the
 locked npm dependencies with `npm ci`, builds HNNX, ad-hoc signs the complete
 app bundle, verifies the signature, and creates
-`dist/HNNX-0.1.18-arm64.dmg`. For repeat builds with an existing
+`dist/HNNX-0.1.19-arm64.dmg`. For repeat builds with an existing
 `node_modules`, use `./scripts/build-macos-local.sh --skip-install`.
 
 Windows x64 installer:
@@ -105,11 +110,11 @@ npm run build:vscode-hnnx
 
 Generated packages are written to:
 
-- `dist/HNNX-0.1.18-arm64.dmg` (built locally on Apple Silicon macOS)
-- `dist/HNNX-0.1.18-x64-setup.exe`
-- `dist/HNNX-0.1.18-x64.AppImage`
-- `dist/HNNX-0.1.18-x64.deb`
-- `vscode-extension/hnnx-0.1.18.vsix`
+- `dist/HNNX-0.1.19-arm64.dmg` (built locally on Apple Silicon macOS)
+- `dist/HNNX-0.1.19-x64-setup.exe`
+- `dist/HNNX-0.1.19-x64.AppImage`
+- `dist/HNNX-0.1.19-x64.deb`
+- `vscode-extension/hnnx-0.1.19.vsix`
 
 ## macOS distribution policy
 

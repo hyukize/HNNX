@@ -90,7 +90,10 @@ Module._load = function(request, parent, isMain) {
 const {
     OnnxEditorProvider,
     applyOnnxGraphSurgeonEdits,
+    createGraphSurgeonEnvironment,
+    findPythonForVenv,
     inferOnnxGraphSurgeonShapes,
+    recommendedEnvironmentPython,
     validatePython
 } = require('../extension.js');
 Module._load = originalLoad;
@@ -233,6 +236,56 @@ test('validates a configured GraphSurgeon interpreter before saving it', {
 }, async () => {
     assert.equal(await validatePython(process.env.HNNX_TEST_PYTHON), true);
     assert.equal(await validatePython('/path/that/does/not/exist/python'), false);
+});
+
+test('creates the recommended GraphSurgeon environment on the extension host', async () => {
+    const calls = [];
+    const reports = [];
+    const directory = '/remote/home/.hnnx/venv';
+    const interpreter = await createGraphSurgeonEnvironment({
+        directory,
+        platform: 'linux',
+        bootstrap: { command: '/usr/bin/python3', args: [] },
+        runner: async (command, args) => calls.push({ command, args }),
+        validate: async (candidate) => candidate === `${directory}/bin/python3`,
+        report: (message) => reports.push(message)
+    });
+    assert.equal(interpreter, `${directory}/bin/python3`);
+    assert.deepEqual(calls, [
+        { command: '/usr/bin/python3', args: ['-m', 'venv', directory] },
+        { command: interpreter, args: ['-m', 'pip', 'install', '--upgrade', 'pip'] },
+        {
+            command: interpreter,
+            args: [
+                '-m', 'pip', 'install', 'onnx', 'onnx_graphsurgeon',
+                '--extra-index-url', 'https://pypi.ngc.nvidia.com'
+            ]
+        }
+    ]);
+    assert.deepEqual(reports, [
+        'Finding Python 3…',
+        `Creating ${directory}…`,
+        'Upgrading pip…',
+        'Installing ONNX and NVIDIA ONNX GraphSurgeon…',
+        'Environment ready.'
+    ]);
+});
+
+test('uses remote-platform paths and falls back between Python launchers', async () => {
+    const attempts = [];
+    const bootstrap = await findPythonForVenv(async (command, args) => {
+        attempts.push({ command, args });
+        if (command === 'python3') {
+            throw new Error('missing');
+        }
+    }, 'linux');
+    assert.deepEqual(bootstrap, { command: 'python', args: [] });
+    assert.deepEqual(attempts, [
+        { command: 'python3', args: ['-c', 'import sys'] },
+        { command: 'python', args: ['-c', 'import sys'] }
+    ]);
+    assert.equal(recommendedEnvironmentPython('C:\\Users\\hyuk\\.hnnx\\venv', 'win32'),
+        path.join('C:\\Users\\hyuk\\.hnnx\\venv', 'Scripts', 'python.exe'));
 });
 
 test('runs shape inference through the configured remote-side Python', {

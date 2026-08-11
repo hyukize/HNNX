@@ -2,7 +2,7 @@
     "name": "hnnx",
     "displayName": "HNNX",
     "description": "Visualize, analyze, and edit ONNX models with AIMET encoding support, including remote workspaces.",
-    "version": "0.1.18",
+    "version": "0.1.19",
     "publisher": "local",
     "icon": "media/icon.png",
     "license": "MIT",
@@ -19,13 +19,18 @@
     "main": "./extension.js",
     "activationEvents": [
         "onCustomEditor:hnnx.onnxViewer",
-        "onCommand:hnnx.configureGraphSurgeonPython"
+        "onCommand:hnnx.configureGraphSurgeonPython",
+        "onCommand:hnnx.createGraphSurgeonEnvironment"
     ],
     "contributes": {
         "commands": [
             {
                 "command": "hnnx.configureGraphSurgeonPython",
                 "title": "HNNX: Configure GraphSurgeon Python"
+            },
+            {
+                "command": "hnnx.createGraphSurgeonEnvironment",
+                "title": "HNNX: Create GraphSurgeon Environment"
             }
         ],
         "customEditors": [
@@ -56,7 +61,7 @@
                 "hnnx.pythonPath": {
                     "type": "string",
                     "default": "",
-                    "markdownDescription": "Python interpreter containing `onnx` and NVIDIA `onnx_graphsurgeon`. In remote workspaces this path is resolved on the remote extension host. Use the **HNNX: Configure GraphSurgeon Python** command to validate and save it."
+                    "markdownDescription": "Python interpreter containing `onnx` and NVIDIA `onnx_graphsurgeon`. In remote workspaces this path is resolved on the remote extension host. Use **HNNX: Create GraphSurgeon Environment** to create the recommended environment, or **HNNX: Configure GraphSurgeon Python** to validate and save an existing interpreter."
                 },
                 "hnnx.colorTheme": {
                     "type": "string",
@@ -78,7 +83,7 @@
     },
     "scripts": {
         "build:media": "node ./scripts/build-media.mjs",
-        "package": "npm run build:media && npx --yes @vscode/vsce package --no-dependencies --allow-missing-repository --out hnnx-0.1.18.vsix",
+        "package": "npm run build:media && npx --yes @vscode/vsce package --no-dependencies --allow-missing-repository --out hnnx-0.1.19.vsix",
         "test": "node --test ./test/*.test.js"
     },
     "files": [
