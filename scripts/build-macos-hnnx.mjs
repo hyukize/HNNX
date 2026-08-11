@@ -4,7 +4,7 @@ import { spawn } from 'child_process';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const electronBuilder = path.join(root, 'node_modules', 'electron-builder', 'out', 'cli', 'cli.js');
-const version = '0.1.16';
+const version = '0.1.17';
 const app = path.join(root, 'dist', 'mac-arm64', 'HNNX.app');
 
 const run = (command, args) => new Promise((resolve, reject) => {

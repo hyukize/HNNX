@@ -196,8 +196,8 @@ original model so its existing `.data` files remain valid. Graph editing is
 available in the macOS app and VS Code extension; a standalone browser cannot
 run the Python backend.
 
-Node badges represent explicit Graph Input/output QParams (`Q:A8`), parameter QParams
-(`W8`) or quantization signatures (`Q:A8→A16`, `Q:A8/A16→A16`). Propagated precision is
+Node badges represent explicit Graph Input/output QParams (`A8`), parameter QParams
+(`W8`) or quantization signatures (`A8→A16`, `A8/A16→A16`). Propagated precision is
 shown only on graph edges as a muted dashed label such as `~A8`, so
 precision-preserving operations are not mistaken for quantization points.
 
@@ -227,7 +227,7 @@ Apple Silicon macOS (local build):
 
 The script installs locked npm dependencies, builds and ad-hoc signs the app,
 verifies the complete bundle, and writes
-`dist/HNNX-0.1.16-arm64.dmg`. HNNX does not currently use a Developer ID
+`dist/HNNX-0.1.17-arm64.dmg`. HNNX does not currently use a Developer ID
 certificate or Apple notarization, so cloning and building locally is the
 recommended macOS installation path. The script does not install Python or
 GraphSurgeon packages.

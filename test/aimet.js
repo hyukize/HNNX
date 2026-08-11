@@ -80,7 +80,7 @@ assert.deepEqual(EncodingFile.description(grouped), ['Parameter: W4', 'Output: A
 assert.equal(EncodingFile.precision(grouped), 'a8');
 assert.equal(EncodingFile.transition(grouped), '');
 assert.deepEqual(EncodingFile.nodeBadge(grouped, grouped), {
-    labels: ['Q:A8', 'W4'],
+    labels: ['A8', 'W4'],
     descriptions: ['Output QParams: A8', 'Parameter QParams: W4']
 });
 const mixedSignature = {
@@ -90,7 +90,7 @@ const mixedSignature = {
 };
 assert.equal(EncodingFile.transition(mixedSignature), 'A8/A16 \u2192 A16');
 assert.deepEqual(EncodingFile.nodeBadge(mixedSignature, mixedSignature), {
-    labels: ['Q:A8/A16\u2192A16'],
+    labels: ['A8/A16\u2192A16'],
     descriptions: ['Quantization signature: A8/A16 \u2192 A16 (explicit output QParam)']
 });
 assert.deepEqual(EncodingFile.labels({

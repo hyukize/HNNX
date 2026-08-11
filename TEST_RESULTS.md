@@ -1,6 +1,6 @@
 # HNNX Regression Results
 
-Run date: 2026-08-10
+Run date: 2026-08-11
 Host: Apple Silicon macOS
 
 The test scope is defined in `REGRESSION_TEST.md`.
@@ -20,7 +20,7 @@ The test scope is defined in `REGRESSION_TEST.md`.
 | VS Code extension | PASS | 9 unit tests passed, including auto-load control, exact-URI reload and document-scoped detach; 3 configured-Python tests skipped |
 | AIMET browser/editor E2E | PASS | 15 / 15, including runtime Light/Dark overrides, post-connection first-click Re-layout, HNNX showcase model, fixed Split-Concat bundles and fan-out alignment |
 | Netron validation models | NOT RUN | Not rerun in this focused editor audit |
-| Upstream browser/Electron E2E | NOT RUN | Not rerun in this focused editor audit |
+| Native Electron E2E | PASS | ONNX load, desktop encodings attachment, visible ENC control, graph search and sidebar navigation |
 | VSIX packaging | PASS | 184 files; web app and Python backend present |
 | Apple Silicon DMG build | PASS | DMG mounted; app executable is arm64; backend is unpacked |
 | Windows x64 NSIS build | PASS | Cross-build completed; PE32+ HNNX executable and unpacked GraphSurgeon backend present |
@@ -93,7 +93,7 @@ TensorFlow, and TensorFlow Lite.
     classification now selects the explicit `.onnx` as the model, preserves
     sidecar access, and recognizes both `.encodings` and `.encodings.json`.
 21. An explicit QParam attached to a Graph Input was visible only on its edge.
-    Graph Input endpoints now use the same `Q:A8`/`Q:A16` badge policy as other
+    Graph Input endpoints now use the same `A8`/`A16` badge policy as other
     tensor producers and open a dedicated `Graph Input QParam` detail section.
 22. `REFRESH VIEW` occupied a central toolbar position and became the only
     orange control when pending. It now stays as a quiet, disabled secondary
@@ -166,20 +166,25 @@ TensorFlow, and TensorFlow Lite.
     the unpacked app first, ad-hoc signs the complete nested bundle, verifies it
     with strict deep validation, and only then creates the DMG. Native macOS CI
     mounts the resulting DMG and repeats the signature validation.
+37. Explicit activation badges redundantly prefixed every value and transition
+    with `Q:`. Node and Graph Input badges now use the compact `A8`, `A16`,
+    `A8→A16`, and `A8/A16→A16` forms while retaining the same colors, QParam
+    details, and propagated `~A*` edge distinction.
 
 ## Package artifacts
 
 | Artifact | Size | SHA-256 |
 | --- | --- | --- |
-| `dist/HNNX-0.1.16-arm64.dmg` | 125,949,105 bytes | `6f462eeeb929c0eea726d8bc93addb1618bff9c6244d9e68930302948aaafc2f` |
-| `dist/HNNX-0.1.16-x64-setup.exe` | 91,729,502 bytes | `d5f44c1311481277b8ca47d2c3abe7af003b3646d9584e5b808f600c309fdc17` |
-| `dist/HNNX-0.1.16-x64.AppImage` | 131,223,116 bytes | `4e0d9641c006e3ea90bc679431d435c3be3e28879b8fcabf64299b93728728bb` |
-| `dist/HNNX-0.1.16-x64.deb` | 103,112,464 bytes | `c64f5b23d6a2c0961bea906f4728627c92f6da8e76b3f7079caaaa81e23565a2` |
-| `vscode-extension/hnnx-0.1.16.vsix` | 3,623,850 bytes | `33c196b5ad4ddfd7384e08da17206e0d9679cfc970ec4768dd35fd127a4aa979` |
+| `dist/HNNX-0.1.17-arm64.dmg` | 125,949,498 bytes | `264d82235935a0049a6a51b0fa7b407f9662ab1ff54988ea073a587374715f58` |
+| `dist/HNNX-0.1.17-x64-setup.exe` | 91,729,126 bytes | `d32f0dcf0e60eba839612dd490ada75c3bbf1563c5027a4c6050e2395ba59a9a` |
+| `dist/HNNX-0.1.17-x64.AppImage` | 131,223,015 bytes | `0860415c1e27189addba89649a4601a85b362e058f2e310c55ddaaefaaae3276` |
+| `dist/HNNX-0.1.17-x64.deb` | 103,114,924 bytes | `8361fadea23e32537ca12b54e4cc56ad83784686d9d12a9bbac5015d8d8f842b` |
+| `vscode-extension/hnnx-0.1.17.vsix` | 3,623,851 bytes | `e44c552629245daceceb581127769bcddd4943d0fd67d92e77c2ca96a60ed108` |
 
 ## Manual checks still required
 
-- Install the DMG and exercise one complete edit/save/reopen flow.
+- Build the macOS DMG locally, install it, and exercise one complete
+  edit/save/reopen flow.
 - Install the VSIX in a real local and Kubernetes/remote VS Code window.
 - Run the NSIS installer on native Windows x64 and both Linux packages on a
   native x64 Debian/Ubuntu desktop.
@@ -192,7 +197,8 @@ These are not counted as automated passes.
 
 ## Environment note
 
-Dedicated HNNX build targets produce macOS arm64 DMG, Windows x64 NSIS, Linux
-x64 AppImage/deb, and VSIX packages. CI runs Electron smoke tests and package
-inspection on native macOS, Windows, and Linux runners. Installation and
-interactive end-to-end checks remain manual.
+Dedicated HNNX build targets produce a local macOS arm64 DMG, Windows x64 NSIS,
+Linux x64 AppImage/deb, and VSIX packages. CI runs Electron smoke tests and
+package inspection on native macOS, Windows, and Linux runners. macOS users
+build locally until Developer ID signing and notarization are available;
+installation and interactive end-to-end checks remain manual.

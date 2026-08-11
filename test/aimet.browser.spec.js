@@ -214,13 +214,13 @@ playwright.test('AIMET encodings attachment', async ({ page }) => {
     playwright.expect(zoomRatio).toBeGreaterThan(1);
 
     const inputBadge = page.locator('#input-name-x .node-item-quantization');
-    await playwright.expect(inputBadge).toContainText('Q:A8');
+    await playwright.expect(inputBadge).toContainText('A8');
     await inputBadge.click();
     const inputSidebar = page.locator('#sidebar-content');
     await playwright.expect(inputSidebar).toContainText('Graph Input QParam');
     await playwright.expect(inputSidebar).toContainText('A8');
 
-    const badge = page.locator('.node-item-quantization', { hasText: 'Q:A8→A16' });
+    const badge = page.locator('.node-item-quantization', { hasText: 'A8→A16' });
     await playwright.expect(badge).toBeVisible();
     await badge.click();
     const nodeSidebar = page.locator('#sidebar-content');

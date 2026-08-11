@@ -14,7 +14,9 @@ playwright.test('desktop', async () => {
     // referenced a separately downloaded third_party model, which is not part
     // of an HNNX checkout or a Gitea Actions workspace.
     const file = path.resolve(dir, 'aimet.onnx');
+    const encodings = path.resolve(dir, 'aimet.encodings');
     playwright.expect(fs.existsSync(file)).toBeTruthy();
+    playwright.expect(fs.existsSync(encodings)).toBeTruthy();
 
     // Launch app
     const electron = await playwright._electron;
@@ -46,6 +48,21 @@ playwright.test('desktop', async () => {
     await page.waitForSelector('body.default', { timeout: 10000 });
 
     await playwright.expect(page.getByText('Abs', { exact: true })).toBeVisible();
+
+    // Desktop attachments bypass browser.Host._openContext(). Verify that the
+    // native path still records the source and reveals the ENC control after
+    // the quantization data has been applied.
+    await app.evaluate(async (electron, location) => {
+        const windows = electron.BrowserWindow.getAllWindows();
+        if (windows.length > 0) {
+            windows[0].webContents.send('open', { path: location });
+        }
+    }, encodings);
+    await page.waitForSelector('.node-item-quantization', { timeout: 10000 });
+    await playwright.expect(page.locator('html')).toHaveClass(/has-encodings/);
+    const encodingsToggle = page.locator('#encodings-toggle-button');
+    await playwright.expect(encodingsToggle).toBeVisible();
+    await playwright.expect(encodingsToggle).toHaveAttribute('title', /Hide AIMET encodings/);
 
     // Open find sidebar and verify that the rendered HNNX graph is searchable.
     await app.evaluate(async (electron) => {

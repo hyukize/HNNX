@@ -566,6 +566,11 @@ desktop.Host = class {
             try {
                 const attachment = await this._view.attach(context);
                 if (attachment) {
+                    // Desktop opens attachments directly instead of using the
+                    // browser host's _openContext() path. Keep the attachment
+                    // source in sync so the ENC visibility control reflects
+                    // the quantization that was just applied to the model.
+                    this._view.setEncodingsSource(path);
                     this._view.show(null);
                 } else {
                     const model = await this._view.open(context);

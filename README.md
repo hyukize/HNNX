@@ -12,7 +12,7 @@ analysis, and NVIDIA ONNX GraphSurgeon-backed editing.
 - Drop an ONNX model, its external `.data` sidecar, and encodings together
 - Trace activation precision through encoding-free graph operations
 - Inspect mixed precision, QParams, parameter bit widths, and encoding mismatches
-- See explicit Graph Input quantizers as `Q:A8`/`Q:A16` endpoint badges
+- See explicit Graph Input quantizers as `A8`/`A16` endpoint badges
 - Edit graph connections, nodes, inputs, outputs, and common Opset 17 operators
 - Undo, redo, reset, shape inference, validation, and Save As
 - Build the native Apple Silicon macOS app locally, or use the distributed Windows/Linux packages and VS Code extension
@@ -49,7 +49,7 @@ Apple Silicon macOS app (recommended local build):
 The script verifies that it is running on Apple Silicon macOS, installs the
 locked npm dependencies with `npm ci`, builds HNNX, ad-hoc signs the complete
 app bundle, verifies the signature, and creates
-`dist/HNNX-0.1.16-arm64.dmg`. For repeat builds with an existing
+`dist/HNNX-0.1.17-arm64.dmg`. For repeat builds with an existing
 `node_modules`, use `./scripts/build-macos-local.sh --skip-install`.
 
 Windows x64 installer:
@@ -72,11 +72,11 @@ npm run build:vscode-hnnx
 
 Generated packages are written to:
 
-- `dist/HNNX-0.1.16-arm64.dmg` (built locally on Apple Silicon macOS)
-- `dist/HNNX-0.1.16-x64-setup.exe`
-- `dist/HNNX-0.1.16-x64.AppImage`
-- `dist/HNNX-0.1.16-x64.deb`
-- `vscode-extension/hnnx-0.1.16.vsix`
+- `dist/HNNX-0.1.17-arm64.dmg` (built locally on Apple Silicon macOS)
+- `dist/HNNX-0.1.17-x64-setup.exe`
+- `dist/HNNX-0.1.17-x64.AppImage`
+- `dist/HNNX-0.1.17-x64.deb`
+- `vscode-extension/hnnx-0.1.17.vsix`
 
 ## macOS distribution policy
 

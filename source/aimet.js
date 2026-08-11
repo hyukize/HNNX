@@ -281,12 +281,12 @@ aimet.EncodingFile = class {
         const descriptions = [];
         const transition = aimet.EncodingFile.transition(precision);
         if (transition && explicit.outputs.length > 0) {
-            labels.push(`Q:${transition.replaceAll(' ', '')}`);
+            labels.push(transition.replaceAll(' ', ''));
             descriptions.push(`Quantization signature: ${transition} (explicit output QParam)`);
         } else {
             const outputs = unique(explicit.outputs);
             if (outputs.length > 0) {
-                labels.push(`Q:${outputs.join('/')}`);
+                labels.push(outputs.join('/'));
                 descriptions.push(`Output QParams: ${outputs.join('/')}`);
             }
         }
