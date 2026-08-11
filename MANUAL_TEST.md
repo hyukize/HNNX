@@ -9,12 +9,14 @@ Use a copy of the ONNX file when testing `SAVE AS`.
 
 ## 1. macOS installation and GraphSurgeon setup
 
-1. Install the latest `dist/HNNX-0.1.15-arm64.dmg`.
-2. Open **HNNX > GraphSurgeon Settings…** or press `Cmd+,`.
-3. Select the Python executable that contains `onnx` and
+1. Install the latest `dist/HNNX-0.1.16-arm64.dmg`.
+2. Control-click the copied app, choose **Open**, and confirm the unsigned-app
+   prompt. Confirm that macOS does not report the app as damaged.
+3. Open **HNNX > GraphSurgeon Settings…** or press `Cmd+,`.
+4. Select the Python executable that contains `onnx` and
    `onnx_graphsurgeon`.
-4. Confirm that **GraphSurgeon Python is ready** appears.
-5. Open the settings again and confirm that the saved interpreter path is
+5. Confirm that **GraphSurgeon Python is ready** appears.
+6. Open the settings again and confirm that the saved interpreter path is
    displayed.
 
 Expected: an invalid interpreter is rejected and cannot be saved.
@@ -182,7 +184,7 @@ Expected:
 
 ## 12. VS Code and remote workspace
 
-1. Install `vscode-extension/hnnx-0.1.15.vsix`.
+1. Install `vscode-extension/hnnx-0.1.16.vsix`.
 2. Reload VS Code.
 3. Run **HNNX: Configure GraphSurgeon Python** from the Command
    Palette.
@@ -261,7 +263,7 @@ Expected:
 
 ### Windows x64
 
-1. Install `dist/HNNX-0.1.15-x64-setup.exe`.
+1. Install `dist/HNNX-0.1.16-x64-setup.exe`.
 2. Open an ONNX file through HNNX and by double-clicking the associated file.
 3. Open **View > Theme**, test Auto/Light/Dark, and restart the app.
 4. Open GraphSurgeon Settings and create the recommended environment.
@@ -270,8 +272,8 @@ Expected:
 
 ### Linux x64
 
-1. Mark `dist/HNNX-0.1.15-x64.AppImage` executable and launch it.
-2. Install `dist/HNNX-0.1.15-x64.deb` on a Debian/Ubuntu test machine.
+1. Mark `dist/HNNX-0.1.16-x64.AppImage` executable and launch it.
+2. Install `dist/HNNX-0.1.16-x64.deb` on a Debian/Ubuntu test machine.
 3. Confirm both packages use the HNNX icon and `hnnx` executable identity.
 4. Test Auto/Light/Dark, GraphSurgeon environment creation, Infer Shapes and
    Save As.

@@ -160,16 +160,22 @@ TensorFlow, and TensorFlow Lite.
     Electron smoke tests and package validation on actual macOS, Windows, and
     Linux runners. Gitea's Linux runner executes the Linux path; GitHub-hosted
     native runners execute all three operating-system paths.
+36. The unsigned macOS bundle retained only Electron's linker-generated
+    executable signature. Gatekeeper rejected it because bundle resources were
+    not sealed and could report the app as damaged. The macOS build now creates
+    the unpacked app first, ad-hoc signs the complete nested bundle, verifies it
+    with strict deep validation, and only then creates the DMG. Native macOS CI
+    mounts the resulting DMG and repeats the signature validation.
 
 ## Package artifacts
 
 | Artifact | Size | SHA-256 |
 | --- | --- | --- |
-| `dist/HNNX-0.1.15-arm64.dmg` | 127,024,868 bytes | `e2f9cd098a275a99b087d451ea1b087cbd20b7ad785f580474dc66108dc56127` |
-| `dist/HNNX-0.1.15-x64-setup.exe` | 91,729,849 bytes | `c5279afce7379e2714c456c6295b4dd66763494a602b72d681fe2f7f1ec8fc13` |
-| `dist/HNNX-0.1.15-x64.AppImage` | 131,223,076 bytes | `f7e87b090c5fa9514f7b50b557003b73eb66ca2953caf16e11df63a0206056ef` |
-| `dist/HNNX-0.1.15-x64.deb` | 103,113,488 bytes | `1d36de4203db3ba8da1e8bbc64ffe0182b808a54f8a116846c309cc84089c367` |
-| `vscode-extension/hnnx-0.1.15.vsix` | 3,623,851 bytes | `8713317be2077ab9f6ff01c586f977d1d4cf81782f4d7dd6e205ea135cf95a3e` |
+| `dist/HNNX-0.1.16-arm64.dmg` | 125,949,105 bytes | `6f462eeeb929c0eea726d8bc93addb1618bff9c6244d9e68930302948aaafc2f` |
+| `dist/HNNX-0.1.16-x64-setup.exe` | 91,729,502 bytes | `d5f44c1311481277b8ca47d2c3abe7af003b3646d9584e5b808f600c309fdc17` |
+| `dist/HNNX-0.1.16-x64.AppImage` | 131,223,116 bytes | `4e0d9641c006e3ea90bc679431d435c3be3e28879b8fcabf64299b93728728bb` |
+| `dist/HNNX-0.1.16-x64.deb` | 103,112,464 bytes | `c64f5b23d6a2c0961bea906f4728627c92f6da8e76b3f7079caaaa81e23565a2` |
+| `vscode-extension/hnnx-0.1.16.vsix` | 3,623,850 bytes | `33c196b5ad4ddfd7384e08da17206e0d9679cfc970ec4768dd35fd127a4aa979` |
 
 ## Manual checks still required
 

@@ -66,11 +66,20 @@ npm run build:vscode-hnnx
 
 Generated packages are written to:
 
-- `dist/HNNX-0.1.15-arm64.dmg`
-- `dist/HNNX-0.1.15-x64-setup.exe`
-- `dist/HNNX-0.1.15-x64.AppImage`
-- `dist/HNNX-0.1.15-x64.deb`
-- `vscode-extension/hnnx-0.1.15.vsix`
+- `dist/HNNX-0.1.16-arm64.dmg`
+- `dist/HNNX-0.1.16-x64-setup.exe`
+- `dist/HNNX-0.1.16-x64.AppImage`
+- `dist/HNNX-0.1.16-x64.deb`
+- `vscode-extension/hnnx-0.1.16.vsix`
+
+## macOS first launch
+
+The macOS package is ad-hoc signed but is not Apple Developer ID signed or
+notarized. After copying HNNX to Applications, Control-click the app, choose
+**Open**, and confirm **Open** once. Do not disable Gatekeeper globally.
+
+Release 0.1.16 seals and verifies the complete app bundle before creating the
+DMG. Earlier unsigned packages could be reported as damaged by macOS.
 
 ## Attribution
 

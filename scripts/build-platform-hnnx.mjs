@@ -5,7 +5,7 @@ import { spawn } from 'child_process';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const platform = process.argv[2];
-const version = '0.1.15';
+const version = '0.1.16';
 const electronBuilder = path.join(root, 'node_modules', 'electron-builder', 'out', 'cli', 'cli.js');
 
 if (!['windows', 'linux'].includes(platform)) {

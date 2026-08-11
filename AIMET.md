@@ -225,7 +225,7 @@ Apple Silicon:
 npm run build:mac-hnnx
 ```
 
-The unsigned DMG is written to `dist/HNNX-0.1.15-arm64.dmg`.
+The ad-hoc signed DMG is written to `dist/HNNX-0.1.16-arm64.dmg`.
 The custom build uses a separate application identifier and settings folder,
 and official Netron auto-updates are disabled.
 
