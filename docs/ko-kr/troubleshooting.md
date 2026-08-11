@@ -20,7 +20,7 @@ cd hnnx
 
 ## `externally-managed-environment` 오류
 
-Homebrew와 많은 Linux 배포판은 PEP 668에 따라 system Python을 보호합니다.
+Homebrew와 많은 Linux 배포판은 PEP 668에 따라 시스템 Python을 보호합니다.
 HNNX를 설치하기 위해 `--break-system-packages`를 사용하지 않습니다.
 
 HNNX의 **Create Recommended Environment**를 사용하거나 전용 venv를 생성합니다.
@@ -43,13 +43,13 @@ python3 -m venv ~/.hnnx/venv
 ~/.hnnx/venv/bin/python -c "import onnx, onnx_graphsurgeon"
 ```
 
-Windows에서는 `~/.hnnx/venv/Scripts/python.exe`를 사용합니다. VS Code remote
-session에서는 local Mac이 아니라 remote 환경에서 확인합니다.
+Windows에서는 `~/.hnnx/venv/Scripts/python.exe`를 사용합니다. VS Code 원격
+세션에서는 로컬 Mac이 아니라 원격 환경에서 확인합니다.
 
-## Remote 또는 Kubernetes에서 VSIX 미동작
+## 원격 또는 Kubernetes에서 VSIX 미동작
 
-HNNX는 workspace extension입니다. Remote extension host에 설치하거나 활성화한
-뒤 연결된 상태에서 **HNNX: Create GraphSurgeon Environment**를 실행합니다. Model,
+HNNX는 workspace extension입니다. 원격 extension host에 설치하거나 활성화한
+뒤 연결된 상태에서 **HNNX: Create GraphSurgeon Environment**를 실행합니다. 모델,
 external data, encodings, Python 경로를 모두 해당 host에서 접근할 수 있어야 합니다.
 
 ## `ENC` 버튼 미표시
@@ -61,10 +61,10 @@ Encodings 파일이 attachment된 경우에만 버튼을 표시합니다.
 - 파일을 외부에서 수정했다면 **Reload Encodings**를 실행합니다.
 - 현재 VSIX를 설치했는지 확인하고 오래된 확장은 삭제하거나 업데이트합니다.
 
-## Encodings tensor mismatch
+## Encodings 텐서 불일치
 
 Encoding export에는 ONNX export 또는 편집 중 삭제·변경된 이름이 남을 수 있습니다.
-Model statistics에서 mismatch entry를 확인합니다. HNNX는 graph가 변경되어도
+Model statistics에서 불일치 항목을 확인합니다. HNNX는 그래프가 변경되어도
 encodings를 다시 작성하지 않으므로 현재 ONNX에 맞게 생성한 파일을 불러옵니다.
 
 ## External-data ONNX 열기 또는 저장 실패
@@ -77,27 +77,27 @@ ONNX와 `.data` sidecar를 같은 폴더에 둡니다. HNNX는 안전을 위해 
 
 일반적인 원인은 다음과 같습니다.
 
-- 필수 input 또는 Graph Output이 끊어져 있습니다.
+- 필수 입력 또는 `Graph Output`이 끊어져 있습니다.
 - 연결이 cycle을 생성합니다.
-- Tensor element type이 호환되지 않습니다.
-- Operator attribute가 Opset 17 schema에 맞지 않습니다.
+- 텐서 원소 타입이 호환되지 않습니다.
+- 연산자 속성이 Opset 17 schema에 맞지 않습니다.
 - Custom operator에 ONNX shape function이 없습니다.
 
-편집 중 일부 invalid state는 허용하지만 필수 연결을 복구하기 전에는 Infer Shapes와
+편집 중 일부 유효하지 않은 중간 상태는 허용하지만 필수 연결을 복구하기 전에는 Infer Shapes와
 Save As를 실행할 수 없습니다. Custom operator가 유효하더라도 shape는 일부만
 추론될 수 있습니다.
 
-TopK의 두 output은 의미가 다릅니다. `values`와 integer `indices`를 각각 호환되는
-destination에 연결합니다.
+TopK의 두 출력은 의미가 다릅니다. `values`와 integer `indices`를 각각 호환되는
+대상에 연결합니다.
 
 ## 대형 모델 성능 저하
 
-최초 로딩은 전체 graph를 parsing하고 layout과 SVG를 생성합니다. 로드 이후에는
+최초 로딩은 전체 그래프를 parsing하고 layout과 SVG를 생성합니다. 로드 이후에는
 다음 방법을 사용합니다.
 
 - VS Code에서 ONNX tab을 고정하여 전체 reload를 피합니다.
 - Find와 확장된 zoom 범위를 사용합니다.
-- Incremental edit를 우선 사용하고 필요할 때만 Re-layout을 실행합니다.
+- 증분 편집을 우선 사용하고 필요할 때만 Re-layout을 실행합니다.
 - 사용하지 않는 model tab을 닫고 Electron, VS Code extension host 또는
   WindowServer의 CPU와 memory 사용량을 확인합니다.
 
@@ -107,4 +107,4 @@ Save As는 항상 플랫폼 파일 선택창을 엽니다. 다른 이름을 선�
 생성합니다. 원본을 덮어쓰려면 원본 경로를 직접 선택하고 플랫폼의 overwrite
 확인을 진행합니다.
 
-HNNX가 View mode에 있더라도 저장 파일에는 현재 편집 session이 포함됩니다.
+HNNX가 View 모드에 있더라도 저장 파일에는 현재 편집 세션이 포함됩니다.

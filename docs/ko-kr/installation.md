@@ -2,7 +2,7 @@
 
 [English](../installation.md) | 한국어
 
-HNNX는 데스크톱 앱, VS Code 확장, source code 형태로 제공합니다. 현재 버전의
+HNNX는 데스크톱 앱, VS Code 확장, 소스 코드 형태로 제공합니다. 현재 버전의
 모든 패키지는 [v0.1.19 릴리스 페이지](https://gitea.fde2.mrxrunway.ai/mrx-armstrong/hnnx/releases/tag/v0.1.19)에서
 확인합니다.
 
@@ -66,7 +66,7 @@ Debian 또는 Ubuntu에서는 다음과 같이 설치합니다.
 sudo apt install ./HNNX-0.1.19-x64.deb
 ```
 
-데스크톱 앱은 graphical session이 필요합니다. CLI 전용 또는 remote 환경에서는
+데스크톱 앱은 그래픽 세션이 필요합니다. CLI 전용 또는 원격 환경에서는
 로컬 VS Code를 해당 환경에 연결하고 HNNX 확장을 사용합니다.
 
 ## VS Code 확장
@@ -74,7 +74,7 @@ sudo apt install ./HNNX-0.1.19-x64.deb
 다음 환경이 필요합니다.
 
 - VS Code 1.90 이상
-- ONNX 파일이 있는 local 또는 remote workspace
+- ONNX 파일이 있는 로컬 또는 원격 workspace
 
 1. `hnnx-0.1.19.vsix`를 받습니다.
 2. VS Code에서 Extensions를 엽니다.
@@ -88,12 +88,12 @@ code --install-extension hnnx-0.1.19.vsix --force
 ```
 
 확장은 workspace extension host에서 실행됩니다. Remote SSH, Dev Container,
-Kubernetes 환경에서는 Python 설정과 모델 접근도 remote 환경에서 수행합니다.
+Kubernetes 환경에서는 Python 설정과 모델 접근도 원격 환경에서 수행합니다.
 
 로컬 VSIX를 업데이트할 때는 새 파일을 `--force`로 설치하거나 기존 HNNX를
 삭제한 후 새로운 VSIX를 설치합니다.
 
-## Source code 실행
+## 소스 코드 실행
 
 Git, Node.js, npm이 필요합니다.
 
@@ -104,13 +104,13 @@ npm install
 npm start
 ```
 
-`npm install`은 JavaScript 의존성만 설치합니다. system Python을 변경하거나
+`npm install`은 JavaScript 의존성만 설치합니다. 시스템 Python을 변경하거나
 GraphSurgeon을 설치하지 않습니다.
 
 ## 선택 사항인 Python backend
 
 ONNX와 AIMET encodings를 보는 기능에는 Python backend가 필요하지 않습니다.
-Graph 편집, Save As 검증, shape inference에는 Python 3, ONNX, NVIDIA ONNX
+그래프 편집, Save As 검증, 형상 추론에는 Python 3, ONNX, NVIDIA ONNX
 GraphSurgeon이 필요합니다.
 
 내장된 환경 생성 명령을 사용하거나 [그래프 편집](graph-editing.md#graphsurgeon-환경)의
