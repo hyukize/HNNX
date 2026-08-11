@@ -5,6 +5,13 @@ analysis, and NVIDIA ONNX GraphSurgeon-backed editing.
 
 ![HNNX icon](publish/pampam-hnnx-icon.png)
 
+**Current release:** [HNNX v0.1.18](https://gitea.fde2.mrxrunway.ai/mrx-armstrong/hnnx/releases/tag/v0.1.18) · [Source repository](https://gitea.fde2.mrxrunway.ai/mrx-armstrong/hnnx)
+
+Windows, Linux, and VS Code packages are available from the release page.
+Apple Silicon macOS users should build the DMG locally with
+`./scripts/build-macos-local.sh` until Developer ID signing and notarization
+are available.
+
 ## Highlights
 
 - Visualize ONNX models together with AIMET encodings
@@ -15,6 +22,7 @@ analysis, and NVIDIA ONNX GraphSurgeon-backed editing.
 - See explicit Graph Input quantizers as `A8`/`A16` endpoint badges
 - Edit graph connections, nodes, inputs, outputs, and common Opset 17 operators
 - Undo, redo, reset, shape inference, validation, and Save As
+- Keep primary actions in the stable `SAVE AS → INFER SHAPES → RE-LAYOUT → EDIT → ENC` order; attaching encodings does not move the preceding controls
 - Build the native Apple Silicon macOS app locally, or use the distributed Windows/Linux packages and VS Code extension
 - Open models from VS Code Remote and Kubernetes workspaces
 - Select Auto, Light, or Dark appearance; Auto follows the operating system or VS Code
