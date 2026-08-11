@@ -78,6 +78,4 @@ an A16 output, and a four-way Split-to-Concat bundle.
 
 HNNX is derived from [Netron](https://github.com/lutzroeder/netron) and retains
 Netron's MIT license and copyright notice. HNNX-specific modifications are by
-Jonghyuk Park. The canonical public repository is
-[hyukize/HNNX](https://github.com/hyukize/HNNX); organization-hosted copies may
-be maintained as internal distribution mirrors. See [LICENSE](LICENSE).
+Jonghyuk Park. See [LICENSE](LICENSE).
