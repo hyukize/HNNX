@@ -219,13 +219,18 @@ The npm install process does not install Python packages.
 
 ## Build the macOS app
 
-Apple Silicon:
+Apple Silicon macOS (local build):
 
 ```bash
-npm run build:mac-hnnx
+./scripts/build-macos-local.sh
 ```
 
-The ad-hoc signed DMG is written to `dist/HNNX-0.1.16-arm64.dmg`.
+The script installs locked npm dependencies, builds and ad-hoc signs the app,
+verifies the complete bundle, and writes
+`dist/HNNX-0.1.16-arm64.dmg`. HNNX does not currently use a Developer ID
+certificate or Apple notarization, so cloning and building locally is the
+recommended macOS installation path. The script does not install Python or
+GraphSurgeon packages.
 The custom build uses a separate application identifier and settings folder,
 and official Netron auto-updates are disabled.
 

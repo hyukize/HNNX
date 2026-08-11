@@ -15,7 +15,7 @@ analysis, and NVIDIA ONNX GraphSurgeon-backed editing.
 - See explicit Graph Input quantizers as `Q:A8`/`Q:A16` endpoint badges
 - Edit graph connections, nodes, inputs, outputs, and common Opset 17 operators
 - Undo, redo, reset, shape inference, validation, and Save As
-- Use the native Apple Silicon macOS app, Windows/Linux desktop packages, or VS Code extension
+- Build the native Apple Silicon macOS app locally, or use the distributed Windows/Linux packages and VS Code extension
 - Open models from VS Code Remote and Kubernetes workspaces
 - Select Auto, Light, or Dark appearance; Auto follows the operating system or VS Code
 
@@ -40,11 +40,17 @@ python3 -m venv ~/.hnnx/venv
 
 ## Build
 
-Apple Silicon macOS app:
+Apple Silicon macOS app (recommended local build):
 
 ```bash
-npm run build:mac-hnnx
+./scripts/build-macos-local.sh
 ```
+
+The script verifies that it is running on Apple Silicon macOS, installs the
+locked npm dependencies with `npm ci`, builds HNNX, ad-hoc signs the complete
+app bundle, verifies the signature, and creates
+`dist/HNNX-0.1.16-arm64.dmg`. For repeat builds with an existing
+`node_modules`, use `./scripts/build-macos-local.sh --skip-install`.
 
 Windows x64 installer:
 
@@ -66,23 +72,32 @@ npm run build:vscode-hnnx
 
 Generated packages are written to:
 
-- `dist/HNNX-0.1.16-arm64.dmg`
+- `dist/HNNX-0.1.16-arm64.dmg` (built locally on Apple Silicon macOS)
 - `dist/HNNX-0.1.16-x64-setup.exe`
 - `dist/HNNX-0.1.16-x64.AppImage`
 - `dist/HNNX-0.1.16-x64.deb`
 - `vscode-extension/hnnx-0.1.16.vsix`
 
-## macOS first launch
+## macOS distribution policy
 
-The macOS package is ad-hoc signed but is not Apple Developer ID signed or
-notarized. After copying HNNX to Applications, Control-click the app, choose
-**Open**, and confirm **Open** once. Do not disable Gatekeeper globally.
+HNNX does not currently distribute a Developer ID-signed and Apple-notarized
+macOS binary as its primary installation method. macOS users should clone this
+repository and run `./scripts/build-macos-local.sh`, then open the generated DMG
+and copy HNNX to Applications. This avoids distributing a downloaded,
+unnotarized application and keeps the macOS build under the user's control.
 
-Release 0.1.16 seals and verifies the complete app bundle before creating the
-DMG. Earlier unsigned packages could be reported as damaged by macOS.
+The local build is ad-hoc signed and verified, but ad-hoc signing is not a
+substitute for Apple Developer ID signing or notarization. Do not disable
+Gatekeeper globally. Graph editing and shape inference still require the
+separate Python environment described above; the build script never installs
+Python packages or modifies Homebrew Python.
 
 ## Attribution
 
 HNNX is derived from [Netron](https://github.com/lutzroeder/netron) and retains
 Netron's MIT license and copyright notice. HNNX-specific modifications are by
-Jonghyuk Park. See [NOTICE](NOTICE) and [LICENSE](LICENSE).
+Jonghyuk Park. The canonical project repository is
+[hyukize/HNNX](https://github.com/hyukize/HNNX); organization-hosted copies may
+be maintained as internal distribution mirrors. Mirroring does not replace the
+copyright and license notices in this repository. See [NOTICE](NOTICE) and
+[LICENSE](LICENSE).
