@@ -3,7 +3,7 @@
 HNNX is an ONNX graph workbench for model inspection, AIMET quantization
 analysis, and NVIDIA ONNX GraphSurgeon-backed editing.
 
-![HNNX icon](publish/pampam-hnnx-icon.png)
+<img src="publish/pampam-hnnx-icon.png" alt="HNNX icon" width="180">
 
 **Current release:** [HNNX v0.1.19](https://gitea.fde2.mrxrunway.ai/mrx-armstrong/hnnx/releases/tag/v0.1.19) · [Source repository](https://gitea.fde2.mrxrunway.ai/mrx-armstrong/hnnx)
 
