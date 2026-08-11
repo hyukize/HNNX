@@ -227,7 +227,7 @@ Apple Silicon macOS (local build):
 
 The script installs locked npm dependencies, builds and ad-hoc signs the app,
 verifies the complete bundle, and writes
-`dist/HNNX-0.1.17-arm64.dmg`. HNNX does not currently use a Developer ID
+`dist/HNNX-0.1.18-arm64.dmg`. HNNX does not currently use a Developer ID
 certificate or Apple notarization, so cloning and building locally is the
 recommended macOS installation path. The script does not install Python or
 GraphSurgeon packages.

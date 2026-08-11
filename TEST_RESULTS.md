@@ -170,16 +170,20 @@ TensorFlow, and TensorFlow Lite.
     with `Q:`. Node and Graph Input badges now use the compact `A8`, `A16`,
     `A8→A16`, and `A8/A16→A16` forms while retaining the same colors, QParam
     details, and propagated `~A*` edge distinction.
+38. The conditional `ENC` control could move the other primary actions when
+    encodings were attached or detached. Primary actions now keep the fixed
+    `SAVE AS`, `INFER SHAPES`, `RE-LAYOUT`, `EDIT`, `ENC` order, with desktop
+    regression coverage asserting that the first four controls do not move.
 
 ## Package artifacts
 
 | Artifact | Size | SHA-256 |
 | --- | --- | --- |
-| `dist/HNNX-0.1.17-arm64.dmg` | 125,949,498 bytes | `264d82235935a0049a6a51b0fa7b407f9662ab1ff54988ea073a587374715f58` |
-| `dist/HNNX-0.1.17-x64-setup.exe` | 91,729,126 bytes | `d32f0dcf0e60eba839612dd490ada75c3bbf1563c5027a4c6050e2395ba59a9a` |
-| `dist/HNNX-0.1.17-x64.AppImage` | 131,223,015 bytes | `0860415c1e27189addba89649a4601a85b362e058f2e310c55ddaaefaaae3276` |
-| `dist/HNNX-0.1.17-x64.deb` | 103,114,924 bytes | `8361fadea23e32537ca12b54e4cc56ad83784686d9d12a9bbac5015d8d8f842b` |
-| `vscode-extension/hnnx-0.1.17.vsix` | 3,623,851 bytes | `e44c552629245daceceb581127769bcddd4943d0fd67d92e77c2ca96a60ed108` |
+| `dist/HNNX-0.1.18-arm64.dmg` | 125,949,264 bytes | `e790862909270cf3722df888947fb5ca0a4c3e80bd9977f874ef28c9bc804648` |
+| `dist/HNNX-0.1.18-x64-setup.exe` | 91,729,848 bytes | `84eda7f3a96c80eda186dbaf9f474ae17b0d35585faf367fd20a81785b47c678` |
+| `dist/HNNX-0.1.18-x64.AppImage` | 131,223,015 bytes | `61ced5dcf560709de3beb455c935e925605d9439bcb409624e56bdacf085eb4d` |
+| `dist/HNNX-0.1.18-x64.deb` | 103,115,176 bytes | `170fdb2edad6b2bd9c90e98fb9eede927a3f6dae9577a1d0699f35a4633b3b2f` |
+| `vscode-extension/hnnx-0.1.18.vsix` | 3,623,843 bytes | `f430e89b89a66751c98f7e2d3f675a378444f040f925815f8fd073d7505bd6a3` |
 
 ## Manual checks still required
 

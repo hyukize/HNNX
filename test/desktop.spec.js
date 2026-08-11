@@ -49,6 +49,19 @@ playwright.test('desktop', async () => {
 
     await playwright.expect(page.getByText('Abs', { exact: true })).toBeVisible();
 
+    const fixedToolbarButtons = [
+        '#graph-edit-save-button',
+        '#graph-edit-infer-button',
+        '#graph-edit-layout-button',
+        '#graph-edit-button'
+    ];
+    const toolbarPositionsBeforeEncodings = await page.locator(fixedToolbarButtons.join(', ')).evaluateAll((elements, selectors) => {
+        const positions = new Map(elements.map((element) => [element.id, element.getBoundingClientRect().x]));
+        return selectors.map((selector) => positions.get(selector.slice(1)));
+    }, fixedToolbarButtons);
+    await playwright.expect(page.locator(
+        '#graph-edit-save-button + #graph-edit-infer-button + #graph-edit-layout-button + #graph-edit-button + #encodings-toggle-button')).toHaveCount(1);
+
     // Desktop attachments bypass browser.Host._openContext(). Verify that the
     // native path still records the source and reveals the ENC control after
     // the quantization data has been applied.
@@ -63,6 +76,11 @@ playwright.test('desktop', async () => {
     const encodingsToggle = page.locator('#encodings-toggle-button');
     await playwright.expect(encodingsToggle).toBeVisible();
     await playwright.expect(encodingsToggle).toHaveAttribute('title', /Hide AIMET encodings/);
+    const toolbarPositionsAfterEncodings = await page.locator(fixedToolbarButtons.join(', ')).evaluateAll((elements, selectors) => {
+        const positions = new Map(elements.map((element) => [element.id, element.getBoundingClientRect().x]));
+        return selectors.map((selector) => positions.get(selector.slice(1)));
+    }, fixedToolbarButtons);
+    playwright.expect(toolbarPositionsAfterEncodings).toEqual(toolbarPositionsBeforeEncodings);
 
     // Open find sidebar and verify that the rendered HNNX graph is searchable.
     await app.evaluate(async (electron) => {

@@ -49,7 +49,7 @@ Apple Silicon macOS app (recommended local build):
 The script verifies that it is running on Apple Silicon macOS, installs the
 locked npm dependencies with `npm ci`, builds HNNX, ad-hoc signs the complete
 app bundle, verifies the signature, and creates
-`dist/HNNX-0.1.17-arm64.dmg`. For repeat builds with an existing
+`dist/HNNX-0.1.18-arm64.dmg`. For repeat builds with an existing
 `node_modules`, use `./scripts/build-macos-local.sh --skip-install`.
 
 Windows x64 installer:
@@ -72,11 +72,11 @@ npm run build:vscode-hnnx
 
 Generated packages are written to:
 
-- `dist/HNNX-0.1.17-arm64.dmg` (built locally on Apple Silicon macOS)
-- `dist/HNNX-0.1.17-x64-setup.exe`
-- `dist/HNNX-0.1.17-x64.AppImage`
-- `dist/HNNX-0.1.17-x64.deb`
-- `vscode-extension/hnnx-0.1.17.vsix`
+- `dist/HNNX-0.1.18-arm64.dmg` (built locally on Apple Silicon macOS)
+- `dist/HNNX-0.1.18-x64-setup.exe`
+- `dist/HNNX-0.1.18-x64.AppImage`
+- `dist/HNNX-0.1.18-x64.deb`
+- `vscode-extension/hnnx-0.1.18.vsix`
 
 ## macOS distribution policy
 

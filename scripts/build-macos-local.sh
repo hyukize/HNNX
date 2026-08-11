@@ -3,7 +3,7 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-VERSION="0.1.17"
+VERSION="0.1.18"
 ARTIFACT="$ROOT_DIR/dist/HNNX-${VERSION}-arm64.dmg"
 
 if [[ "$(uname -s)" != "Darwin" ]]; then

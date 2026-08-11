@@ -689,14 +689,14 @@ html.onnx-graph-edit .graph-edit-button:hover { color: #ffffff; border-color: #f
     </button>
     <button id="graph-edit-reset-button" class="toolbar-button graph-edit-layout-button graph-edit-reset-button" title="Discard all unsaved edits and restore the graph to the state at the start of this edit session" disabled>RESET</button>
     <button id="graph-edit-add-button" class="toolbar-button graph-edit-layout-button graph-edit-add-button" title="Add a graph input, graph output, or ONNX operator">+ ADD</button>
-    <button id="graph-edit-infer-button" class="toolbar-button graph-edit-layout-button graph-edit-infer-button" title="Run strict ONNX shape inference without modifying the open model (I)">INFER SHAPES</button>
+    <button id="graph-edit-redraw-button" class="toolbar-button graph-edit-layout-button graph-edit-redraw-button" title="Refresh the current graph view without changing its layout" disabled>REFRESH VIEW</button>
     <button id="graph-edit-save-button" class="toolbar-button graph-edit-save-button" title="Save the current ONNX to a chosen file (Cmd/Ctrl+S)">SAVE AS</button>
+    <button id="graph-edit-infer-button" class="toolbar-button graph-edit-layout-button graph-edit-infer-button" title="Run strict ONNX shape inference without modifying the open model (I)">INFER SHAPES</button>
+    <button id="graph-edit-layout-button" class="toolbar-button graph-edit-layout-button" title="Rebuild and re-layout the current graph (R)">RE-LAYOUT</button>
+    <button id="graph-edit-button" class="toolbar-button graph-edit-button" title="Enter ONNX GraphSurgeon Editor (Beta) (E)">EDIT</button>
     <button id="encodings-toggle-button" class="toolbar-button encodings-toggle-button" title="Hide AIMET encodings" aria-pressed="true">
         <span class="encodings-toggle-dot"></span>ENC
     </button>
-    <button id="graph-edit-layout-button" class="toolbar-button graph-edit-layout-button" title="Rebuild and re-layout the current graph (R)">RE-LAYOUT</button>
-    <button id="graph-edit-redraw-button" class="toolbar-button graph-edit-layout-button graph-edit-redraw-button" title="Refresh the current graph view without changing its layout" disabled>REFRESH VIEW</button>
-    <button id="graph-edit-button" class="toolbar-button graph-edit-button" title="Enter ONNX GraphSurgeon Editor (Beta) (E)">EDIT</button>
     <div id="toolbar-navigator" class="toolbar-select">
         <select id="toolbar-target-selector">
             <option value="Graphs" disabled="true">&#x2014; Graphs &#x2014;&#x2014;</option>

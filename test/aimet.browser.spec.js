@@ -654,7 +654,7 @@ playwright.test('HNNX workspace shortcuts enter, inspect, layout, view, and save
     });
     await page.waitForSelector('body.default', { timeout: 10000 });
     await playwright.expect(page.locator(
-        '#graph-edit-save-button + #encodings-toggle-button + #graph-edit-layout-button')).toHaveCount(1);
+        '#graph-edit-save-button + #graph-edit-infer-button + #graph-edit-layout-button + #graph-edit-button + #encodings-toggle-button')).toHaveCount(1);
     await playwright.expect(page.locator('#graph-edit-save-button')).toBeVisible();
     await playwright.expect(page.locator('#graph-edit-save-button')).toBeEnabled();
     const shortcutModifier = primaryModifier();
