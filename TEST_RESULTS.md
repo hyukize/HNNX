@@ -18,7 +18,7 @@ The test scope is defined in `REGRESSION_TEST.md`.
 | Stage 3 adversarial UI | PASS | 100 / 100 unique high-speed history and renderer workflows; 98 in the full pass plus 2 setup-timeout cases rerun unchanged and passed |
 | AIMET precision policy | PASS | TopK `values` inherits activation bitwidth; `indices` remains unlabelled |
 | VS Code extension | PASS | 9 unit tests passed, including auto-load control, exact-URI reload and document-scoped detach; 3 configured-Python tests skipped |
-| AIMET browser/editor E2E | PASS | 15 / 15, including runtime Light/Dark overrides, post-connection first-click Re-layout, HNNX showcase model, fixed Split-Concat bundles and fan-out alignment |
+| AIMET browser/editor E2E | PASS | 16 / 16, including runtime Light/Dark overrides, post-connection first-click Re-layout, HNNX showcase models, A4/A8/A16 transitions, fixed Split-Concat bundles and fan-out alignment |
 | Netron validation models | NOT RUN | Not rerun in this focused editor audit |
 | Native Electron E2E | PASS | ONNX load, desktop encodings attachment, visible ENC control, graph search and sidebar navigation |
 | VSIX packaging | PASS | 184 files; web app and Python backend present |

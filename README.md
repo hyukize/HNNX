@@ -30,6 +30,24 @@ are available.
 See [AIMET.md](AIMET.md) for the complete feature guide and editor behavior.
 See [MANUAL_TEST.md](MANUAL_TEST.md) for the hands-on test workflow.
 
+## Screenshot showcase
+
+![HNNX mixed-precision showcase](publish/hnnx-mixed-precision.png)
+
+Open these two files together to render a compact graph designed for project
+screenshots:
+
+- `examples/hnnx-mixed-precision.onnx`
+- `examples/hnnx-mixed-precision.encodings`
+
+The graph contains dedicated A4, A8 and A16 branches, W4/W8 parameters,
+`A4/A8→A8` and `A8/A16→A16` mixed-precision transitions, plus an eight-way
+Split-to-Concat bundle. Regenerate it with:
+
+```bash
+~/.hnnx/venv/bin/python scripts/create-mixed-precision-showcase.py
+```
+
 ## Development
 
 ```bash

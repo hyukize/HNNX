@@ -312,6 +312,33 @@ playwright.test('HNNX showcase fixture covers quantization, bundled routing, Top
     await playwright.expect(page.locator('html')).toHaveClass(/onnx-graph-edit/);
 });
 
+playwright.test('mixed-precision screenshot fixture exposes A4, A8, A16 and an eight-way bundle', async ({ page }) => {
+    const self = url.fileURLToPath(import.meta.url);
+    const root = path.resolve(path.dirname(self), '..');
+    await page.goto('http://127.0.0.1:8765/dist/web/');
+    await page.waitForSelector('body.welcome', { timeout: 10000 });
+    const consent = page.locator('#message-button');
+    if (await consent.isVisible()) {
+        await consent.click();
+    }
+    const chooser = page.waitForEvent('filechooser');
+    await page.locator('#open-file-button').click();
+    await (await chooser).setFiles([
+        path.join(root, 'examples', 'hnnx-mixed-precision.onnx'),
+        path.join(root, 'examples', 'hnnx-mixed-precision.encodings')
+    ]);
+    await page.waitForSelector('body.default', { timeout: 10000 });
+    const badges = page.locator('.node-item-quantization');
+    await playwright.expect(page.locator('.graph-node').filter({ hasText: 'Relu' }).locator('.node-item-quantization')).toContainText('A4');
+    await playwright.expect(page.locator('.graph-node').filter({ hasText: 'Sigmoid' }).locator('.node-item-quantization')).toContainText('A8');
+    await playwright.expect(page.locator('.graph-node').filter({ hasText: 'Tanh' }).locator('.node-item-quantization')).toContainText('A16');
+    await playwright.expect(badges.filter({ hasText: /A4\/A8→A8/ })).toHaveCount(1);
+    await playwright.expect(badges.filter({ hasText: /A8\/A16→A16/ })).toHaveCount(2);
+    await playwright.expect(page.locator('.edge-path-bundle')).toHaveCount(1);
+    await playwright.expect(page.locator('.edge-label-bundle')).toContainText('×8');
+    await playwright.expect(page.locator('.edge-label-bundle')).toContainText('A8');
+});
+
 playwright.test('ONNX GraphSurgeon Editor previews input and graph output edits with undo and redo', async ({ page }) => {
     await page.goto('http://127.0.0.1:8765/dist/web/');
     await page.waitForLoadState('domcontentloaded');

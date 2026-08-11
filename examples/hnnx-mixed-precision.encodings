@@ -1,0 +1,148 @@
+{
+  "version": "2.0.0",
+  "activation_encodings": [
+    {
+      "name": "input",
+      "output_dtype": "int16",
+      "y_scale": 0.0009765625,
+      "y_zero_point": 0
+    },
+    {
+      "name": "low_proj",
+      "output_dtype": "int4",
+      "y_scale": 0.125,
+      "y_zero_point": 0
+    },
+    {
+      "name": "low_relu",
+      "output_dtype": "int4",
+      "y_scale": 0.125,
+      "y_zero_point": 0
+    },
+    {
+      "name": "mid_proj",
+      "output_dtype": "uint8",
+      "y_scale": 0.03125,
+      "y_zero_point": 0
+    },
+    {
+      "name": "mid_gate",
+      "output_dtype": "uint8",
+      "y_scale": 0.00390625,
+      "y_zero_point": 0
+    },
+    {
+      "name": "high_proj",
+      "output_dtype": "int16",
+      "y_scale": 0.0009765625,
+      "y_zero_point": 0
+    },
+    {
+      "name": "high_gate",
+      "output_dtype": "int16",
+      "y_scale": 0.0009765625,
+      "y_zero_point": 0
+    },
+    {
+      "name": "low_mid_mix",
+      "output_dtype": "uint8",
+      "y_scale": 0.015625,
+      "y_zero_point": 0
+    },
+    {
+      "name": "mid_high_mix",
+      "output_dtype": "int16",
+      "y_scale": 0.0009765625,
+      "y_zero_point": 0
+    },
+    {
+      "name": "mixed_concat",
+      "output_dtype": "int16",
+      "y_scale": 0.0009765625,
+      "y_zero_point": 0
+    },
+    {
+      "name": "probabilities",
+      "output_dtype": "int16",
+      "y_scale": 3.0517578125e-05,
+      "y_zero_point": 0
+    }
+  ],
+  "param_encodings": [
+    {
+      "name": "low.weight",
+      "output_dtype": "int4",
+      "y_scale": [
+        0.015625,
+        0.015625,
+        0.015625,
+        0.015625,
+        0.015625,
+        0.015625,
+        0.015625,
+        0.015625
+      ],
+      "y_zero_point": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "axis": 1
+    },
+    {
+      "name": "mid.weight",
+      "output_dtype": "int8",
+      "y_scale": [
+        0.00390625,
+        0.00390625,
+        0.00390625,
+        0.00390625,
+        0.00390625,
+        0.00390625,
+        0.00390625,
+        0.00390625
+      ],
+      "y_zero_point": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "axis": 1
+    },
+    {
+      "name": "high.weight",
+      "output_dtype": "int8",
+      "y_scale": [
+        0.001953125,
+        0.001953125,
+        0.001953125,
+        0.001953125,
+        0.001953125,
+        0.001953125,
+        0.001953125,
+        0.001953125
+      ],
+      "y_zero_point": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "axis": 1
+    }
+  ]
+}
