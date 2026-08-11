@@ -5,7 +5,7 @@
 이 문서는 HNNX를 설치하고 첫 ONNX 모델을 확인·편집하는 과정을 안내합니다.
 운영체제별 상세 내용은 [설치](installation.md) 문서를 참고합니다.
 
-## 1. HNNX를 설치합니다
+## 1. HNNX 설치
 
 사용 환경에 맞는 방법을 선택합니다.
 
@@ -18,7 +18,7 @@
   공증을 지원하기 전까지는 로컬 빌드를 권장합니다.
 - **개발 환경:** 저장소에서 `npm install`과 `npm start`를 실행합니다.
 
-## 2. 모델을 엽니다
+## 2. 모델 열기
 
 데스크톱 앱에서는 `.onnx` 파일을 열거나 창으로 드래그합니다. ONNX,
 external `.data`, AIMET encodings 파일을 한 번에 드래그할 수도 있습니다.
@@ -31,7 +31,7 @@ editor로 열립니다. 다른 편집기가 선택되어 있다면 **Open With�
 - `examples/hnnx-mixed-precision.onnx`
 - `examples/hnnx-mixed-precision.encodings`
 
-## 3. 그래프를 탐색합니다
+## 3. 그래프 탐색
 
 - 스크롤 또는 pinch 동작으로 확대·축소하고 빈 공간을 드래그하여 이동합니다.
 - Find에서 노드나 graph endpoint를 검색합니다.
@@ -48,7 +48,7 @@ SAVE AS → INFER SHAPES → RE-LAYOUT → EDIT → ENC
 
 `ENC`는 AIMET encodings 파일이 연결된 경우에 표시됩니다.
 
-## 4. AIMET encodings를 연결합니다
+## 4. AIMET encodings 연결
 
 HNNX는 같은 폴더의 일반적인 파일명을 인식합니다.
 
@@ -64,7 +64,7 @@ AIMET Encodings…**, **Reload Encodings**, **Detach Encodings**에서 attachmen
 
 badge와 edge label의 의미는 [AIMET Encodings](aimet-encodings.md)를 참고합니다.
 
-## 5. 편집과 shape inference를 설정합니다
+## 5. 편집 및 shape inference 설정
 
 편집 기능은 선택 사항입니다. 다음 방법으로 권장 Python 환경을 생성합니다.
 

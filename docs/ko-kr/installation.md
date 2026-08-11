@@ -93,7 +93,7 @@ Kubernetes 환경에서는 Python 설정과 모델 접근도 remote 환경에서
 로컬 VSIX를 업데이트할 때는 새 파일을 `--force`로 설치하거나 기존 HNNX를
 삭제한 후 새로운 VSIX를 설치합니다.
 
-## Source code로 실행
+## Source code 실행
 
 Git, Node.js, npm이 필요합니다.
 

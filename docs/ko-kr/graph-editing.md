@@ -44,7 +44,7 @@ $HOME\.hnnx\venv\Scripts\python.exe -m pip install onnx onnx_graphsurgeon `
 자동 생성 명령은 전용 virtual environment 안에만 package를 설치합니다. PEP
 668을 우회하거나 Homebrew/system Python을 변경하지 않습니다.
 
-## Edit mode를 시작하고 종료합니다
+## Edit mode 시작 및 종료
 
 - `E`를 누르거나 `EDIT · BETA`를 선택하여 Edit mode로 들어갑니다.
 - `V`를 눌러 View mode로 돌아갑니다.
@@ -54,7 +54,7 @@ $HOME\.hnnx\venv\Scripts\python.exe -m pip install onnx onnx_graphsurgeon `
 연결된 AIMET encodings는 별도의 read-only attachment입니다. Topology를 편집해도
 encodings 파일의 tensor 이름이나 QParam은 변경하지 않습니다.
 
-## 연결선을 편집합니다
+## 연결선 편집
 
 연결선을 선택하면 정확한 `tensor → node.input` 관계를 표시합니다.
 
@@ -69,7 +69,7 @@ encodings 파일의 tensor 이름이나 QParam은 변경하지 않습니다.
 표시합니다. Optional input은 보라색으로 표시합니다. 모든 필수 input과 Graph
 Output을 복구하기 전에는 Save As와 Infer Shapes를 실행할 수 없습니다.
 
-## 노드와 graph endpoint를 편집합니다
+## 노드 및 graph endpoint 편집
 
 노드를 클릭하여 input, node 이름, output tensor 이름을 관리합니다. 검색 가능한
 `+ ADD`에서 typed Graph Input, Graph Output, 자주 사용하는 Opset 17 operator를

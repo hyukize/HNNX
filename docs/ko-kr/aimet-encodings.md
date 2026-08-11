@@ -4,7 +4,7 @@
 
 HNNX는 ONNX 모델과 AIMET encodings 0.6.1, 1.x, 2.x 형식을 함께 표시합니다.
 
-## Encodings를 불러옵니다
+## Encodings 불러오기
 
 데스크톱 앱에서는 ONNX 모델과 encodings 파일을 함께 드래그합니다. External
 `.data` sidecar도 같은 동작에 포함할 수 있습니다.
@@ -26,7 +26,7 @@ ONNX를 다시 열지 않고 File 메뉴에서 attachment를 관리합니다.
 - **Detach Encodings**는 attachment만 제거합니다.
 - `ENC` toolbar 버튼은 attachment를 유지하면서 시각화만 켜거나 끕니다.
 
-## 그래프 표기를 해석합니다
+## 그래프 표기 해석
 
 Node와 endpoint badge는 명시적인 encoding 정보를 나타냅니다.
 
@@ -42,7 +42,7 @@ Badge, tensor, node 또는 encoding이 있는 Graph Input을 클릭하면 encodi
 존재하는 scale, offset/zero point, min/max, axis, block size, granularity,
 symmetry 정보를 확인할 수 있습니다.
 
-## Precision propagation
+## Precision 전파
 
 하나의 명확한 encoded precision이 있으면 HNNX는 encoding이 없는 다음 연산을
 지나서 precision을 추적합니다.
@@ -60,7 +60,7 @@ integer tensor로 유지합니다.
 이 기능은 화면에 표시할 precision만 추론합니다. Scale, zero-point 등의 QParam을
 새로 만들지 않습니다.
 
-## 통계와 mismatch를 확인합니다
+## 통계 및 mismatch 확인
 
 Model information 화면은 다음 정보를 요약합니다.
 
