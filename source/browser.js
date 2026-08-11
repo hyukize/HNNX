@@ -32,7 +32,7 @@ browser.Host = class {
             repository: this._element('logo-github').getAttribute('href'),
             menu: true
         };
-        if (this.version && !/^\d+\.\d+\.\d+$/.test(this.version)) {
+        if (this.version && !/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/.test(this.version)) {
             throw new Error('Invalid version.');
         }
     }

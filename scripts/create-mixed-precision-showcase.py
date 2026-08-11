@@ -11,6 +11,9 @@ import numpy as np
 import onnx
 from onnx import TensorProto, checker, helper, numpy_helper, shape_inference
 
+ROOT = Path(__file__).resolve().parents[1]
+VERSION = json.loads((ROOT / "package.json").read_text(encoding="utf-8"))["version"]
+
 
 def build_model() -> onnx.ModelProto:
     rng = np.random.default_rng(18)
@@ -77,7 +80,7 @@ def build_model() -> onnx.ModelProto:
     model = helper.make_model(
         graph,
         producer_name="HNNX",
-        producer_version="0.1.19",
+        producer_version=VERSION,
         opset_imports=[helper.make_opsetid("", 17)],
         ir_version=8,
     )

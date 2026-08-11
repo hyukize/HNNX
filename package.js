@@ -9,7 +9,8 @@ import * as url from 'url';
 
 const args = process.argv.slice(2);
 const pythonExecutable = process.platform === 'win32' ? 'python.exe' : 'python';
-const hnnxPython = path.join(os.homedir(), '.hnnx', 'venv', 'bin', pythonExecutable);
+const pythonDirectory = process.platform === 'win32' ? 'Scripts' : 'bin';
+const hnnxPython = path.join(os.homedir(), '.hnnx', 'venv', pythonDirectory, pythonExecutable);
 const systemPython = process.platform === 'win32' ? 'python' : 'python3';
 const python = process.env.HNNX_PYTHON || (fsSync.existsSync(hnnxPython) ? hnnxPython : systemPython);
 
@@ -286,7 +287,7 @@ const build = async (target) => {
         case 'python': {
             writeLine('build python');
             await exec(`${python} package.py build version`);
-            await exec(`${python} -m pip install --user build wheel --quiet`);
+            await exec(`${python} -m pip install build wheel --quiet`);
             await exec(`${python} -m build --wheel --outdir dist/pypi dist/pypi`);
             if (read('install')) {
                 await exec(`${python} -m pip install --force-reinstall dist/pypi/*.whl`);

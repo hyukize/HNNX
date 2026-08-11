@@ -17,18 +17,14 @@ The test scope is defined in [Regression Testing](regression-test.md).
 | Stage 3 model state machine | PASS | 100 / 100 deterministic round-trip, partial-history, atomic-failure and recovery workflows |
 | Stage 3 adversarial UI | PASS | 100 / 100 unique high-speed history and renderer workflows; 98 in the full pass plus 2 setup-timeout cases rerun unchanged and passed |
 | AIMET precision policy | PASS | TopK `values` inherits activation bitwidth; `indices` remains unlabelled |
-| VS Code extension | PASS | 9 unit tests passed, including auto-load control, exact-URI reload and document-scoped detach; 3 configured-Python tests skipped |
+| VS Code extension | PASS | 11 unit tests passed, including auto-load control, exact-URI reload and document-scoped detach; 3 configured-Python tests skipped |
 | AIMET browser/editor E2E | PASS | 16 / 16, including runtime Light/Dark overrides, post-connection first-click Re-layout, HNNX showcase models, a compact A4/A8→A16 transition, fixed Split-Concat bundles and fan-out alignment |
-| Netron validation models | NOT RUN | Not rerun in this focused editor audit |
+| Upstream Netron validation models | KNOWN LIMITATION | The broad multi-format sweep stopped at `third_party/test/executorch/map.pte` because an ExecuTorch graph item has no editor label. HNNX's ONNX release gates are unaffected. |
 | Native Electron E2E | PASS | ONNX load, desktop encodings attachment, visible ENC control, graph search and sidebar navigation |
 | VSIX packaging | PASS | 184 files; web app and Python backend present |
 | Apple Silicon DMG build | PASS | DMG mounted; app executable is arm64; backend is unpacked |
 | Windows x64 NSIS build | PASS | Cross-build completed; PE32+ HNNX executable and unpacked GraphSurgeon backend present |
 | Linux x64 AppImage/deb build | PASS | Cross-build completed; x86-64 ELF executable, HNNX desktop identity and unpacked backend present |
-
-Validation formats included Core ML, ExecuTorch, GGUF, Keras, ncnn, ONNX,
-ONNX Runtime, OpenVINO, Pickle, PyTorch, Safetensors, scikit-learn,
-TensorFlow, and TensorFlow Lite.
 
 ## Regressions found and fixed during this run
 
@@ -56,7 +52,8 @@ TensorFlow, and TensorFlow Lite.
 9. Empty ONNX optional-input placeholders leaked into normal viewer
    validation. They are now materialized only after Edit Beta is entered.
 10. The local browser test server still invoked `python` on macOS. It now uses
-   `python3`; package commands choose `python3` outside Windows.
+   `python3`; package commands prefer the configured HNNX environment and use
+   the platform Python launcher only as a fallback.
 11. ADD E2E advanced before its asynchronous graph refresh completed. The test
    now waits for the completed addition before opening the next dialog.
 12. Shape inference stopped at ONNX validation when referenced external tensor
@@ -182,16 +179,20 @@ TensorFlow, and TensorFlow Lite.
     without a normal operator type. HNNX no longer attaches GraphSurgeon edit
     ports to those non-editable containers, preventing the `undefined.name`
     render crash while preserving normal node and Graph Input/Output editing.
+41. The browser and Electron hosts accepted only stable `major.minor.patch`
+    versions, so `1.0.0-rc.1` stopped startup before the graph canvas existed.
+    Both hosts now accept SemVer prerelease versions, with browser regression
+    and native Electron smoke coverage.
 
 ## Package artifacts
 
 | Artifact | Size | SHA-256 |
 | --- | --- | --- |
-| `dist/HNNX-0.1.19-arm64.dmg` | 125,949,312 bytes | `a1d08dcef8d58e1ea3dbfe3ea2b05b3538f5379fb2d6b0afca8c944297af9641` |
-| `dist/HNNX-0.1.19-x64-setup.exe` | 91,730,911 bytes | `3a7bc9a9597133ce895081bf54db5988eaad984e8cef4199fb2308bca33855ff` |
-| `dist/HNNX-0.1.19-x64.AppImage` | 131,223,017 bytes | `c5d066bd7323d8bb756236cafe8492258179ed0513aaef7a950cdcb0d058311c` |
-| `dist/HNNX-0.1.19-x64.deb` | 103,115,176 bytes | `1ba4ff9c23fef731e71fff50f1ae7750eed888208c0e9e14b5b6168e7b1fb138` |
-| `vscode-extension/hnnx-0.1.19.vsix` | 3,625,017 bytes | `264cffeb07368327c7542c6886e174ef3f5a7d57c25199d95c1466396835e0b1` |
+| `dist/HNNX-1.0.0-rc.1-arm64.dmg` | 125,948,280 bytes | `198d11a84d336229fd92490f14f7c51fdcc4b314bb8935f1c56a745bdf36cf35` |
+| `dist/HNNX-1.0.0-rc.1-x64-setup.exe` | 91,751,112 bytes | `fdee1e60c185eecc18fcc092ae868169a596aaf23c711c4805519838c1e42268` |
+| `dist/HNNX-1.0.0-rc.1-x64.AppImage` | 131,223,067 bytes | `a0522d8315018ec7ff7315c8719b23fa5dd17c9b410bb942741f14e2fc42c713` |
+| `dist/HNNX-1.0.0-rc.1-x64.deb` | 103,115,372 bytes | `9ff222b0b253b3070a46fce1089d91cbaacabe15507e7ce6d37b124c8bf8e84f` |
+| `vscode-extension/hnnx-1.0.0-rc.1.vsix` | 3,625,032 bytes | `f17d9cbeb6969b428c3d9b2e2c7e8014895f22e296de3f8ac67cc9015c3d2bb7` |
 
 ## Manual checks still required
 

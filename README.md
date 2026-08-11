@@ -5,7 +5,7 @@ analysis, and NVIDIA ONNX GraphSurgeon-backed editing.
 
 <img src="publish/hnnx-icon.png" alt="HNNX icon" width="512">
 
-**Current release:** [HNNX v0.1.19](https://gitea.fde2.mrxrunway.ai/mrx-armstrong/hnnx/releases/tag/v0.1.19) · [Source repository](https://gitea.fde2.mrxrunway.ai/mrx-armstrong/hnnx)
+**Downloads:** [HNNX releases](https://gitea.fde2.mrxrunway.ai/mrx-armstrong/hnnx/releases) · [Source repository](https://gitea.fde2.mrxrunway.ai/mrx-armstrong/hnnx)
 
 ## Why HNNX
 

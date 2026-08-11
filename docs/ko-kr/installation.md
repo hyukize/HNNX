@@ -2,8 +2,8 @@
 
 [English](../installation.md) | 한국어
 
-HNNX는 데스크톱 앱, VS Code 확장, 소스 코드 형태로 제공합니다. 현재 버전의
-모든 패키지는 [v0.1.19 릴리스 페이지](https://gitea.fde2.mrxrunway.ai/mrx-armstrong/hnnx/releases/tag/v0.1.19)에서
+HNNX는 데스크톱 앱, VS Code 확장, 소스 코드 형태로 제공합니다. 배포된
+패키지는 [릴리스 페이지](https://gitea.fde2.mrxrunway.ai/mrx-armstrong/hnnx/releases)에서
 확인합니다.
 
 ## Apple Silicon macOS
@@ -28,7 +28,7 @@ cd hnnx
 ad-hoc 서명을 적용하고 검증한 뒤 다음 파일을 생성합니다.
 
 ```text
-dist/HNNX-0.1.19-arm64.dmg
+dist/HNNX-<version>-arm64.dmg
 ```
 
 DMG를 열어 HNNX를 Applications로 복사합니다. `node_modules`가 준비된 반복
@@ -44,7 +44,7 @@ ad-hoc 서명은 Developer ID 서명이나 공증을 대체하지 않습니다. 
 
 ## Windows x64
 
-1. 릴리스 페이지에서 `HNNX-0.1.19-x64-setup.exe`를 받습니다.
+1. 릴리스 페이지에서 `HNNX-<version>-x64-setup.exe`를 받습니다.
 2. 설치 프로그램을 실행합니다.
 3. SmartScreen 경고가 표시되면 파일을 공식 HNNX 릴리스에서 받았는지 확인한
    후 진행합니다.
@@ -56,14 +56,14 @@ Windows 설치 프로그램은 code signing을 적용하지 않았습니다.
 AppImage는 다음과 같이 실행합니다.
 
 ```bash
-chmod +x HNNX-0.1.19-x64.AppImage
-./HNNX-0.1.19-x64.AppImage
+chmod +x HNNX-*-x64.AppImage
+./HNNX-*-x64.AppImage
 ```
 
 Debian 또는 Ubuntu에서는 다음과 같이 설치합니다.
 
 ```bash
-sudo apt install ./HNNX-0.1.19-x64.deb
+sudo apt install ./HNNX-*-x64.deb
 ```
 
 데스크톱 앱은 그래픽 세션이 필요합니다. CLI 전용 또는 원격 환경에서는
@@ -76,7 +76,7 @@ sudo apt install ./HNNX-0.1.19-x64.deb
 - VS Code 1.90 이상
 - ONNX 파일이 있는 로컬 또는 원격 workspace
 
-1. `hnnx-0.1.19.vsix`를 받습니다.
+1. `hnnx-<version>.vsix`를 받습니다.
 2. VS Code에서 Extensions를 엽니다.
 3. `…` > **Install from VSIX…**를 선택합니다.
 4. 파일을 선택하고 필요하면 VS Code를 다시 불러옵니다.
@@ -84,7 +84,7 @@ sudo apt install ./HNNX-0.1.19-x64.deb
 명령행에서도 설치할 수 있습니다.
 
 ```bash
-code --install-extension hnnx-0.1.19.vsix --force
+code --install-extension hnnx-*.vsix --force
 ```
 
 확장은 workspace extension host에서 실행됩니다. Remote SSH, Dev Container,

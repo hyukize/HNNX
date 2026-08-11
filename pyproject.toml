@@ -5,8 +5,9 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "hnnx"
-version = "0.1.19"
+version = "1.0.0-rc.1"
 description = "ONNX graph workbench for visualization, AIMET analysis, and graph editing."
+license = "MIT"
 authors = [
     { name = "Jonghyuk Park", email = "hyukize@users.noreply.github.com" }
 ]
@@ -38,9 +39,6 @@ HNNX is an ONNX graph workbench for model inspection, AIMET quantization
 analysis and NVIDIA ONNX GraphSurgeon-backed editing.
 """
 content-type = "text/markdown"
-
-[project.license]
-text = "MIT"
 
 [project.scripts]
 hnnx = "netron:main"

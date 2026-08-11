@@ -9,9 +9,9 @@ model. For platform-specific details, see [Installation](installation.md).
 
 Choose one of these paths:
 
-- **VS Code:** install `hnnx-0.1.19.vsix` from the
-  [latest release](https://gitea.fde2.mrxrunway.ai/mrx-armstrong/hnnx/releases/tag/v0.1.19).
-- **Windows x64:** install `HNNX-0.1.19-x64-setup.exe`.
+- **VS Code:** install `hnnx-<version>.vsix` from the
+  [releases page](https://gitea.fde2.mrxrunway.ai/mrx-armstrong/hnnx/releases).
+- **Windows x64:** install `HNNX-<version>-x64-setup.exe`.
 - **Linux x64:** use the AppImage or Debian package.
 - **Apple Silicon macOS:** clone the repository and run
   `./scripts/build-macos-local.sh`. This is the recommended macOS path until

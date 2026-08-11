@@ -1,11 +1,13 @@
 import { fileURLToPath } from 'url';
+import fs from 'fs/promises';
 import path from 'path';
 import process from 'process';
 import { spawn } from 'child_process';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const platform = process.argv[2];
-const version = '0.1.19';
+const metadata = JSON.parse(await fs.readFile(path.join(root, 'package.json'), 'utf-8'));
+const { version } = metadata;
 const electronBuilder = path.join(root, 'node_modules', 'electron-builder', 'out', 'cli', 'cli.js');
 
 if (!['windows', 'linux'].includes(platform)) {

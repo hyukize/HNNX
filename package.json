@@ -6,7 +6,7 @@
         "email": "hyukize@users.noreply.github.com",
         "url": "https://github.com/hyukize"
     },
-    "version": "0.1.19",
+    "version": "1.0.0-rc.1",
     "date": "2026-08-11 00:00:00",
     "description": "ONNX graph workbench for visualization, AIMET analysis, and graph editing",
     "license": "MIT",
@@ -27,6 +27,7 @@
         "build:windows-hnnx": "node scripts/build-platform-hnnx.mjs windows",
         "build:linux-hnnx": "node scripts/build-platform-hnnx.mjs linux",
         "build:vscode-hnnx": "npm --prefix vscode-extension run package",
+        "sync:version": "node scripts/sync-version.mjs",
         "publish": "node package.js publish",
         "release": "node package.js release",
         "test": "node package.js test",

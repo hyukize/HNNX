@@ -9,9 +9,9 @@
 
 사용 환경에 맞는 방법을 선택합니다.
 
-- **VS Code:** [최신 릴리스](https://gitea.fde2.mrxrunway.ai/mrx-armstrong/hnnx/releases/tag/v0.1.19)에서
-  `hnnx-0.1.19.vsix`를 설치합니다.
-- **Windows x64:** `HNNX-0.1.19-x64-setup.exe`를 설치합니다.
+- **VS Code:** [릴리스 페이지](https://gitea.fde2.mrxrunway.ai/mrx-armstrong/hnnx/releases)에서
+  `hnnx-<version>.vsix`를 설치합니다.
+- **Windows x64:** `HNNX-<version>-x64-setup.exe`를 설치합니다.
 - **Linux x64:** AppImage 또는 Debian 패키지를 사용합니다.
 - **Apple Silicon macOS:** 저장소를 clone한 뒤
   `./scripts/build-macos-local.sh`를 실행합니다. Apple Developer ID 서명과

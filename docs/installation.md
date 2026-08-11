@@ -3,8 +3,8 @@
 English | [한국어](ko-kr/installation.md)
 
 HNNX is available as a desktop application, a VS Code extension, and source.
-All packages for the current version are listed on the
-[v0.1.19 release page](https://gitea.fde2.mrxrunway.ai/mrx-armstrong/hnnx/releases/tag/v0.1.19).
+Published packages are listed on the
+[releases page](https://gitea.fde2.mrxrunway.ai/mrx-armstrong/hnnx/releases).
 
 ## Apple Silicon macOS
 
@@ -28,7 +28,7 @@ The script installs locked npm dependencies, builds HNNX, ad-hoc signs and
 verifies the complete app bundle, and creates:
 
 ```text
-dist/HNNX-0.1.19-arm64.dmg
+dist/HNNX-<version>-arm64.dmg
 ```
 
 Open the DMG and copy HNNX to Applications. For a repeat build with an existing
@@ -44,7 +44,7 @@ testing, while a local build remains the recommended team installation method.
 
 ## Windows x64
 
-1. Download `HNNX-0.1.19-x64-setup.exe` from the release page.
+1. Download `HNNX-<version>-x64-setup.exe` from the release page.
 2. Run the installer.
 3. If SmartScreen appears, verify that the file came from the expected HNNX
    release before continuing.
@@ -56,14 +56,14 @@ The Windows installer is not code-signed.
 For AppImage:
 
 ```bash
-chmod +x HNNX-0.1.19-x64.AppImage
-./HNNX-0.1.19-x64.AppImage
+chmod +x HNNX-*-x64.AppImage
+./HNNX-*-x64.AppImage
 ```
 
 For Debian or Ubuntu:
 
 ```bash
-sudo apt install ./HNNX-0.1.19-x64.deb
+sudo apt install ./HNNX-*-x64.deb
 ```
 
 The desktop application requires a graphical session. For a CLI-only or remote
@@ -77,7 +77,7 @@ Requirements:
 - VS Code 1.90 or later
 - A local or remote workspace containing the ONNX files
 
-1. Download `hnnx-0.1.19.vsix`.
+1. Download `hnnx-<version>.vsix`.
 2. Open Extensions in VS Code.
 3. Choose `…` > **Install from VSIX…**.
 4. Select the downloaded file and reload VS Code if prompted.
@@ -85,7 +85,7 @@ Requirements:
 Command-line installation is also supported:
 
 ```bash
-code --install-extension hnnx-0.1.19.vsix --force
+code --install-extension hnnx-*.vsix --force
 ```
 
 The extension runs on the workspace extension host. In Remote SSH, Dev
