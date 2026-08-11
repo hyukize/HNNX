@@ -312,7 +312,7 @@ playwright.test('HNNX showcase fixture covers quantization, bundled routing, Top
     await playwright.expect(page.locator('html')).toHaveClass(/onnx-graph-edit/);
 });
 
-playwright.test('mixed-precision screenshot fixture exposes A4, A8, A16 and an eight-way bundle', async ({ page }) => {
+playwright.test('mixed-precision screenshot fixture exposes A4, A8, A16 and a four-way bundle', async ({ page }) => {
     const self = url.fileURLToPath(import.meta.url);
     const root = path.resolve(path.dirname(self), '..');
     await page.goto('http://127.0.0.1:8765/dist/web/');
@@ -331,11 +331,10 @@ playwright.test('mixed-precision screenshot fixture exposes A4, A8, A16 and an e
     const badges = page.locator('.node-item-quantization');
     await playwright.expect(page.locator('.graph-node').filter({ hasText: 'Relu' }).locator('.node-item-quantization')).toContainText('A4');
     await playwright.expect(page.locator('.graph-node').filter({ hasText: 'Sigmoid' }).locator('.node-item-quantization')).toContainText('A8');
-    await playwright.expect(page.locator('.graph-node').filter({ hasText: 'Tanh' }).locator('.node-item-quantization')).toContainText('A16');
-    await playwright.expect(badges.filter({ hasText: /A4\/A8→A8/ })).toHaveCount(1);
-    await playwright.expect(badges.filter({ hasText: /A8\/A16→A16/ })).toHaveCount(2);
+    await playwright.expect(page.locator('.graph-node').filter({ hasText: 'Softmax' }).locator('.node-item-quantization')).toContainText('A16');
+    await playwright.expect(badges.filter({ hasText: /A4\/A8→A16/ })).toHaveCount(1);
     await playwright.expect(page.locator('.edge-path-bundle')).toHaveCount(1);
-    await playwright.expect(page.locator('.edge-label-bundle')).toContainText('×8');
+    await playwright.expect(page.locator('.edge-label-bundle')).toContainText('×4');
     await playwright.expect(page.locator('.edge-label-bundle')).toContainText('A8');
 });
 

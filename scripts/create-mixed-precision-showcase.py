@@ -22,13 +22,10 @@ def build_model() -> onnx.ModelProto:
             rng.normal(0, 0.12, (8, 8)).astype(np.float32), "mid.weight"
         ),
         numpy_helper.from_array(
-            rng.normal(0, 0.08, (8, 8)).astype(np.float32), "high.weight"
-        ),
-        numpy_helper.from_array(
-            np.ones((8,), dtype=np.int64), "split.sizes"
+            np.full((4,), 2, dtype=np.int64), "split.sizes"
         ),
     ]
-    split_outputs = [f"mid_part_{index}" for index in range(8)]
+    split_outputs = [f"mid_part_{index}" for index in range(4)]
     nodes = [
         helper.make_node(
             "MatMul", ["input", "low.weight"], ["low_proj"], name="project_a4"
@@ -41,43 +38,24 @@ def build_model() -> onnx.ModelProto:
             "Split",
             ["mid_proj", "split.sizes"],
             split_outputs,
-            name="split_a8_eight_way",
+            name="split_a8_four_way",
             axis=1,
         ),
         helper.make_node(
             "Concat",
             split_outputs,
             ["mid_roundtrip"],
-            name="concat_a8_eight_way",
+            name="concat_a8_four_way",
             axis=1,
         ),
         helper.make_node(
             "Sigmoid", ["mid_roundtrip"], ["mid_gate"], name="activation_a8"
         ),
         helper.make_node(
-            "MatMul", ["input", "high.weight"], ["high_proj"], name="project_a16"
+            "Add", ["low_relu", "mid_gate"], ["mixed_a16"], name="mix_a4_a8_to_a16"
         ),
         helper.make_node(
-            "Tanh", ["high_proj"], ["high_gate"], name="activation_a16"
-        ),
-        helper.make_node(
-            "Add", ["low_relu", "mid_gate"], ["low_mid_mix"], name="mix_a4_a8"
-        ),
-        helper.make_node(
-            "Add",
-            ["mid_gate", "high_gate"],
-            ["mid_high_mix"],
-            name="mix_a8_a16",
-        ),
-        helper.make_node(
-            "Concat",
-            ["low_mid_mix", "mid_high_mix"],
-            ["mixed_concat"],
-            name="concat_mixed_precision",
-            axis=1,
-        ),
-        helper.make_node(
-            "Softmax", ["mixed_concat"], ["probabilities"], name="output_a16", axis=1
+            "Softmax", ["mixed_a16"], ["probabilities"], name="output_a16", axis=1
         ),
     ]
     graph = helper.make_graph(
@@ -86,13 +64,13 @@ def build_model() -> onnx.ModelProto:
         [helper.make_tensor_value_info("input", TensorProto.FLOAT, [1, 8])],
         [
             helper.make_tensor_value_info(
-                "probabilities", TensorProto.FLOAT, [1, 16]
+                "probabilities", TensorProto.FLOAT, [1, 8]
             )
         ],
         initializer=initializers,
         doc_string=(
             "Screenshot-ready HNNX graph with explicit A4, A8 and A16 paths, "
-            "mixed-precision transitions, W4/W8 parameters and an eight-way "
+            "one mixed-precision transition, W4/W8 parameters and a four-way "
             "Split-to-Concat edge bundle."
         ),
     )
@@ -132,22 +110,17 @@ def build_encodings() -> dict[str, object]:
     return {
         "version": "2.0.0",
         "activation_encodings": [
-            _activation("input", "int16", 0.0009765625),
+            _activation("input", "uint8", 0.03125),
             _activation("low_proj", "int4", 0.125),
             _activation("low_relu", "int4", 0.125),
             _activation("mid_proj", "uint8", 0.03125),
             _activation("mid_gate", "uint8", 0.00390625),
-            _activation("high_proj", "int16", 0.0009765625),
-            _activation("high_gate", "int16", 0.0009765625),
-            _activation("low_mid_mix", "uint8", 0.015625),
-            _activation("mid_high_mix", "int16", 0.0009765625),
-            _activation("mixed_concat", "int16", 0.0009765625),
+            _activation("mixed_a16", "int16", 0.0009765625),
             _activation("probabilities", "int16", 0.000030517578125),
         ],
         "param_encodings": [
             _parameter("low.weight", "int4", 0.015625),
             _parameter("mid.weight", "int8", 0.00390625),
-            _parameter("high.weight", "int8", 0.001953125),
         ],
     }
 

@@ -34,14 +34,21 @@ See [MANUAL_TEST.md](MANUAL_TEST.md) for the hands-on test workflow.
 
 ![HNNX mixed-precision showcase](publish/hnnx-mixed-precision.png)
 
+<details>
+<summary>Connection editing demo</summary>
+
+![HNNX connection editing demo](publish/hnnx-edit-demo.gif)
+
+</details>
+
 Open these two files together to render a compact graph designed for project
 screenshots:
 
 - `examples/hnnx-mixed-precision.onnx`
 - `examples/hnnx-mixed-precision.encodings`
 
-The graph contains dedicated A4, A8 and A16 branches, W4/W8 parameters,
-`A4/A8→A8` and `A8/A16→A16` mixed-precision transitions, plus an eight-way
+The graph contains compact A4 and A8 branches, W4/W8 parameters, one
+`A4/A8→A16` mixed-precision merge and A16 output, plus a four-way
 Split-to-Concat bundle. Regenerate it with:
 
 ```bash
