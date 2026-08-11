@@ -1,16 +1,19 @@
 {
-    "name": "netron",
-    "productName": "Netron",
+    "name": "hnnx",
+    "productName": "HNNX",
     "author": {
-        "name": "Lutz Roeder",
-        "email": "lutzroeder@users.noreply.github.com",
-        "url": "https://www.lutzroeder.com"
+        "name": "Jonghyuk Park",
+        "email": "hyukize@users.noreply.github.com",
+        "url": "https://github.com/hyukize"
     },
-    "version": "9.1.5",
-    "date": "2026-07-10 23:12:08",
-    "description": "Visualizer for neural network, deep learning, and machine learning models",
+    "version": "0.1.19",
+    "date": "2026-08-11 00:00:00",
+    "description": "ONNX graph workbench for visualization, AIMET analysis, and graph editing",
     "license": "MIT",
-    "repository": "lutzroeder/netron",
+    "repository": "hyukize/HNNX",
+    "appId": "ai.mrxrunway.hnnx",
+    "aimet": true,
+    "disableUpdates": true,
     "type": "module",
     "main": "source/app.js",
     "scripts": {

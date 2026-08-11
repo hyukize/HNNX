@@ -3,7 +3,7 @@
 Run date: 2026-08-11
 Host: Apple Silicon macOS
 
-The test scope is defined in `REGRESSION_TEST.md`.
+The test scope is defined in [Regression Testing](regression-test.md).
 
 ## Automated results
 

@@ -35,7 +35,7 @@ def main() -> None:
     ImageDraw.Draw(mask).rounded_rectangle((0, 0, 1023, 1023), radius=205, fill=255)
     image.putalpha(mask)
 
-    master = root / "publish" / "pampam-hnnx-icon.png"
+    master = root / "publish" / "hnnx-icon.png"
     image.save(master, optimize=True)
     resize(image, 512).save(root / "publish" / "icon.png", optimize=True)
     resize(image, 256).save(root / "source" / "icon.png", optimize=True)

@@ -31,7 +31,7 @@ app.Application = class {
             electron.app.setName(this._package.productName);
             electron.app.setPath('userData', path.join(electron.app.getPath('appData'), this._package.productName));
         }
-        electron.app.setAppUserModelId(this._package.appId || 'com.lutzroeder.netron');
+        electron.app.setAppUserModelId(this._package.appId || 'ai.mrxrunway.hnnx');
         electron.app.allowRendererProcessReuse = true;
 
         // Workaround electron/electron#50419 only available in Electron 43

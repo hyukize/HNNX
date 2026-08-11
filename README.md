@@ -3,7 +3,7 @@
 HNNX is an ONNX graph workbench for model inspection, AIMET quantization
 analysis, and NVIDIA ONNX GraphSurgeon-backed editing.
 
-<img src="publish/pampam-hnnx-icon.png" alt="HNNX icon" width="512">
+<img src="publish/hnnx-icon.png" alt="HNNX icon" width="512">
 
 **Current release:** [HNNX v0.1.19](https://gitea.fde2.mrxrunway.ai/mrx-armstrong/hnnx/releases/tag/v0.1.19) · [Source repository](https://gitea.fde2.mrxrunway.ai/mrx-armstrong/hnnx)
 
@@ -47,8 +47,8 @@ The complete first-run walkthrough is in
 | AIMET Encodings | [Open](docs/aimet-encodings.md) | [열기](docs/ko-kr/aimet-encodings.md) |
 | Troubleshooting | [Open](docs/troubleshooting.md) | [열기](docs/ko-kr/troubleshooting.md) |
 
-Additional references: [complete feature reference](AIMET.md) ·
-[manual test guide](MANUAL_TEST.md)
+Additional references: [complete feature reference](docs/feature-reference.md) ·
+[development and test documentation](docs/development/)
 
 ## Quick development setup
 
@@ -80,5 +80,4 @@ HNNX is derived from [Netron](https://github.com/lutzroeder/netron) and retains
 Netron's MIT license and copyright notice. HNNX-specific modifications are by
 Jonghyuk Park. The canonical public repository is
 [hyukize/HNNX](https://github.com/hyukize/HNNX); organization-hosted copies may
-be maintained as internal distribution mirrors. See [NOTICE](NOTICE) and
-[LICENSE](LICENSE).
+be maintained as internal distribution mirrors. See [LICENSE](LICENSE).

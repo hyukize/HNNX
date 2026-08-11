@@ -1,15 +1,34 @@
 ---
 name: Bug report
-about: Create a report to help us improve
+about: Report a reproducible HNNX problem
 labels: bug
 ---
 
-- Netron app and version: <!-- For example: 3.8.2 Desktop app, 2.9.0 Website or 3.9.2 Python Server -->
-- OS and browser version: <!-- For example macOS 10.15.6 (19G73) + Chrome 84.0.4147.89 -->
+## Environment
 
-Steps to Reproduce:
+- HNNX version:
+- Package: <!-- macOS DMG, Windows installer, Linux package, VSIX, or source -->
+- OS and architecture:
+- VS Code and remote environment, if applicable:
+
+## Model
+
+- ONNX opset and approximate size:
+- External `.data` files: <!-- Yes / No -->
+- AIMET encodings attached: <!-- Yes / No -->
+
+Do not upload confidential models or encodings. Use a sanitized reproducer
+whenever possible.
+
+## Steps to reproduce
 
 1.
 2.
 
-Please attach or link model files to reproduce the issue.
+## Expected behavior
+
+<!-- What should have happened? -->
+
+## Actual behavior
+
+<!-- Include the exact error and relevant logs or screenshots. -->

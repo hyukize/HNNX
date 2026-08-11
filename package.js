@@ -2,12 +2,16 @@
 import * as child_process from 'child_process';
 import * as crypto from 'crypto';
 import * as fs from 'fs/promises';
+import * as fsSync from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 import * as url from 'url';
 
 const args = process.argv.slice(2);
-const python = process.platform === 'win32' ? 'python' : 'python3';
+const pythonExecutable = process.platform === 'win32' ? 'python.exe' : 'python';
+const hnnxPython = path.join(os.homedir(), '.hnnx', 'venv', 'bin', pythonExecutable);
+const systemPython = process.platform === 'win32' ? 'python' : 'python3';
+const python = process.env.HNNX_PYTHON || (fsSync.existsSync(hnnxPython) ? hnnxPython : systemPython);
 
 const read = (match) => {
     if (args.length > 0 && (!match || args[0] === match)) {
