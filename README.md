@@ -7,30 +7,15 @@ analysis, and NVIDIA ONNX GraphSurgeon-backed editing.
 
 **Current release:** [HNNX v0.1.19](https://gitea.fde2.mrxrunway.ai/mrx-armstrong/hnnx/releases/tag/v0.1.19) · [Source repository](https://gitea.fde2.mrxrunway.ai/mrx-armstrong/hnnx)
 
-Windows, Linux, and VS Code packages are available from the release page.
-Apple Silicon macOS users should build the DMG locally with
-`./scripts/build-macos-local.sh` until Developer ID signing and notarization
-are available.
+## Why HNNX
 
-## Highlights
-
-- Visualize ONNX models together with AIMET encodings
-- Optionally auto-load neighboring encodings, then toggle, reload, or detach them without reopening the ONNX model
-- Drop an ONNX model, its external `.data` sidecar, and encodings together
-- Trace activation precision through encoding-free graph operations
-- Inspect mixed precision, QParams, parameter bit widths, and encoding mismatches
-- See explicit Graph Input quantizers as `A8`/`A16` endpoint badges
-- Edit graph connections, nodes, inputs, outputs, and common Opset 17 operators
-- Undo, redo, reset, shape inference, validation, and Save As
-- Keep primary actions in the stable `SAVE AS → INFER SHAPES → RE-LAYOUT → EDIT → ENC` order; attaching encodings does not move the preceding controls
-- Build the native Apple Silicon macOS app locally, or use the distributed Windows/Linux packages and VS Code extension
-- Open models from VS Code Remote and Kubernetes workspaces
-- Select Auto, Light, or Dark appearance; Auto follows the operating system or VS Code
-
-See [AIMET.md](AIMET.md) for the complete feature guide and editor behavior.
-See [MANUAL_TEST.md](MANUAL_TEST.md) for the hands-on test workflow.
-
-## Screenshot showcase
+- Explore ONNX graphs with Netron's mature visualization engine
+- Load AIMET encodings and inspect activation, parameter, and mixed precision
+- Trace activation precision through encoding-free operations
+- Edit connections, endpoints, and common Opset 17 nodes
+- Validate unsaved edits with ONNX shape inference before Save As
+- Work locally or from VS Code Remote, Dev Container, and Kubernetes sessions
+- Use native macOS, Windows, and Linux packages or the VS Code extension
 
 ![HNNX mixed-precision showcase](publish/hnnx-mixed-precision.png)
 
@@ -41,101 +26,58 @@ See [MANUAL_TEST.md](MANUAL_TEST.md) for the hands-on test workflow.
 
 </details>
 
-Open these two files together to render a compact graph designed for project
-screenshots:
+## Get started
 
-- `examples/hnnx-mixed-precision.onnx`
-- `examples/hnnx-mixed-precision.encodings`
+1. Choose a package from the [installation guide](docs/installation.md).
+2. Open an `.onnx` model.
+3. Optionally attach its AIMET encodings file.
+4. Create the recommended GraphSurgeon environment before editing or running
+   shape inference.
 
-The graph contains compact A4 and A8 branches, W4/W8 parameters, one
-`A4/A8→A16` mixed-precision merge and A16 output, plus a four-way
-Split-to-Concat bundle. Regenerate it with:
+The complete first-run walkthrough is in
+**[Getting Started](docs/getting-started.md)**.
+
+## Documentation
+
+| Guide | Use it when you want to… |
+| --- | --- |
+| [Getting Started](docs/getting-started.md) | Open a first model and understand the main controls |
+| [Installation](docs/installation.md) | Install HNNX on macOS, Windows, Linux, VS Code, or from source |
+| [Graph Editing](docs/graph-editing.md) | Rewire, add, delete, validate, and save ONNX graph changes |
+| [AIMET Encodings](docs/aimet-encodings.md) | Load encodings and interpret precision and QParam visualization |
+| [Troubleshooting](docs/troubleshooting.md) | Resolve Python, package, external-data, remote, or inference issues |
+| [Complete feature reference](AIMET.md) | Review detailed behavior and implementation-specific constraints |
+| [Manual test guide](MANUAL_TEST.md) | Exercise the full release workflow before distribution |
+
+## Quick development setup
 
 ```bash
-~/.hnnx/venv/bin/python scripts/create-mixed-precision-showcase.py
-```
-
-## Development
-
-```bash
+git clone https://gitea.fde2.mrxrunway.ai/mrx-armstrong/hnnx.git
+cd hnnx
 npm install
 npm start
 ```
 
-Graph editing and shape inference require a Python environment containing ONNX
-and NVIDIA ONNX GraphSurgeon. The desktop app can create it from
-**HNNX > GraphSurgeon Settings…**. The VS Code extension provides
-**HNNX: Create GraphSurgeon Environment** in the Command Palette; remote
-workspaces create the environment on the remote extension host.
+`npm install` does not install Python packages. Graph editing and shape
+inference use a dedicated environment described in
+[Graph Editing](docs/graph-editing.md#graphsurgeon-environment).
 
-The equivalent manual setup is:
+## Showcase model
 
-```bash
-python3 -m venv ~/.hnnx/venv
-~/.hnnx/venv/bin/python -m pip install onnx onnx_graphsurgeon \
-  --extra-index-url https://pypi.ngc.nvidia.com
-```
+Open these two files together for the compact mixed-precision example shown
+above:
 
-## Build
+- `examples/hnnx-mixed-precision.onnx`
+- `examples/hnnx-mixed-precision.encodings`
 
-Apple Silicon macOS app (recommended local build):
-
-```bash
-./scripts/build-macos-local.sh
-```
-
-The script verifies that it is running on Apple Silicon macOS, installs the
-locked npm dependencies with `npm ci`, builds HNNX, ad-hoc signs the complete
-app bundle, verifies the signature, and creates
-`dist/HNNX-0.1.19-arm64.dmg`. For repeat builds with an existing
-`node_modules`, use `./scripts/build-macos-local.sh --skip-install`.
-
-Windows x64 installer:
-
-```bash
-npm run build:windows-hnnx
-```
-
-Linux x64 AppImage and Debian package:
-
-```bash
-npm run build:linux-hnnx
-```
-
-VS Code extension:
-
-```bash
-npm run build:vscode-hnnx
-```
-
-Generated packages are written to:
-
-- `dist/HNNX-0.1.19-arm64.dmg` (built locally on Apple Silicon macOS)
-- `dist/HNNX-0.1.19-x64-setup.exe`
-- `dist/HNNX-0.1.19-x64.AppImage`
-- `dist/HNNX-0.1.19-x64.deb`
-- `vscode-extension/hnnx-0.1.19.vsix`
-
-## macOS distribution policy
-
-HNNX does not currently distribute a Developer ID-signed and Apple-notarized
-macOS binary as its primary installation method. macOS users should clone this
-repository and run `./scripts/build-macos-local.sh`, then open the generated DMG
-and copy HNNX to Applications. This avoids distributing a downloaded,
-unnotarized application and keeps the macOS build under the user's control.
-
-The local build is ad-hoc signed and verified, but ad-hoc signing is not a
-substitute for Apple Developer ID signing or notarization. Do not disable
-Gatekeeper globally. Graph editing and shape inference still require the
-separate Python environment described above; the build script never installs
-Python packages or modifies Homebrew Python.
+The graph contains A4/A8 branches, W4/W8 parameters, an `A4/A8→A16` merge,
+an A16 output, and a four-way Split-to-Concat bundle.
 
 ## Attribution
 
 HNNX is derived from [Netron](https://github.com/lutzroeder/netron) and retains
 Netron's MIT license and copyright notice. HNNX-specific modifications are by
-Jonghyuk Park. The canonical project repository is
+Jonghyuk Park. The canonical public repository is
 [hyukize/HNNX](https://github.com/hyukize/HNNX); organization-hosted copies may
-be maintained as internal distribution mirrors. Mirroring does not replace the
-copyright and license notices in this repository. See [NOTICE](NOTICE) and
+be maintained as internal distribution mirrors. See [NOTICE](NOTICE) and
 [LICENSE](LICENSE).
