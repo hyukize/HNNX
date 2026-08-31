@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "hnnx"
-version = "1.0.0-rc.1"
+version = "1.0.0-rc.2"
 description = "ONNX graph workbench for visualization, AIMET analysis, and graph editing."
 license = "MIT"
 authors = [

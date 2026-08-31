@@ -56,8 +56,8 @@ smoke test has no blocker.
 | C13 | Delete pass-through then reconnect | Delete a Cast, reconnect its consumer, then undo/redo both changes without a graph rebuild or detached-DOM error | Automated |
 | C14 | Shortcut focus safety | `D`/`Q` act as commands on the canvas but remain ordinary text inside inputs | Automated |
 | C15 | TopK AIMET precision | Input precision propagates only to `values`; integer `indices` remains unlabelled | Automated |
-| C16 | Split-Concat edge bundle | Repeated same-semantic tensors remain one fixed `×N · shape · precision` edge and hidden members do not affect layout bounds | Automated + real-model smoke |
-| C17 | Bundled edit ports | Split output and Concat input each show one `×N` port; searchable selectors expose the exact tensor and input slot | Automated |
+| C16 | Netron-style node-pair bundle | Two or more logical connections sharing one producer and consumer remain one fixed `×N · shape · precision` edge regardless of operator, metadata availability or host; hidden members do not affect layout bounds | Automated + real-model smoke |
+| C17 | Bundled edit ports | Bundled producer output and consumer input each show one `×N` port; searchable selectors expose the exact tensor and input slot | Automated |
 
 ## D. Editing, history, and layout
 

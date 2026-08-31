@@ -30,7 +30,7 @@ in the license and project documentation.
 - NVIDIA ONNX GraphSurgeon-backed Save As export
 - Strict ONNX shape inference over the current unsaved graph edits
 - External tensor-data references are preserved without copying large weight files
-- Fixed Split-to-Concat edge bundles for repeated parallel tensors
+- Netron-style node-pair edge bundles for parallel logical connections
 
 ## Workspace shortcuts
 
@@ -76,18 +76,21 @@ second `indices` output remains its ONNX integer type and is never labeled as
 an AIMET activation precision. Only the display precision is inferred; scale, zero point and other QParam
 details remain limited to tensors that have explicit encodings.
 
-Direct `Split.outputs -> Concat.inputs` connections with at least three
-same-shaped, same-typed tensors are collapsed into one visual edge. The label
-uses `×N · shape · precision`, for example `×32 · 1×64×1×2048 · A8`, where N
-is the number of actual connection lines collapsed into the bundle, including
-repeated occurrences of the same tensor in the Concat input list. Bundles remain
-collapsed as a single representative edge and never change the ONNX graph. The
-hidden logical connections are retained for editing and serialization but do not
-participate in layout, so a large bundle cannot shift or clip the graph.
+Like upstream Netron, two or more logical connections between the same producer
+and consumer nodes are always represented by one visual edge. This does not
+depend on operator names, inferred shapes, data types, AIMET encodings or host
+integration. HNNX adds the label `×N · shape · precision`, for example
+`×32 · 1×64×1×2048 · A8`, where N is the number of actual ONNX connections.
+Shape is included only when every bundled tensor has the same displayed shape;
+mixed precision labels are combined when needed. Bundles never change the ONNX
+graph. Hidden logical connections remain available for editing and serialization
+but do not participate in layout, so a large bundle cannot shift or clip the
+graph.
 In Edit mode a bundle has one source port and one target port, both labelled
 `×N`. Selecting either port opens a searchable list for choosing the exact ONNX
 output tensor or input slot; individual logical ports are not drawn on top of the
-collapsed edge.
+collapsed edge. Split-to-Concat paths are one common example, not a special-case
+requirement.
 
 The beta ONNX GraphSurgeon Editor is entered with the `EDIT · BETA` toolbar
 button. Select a

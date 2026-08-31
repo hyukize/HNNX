@@ -6739,78 +6739,75 @@ view.Graph = class extends grapher.Graph {
         return null;
     }
 
-    edgeBundle(value) {
-        return this._edgeBundles.get(value) || null;
+    edgeBundle(value, to = null) {
+        const bundles = this._edgeBundles.get(value);
+        if (!bundles) {
+            return null;
+        }
+        if (to) {
+            return bundles.get(to) || null;
+        }
+        return bundles.size === 1 ? Array.from(bundles.values())[0] : null;
     }
 
     _prepareEdgeBundles() {
         this._edgeBundles.clear();
-        const nodeType = (node) => {
-            const type = node && node.value ? node.value.type : null;
-            if (!type) {
-                return '';
-            }
-            return typeof type === 'string' ? type : type.name;
-        };
         const dimensions = (value) => {
             const shape = value && value.value && value.value.type ? value.value.type.shape : null;
             return shape && Array.isArray(shape.dimensions) ? shape.dimensions : [];
         };
         const dimensionText = (dimension) => dimension !== null && dimension !== undefined &&
             dimension !== -1 && dimension !== -1n ? dimension.toString() : '?';
-        const typeSignature = (value) => {
-            const type = value && value.value ? value.value.type : null;
-            const dataType = type && type.dataType ? type.dataType : '';
-            return `${dataType}:${dimensions(value).map((dimension) => dimensionText(dimension)).join('x')}`;
-        };
-        for (const entry of this.nodes.values()) {
-            const from = entry.label;
-            if (!(from instanceof view.Node) || nodeType(from) !== 'Split') {
+        // Netron represents every producer/consumer node pair with one visual
+        // edge. Keep that invariant independent of operator type, shape
+        // inference, encodings attachment order or host integration. HNNX
+        // retains the logical ONNX connections in bundle.members so the editor
+        // can still expose the exact tensor and destination input slot.
+        const groups = new Map();
+        for (const value of this._values.values()) {
+            if (!value.from || !Array.isArray(value.to)) {
                 continue;
             }
-            for (const output of from.value.outputs || []) {
-                const modelValues = (output.value || []).filter((value) => value && value.name && !value.initializer);
-                if (modelValues.length < 3) {
+            for (let toIndex = 0; toIndex < value.to.length; toIndex++) {
+                const to = value.to[toIndex];
+                if (!to) {
                     continue;
                 }
-                const values = modelValues.map((value) => this._values.get(value.name)).filter((value) => value);
-                if (values.length !== modelValues.length || values.some((value) => value.to.length === 0)) {
+                if (!groups.has(value.from)) {
+                    groups.set(value.from, new Map());
+                }
+                const targets = groups.get(value.from);
+                if (!targets.has(to)) {
+                    targets.set(to, []);
+                }
+                targets.get(to).push({ value, toIndex });
+            }
+        }
+        for (const [from, targets] of groups) {
+            for (const [to, members] of targets) {
+                if (members.length < 2) {
                     continue;
                 }
-                const to = values[0].to[0];
-                if (!(to instanceof view.Node) || nodeType(to) !== 'Concat' ||
-                    values.some((value) => value.to.some((consumer) => consumer !== to))) {
-                    continue;
+                const values = Array.from(new Set(members.map((member) => member.value)));
+                const bundledNames = new Set(values.map((value) => value.value && value.value.name));
+                const inputEntries = [];
+                let arguments_ = [];
+                if (to instanceof view.Output) {
+                    arguments_ = [to.value];
+                } else if (to && to.value && Array.isArray(to.value.inputs)) {
+                    arguments_ = to.value.inputs;
                 }
-                const names = new Set(modelValues.map((value) => value.name));
-                const input = (to.value.inputs || []).find((argument) => {
-                    const inputValues = (argument.value || []).filter((value) => value && !value.initializer);
-                    const inputNames = new Set(inputValues.map((value) => value.name));
-                    return inputValues.length >= modelValues.length && inputNames.size === names.size &&
-                        inputValues.every((value) => names.has(value.name));
-                });
-                if (!input || new Set(values.map((value) => typeSignature(value))).size !== 1) {
-                    continue;
-                }
-                const connectionCount = values.reduce((count, value) =>
-                    count + value.to.filter((consumer) => consumer === to).length, 0);
-                const members = [];
-                for (const value of values) {
-                    for (let toIndex = 0; toIndex < value.to.length; toIndex++) {
-                        if (value.to[toIndex] === to) {
-                            members.push({ value, toIndex });
+                for (const argument of arguments_) {
+                    for (let valueIndex = 0; valueIndex < (argument && Array.isArray(argument.value) ? argument.value.length : 0); valueIndex++) {
+                        const value = argument.value[valueIndex];
+                        if (value && bundledNames.has(value.name)) {
+                            inputEntries.push({ argument, valueIndex, value });
                         }
                     }
                 }
-                const inputEntries = [];
-                const bundledNames = new Set(values.map((value) => value.value.name));
-                for (let valueIndex = 0; valueIndex < input.value.length; valueIndex++) {
-                    const value = input.value[valueIndex];
-                    if (value && bundledNames.has(value.name)) {
-                        inputEntries.push({ argument: input, valueIndex, value });
-                    }
-                }
-                const shape = dimensions(values[0]).map((dimension) => dimensionText(dimension)).join('\u00D7');
+                const shapes = new Set(values.map((value) =>
+                    dimensions(value).map((dimension) => dimensionText(dimension)).join('\u00D7')));
+                const shape = shapes.size === 1 ? Array.from(shapes)[0] : '';
                 const labels = new Set();
                 for (const value of values) {
                     const encoding = this.model.attachment.quantization.precision(value.value);
@@ -6818,7 +6815,7 @@ view.Graph = class extends grapher.Graph {
                         labels.add(encoding.label);
                     }
                 }
-                const parts = [`\u00D7${connectionCount}`];
+                const parts = [`\u00D7${members.length}`];
                 if (shape) {
                     parts.push(shape);
                 }
@@ -6828,18 +6825,21 @@ view.Graph = class extends grapher.Graph {
                 const bundle = {
                     from,
                     to,
-                    input,
-                    output,
+                    input: inputEntries.length > 0 ? inputEntries[0].argument : null,
+                    output: null,
                     values,
                     members,
                     inputEntries,
-                    connectionCount,
-                    representativeIndex: Math.floor((connectionCount - 1) / 2),
+                    connectionCount: members.length,
+                    representativeIndex: Math.floor((members.length - 1) / 2),
                     label: parts.join(' \u00B7 '),
                     edge: null
                 };
                 for (const value of values) {
-                    this._edgeBundles.set(value, bundle);
+                    if (!this._edgeBundles.has(value)) {
+                        this._edgeBundles.set(value, new Map());
+                    }
+                    this._edgeBundles.get(value).set(to, bundle);
                 }
             }
         }
@@ -7841,9 +7841,8 @@ view.GraphEditInputPorts = class {
         for (const port of this._ports) {
             const visualValue = port.value && port.value.name ?
                 this._owner.context.values.get(port.value.name) : null;
-            const candidateBundle = visualValue ? this._owner.context.edgeBundle(visualValue) : null;
-            const bundle = candidateBundle && candidateBundle.to === this._owner &&
-                candidateBundle.input === port.argument ? candidateBundle : null;
+            const candidateBundle = visualValue ? this._owner.context.edgeBundle(visualValue, this._owner) : null;
+            const bundle = candidateBundle && candidateBundle.to === this._owner ? candidateBundle : null;
             if (!bundle) {
                 const suffix = port.argument.value.length > 1 ? `[${port.valueIndex}]` : '';
                 port.entries = [{
@@ -8701,10 +8700,10 @@ view.Value = class {
 
     build() {
         this._edges = this._edges || [];
-        const bundle = this.context.edgeBundle(this);
         if (this.from && Array.isArray(this.to)) {
             for (let i = 0; i < this.to.length; i++) {
                 const to = this.to[i];
+                const bundle = this.context.edgeBundle(this, to);
                 const bundleIndex = bundle ? bundle.members.findIndex((member) =>
                     member.value === this && member.toIndex === i) : -1;
                 const bundleLeader = bundle && bundleIndex === bundle.representativeIndex;

@@ -1000,7 +1000,7 @@ playwright.test('ONNX GraphSurgeon Editor rejects cycles and clears redo after a
     await playwright.expect(page.locator('#graph-edit-redo-button')).toBeDisabled();
 });
 
-playwright.test('ONNX GraphSurgeon Editor keeps close multi-output routes compact', async ({ page }) => {
+playwright.test('Netron-style node-pair routing keeps two logical connections in one visual edge', async ({ page }) => {
     await page.goto('http://127.0.0.1:8765/dist/web/');
     await page.waitForLoadState('domcontentloaded');
     await page.waitForSelector('body.welcome', { timeout: 10000 });
@@ -1018,19 +1018,23 @@ playwright.test('ONNX GraphSurgeon Editor keeps close multi-output routes compac
     await page.waitForSelector('body.default', { timeout: 10000 });
     const relayout = page.locator('#graph-edit-layout-button');
     await playwright.expect(relayout).toBeVisible();
-    const initialRoutes = await Promise.all(['left', 'right'].map((name) =>
-        page.locator(`.edge-paths #edge-${name}`).first().getAttribute('d')));
+    const bundlePath = page.locator('.edge-paths .edge-path-bundle');
+    const bundleLabel = page.locator('.edge-label-bundle');
+    await playwright.expect(bundlePath).toHaveCount(1);
+    await playwright.expect(bundlePath).toHaveAttribute('id', 'edge-left');
+    await playwright.expect(page.locator('.edge-paths #edge-right')).toHaveCount(0);
+    await playwright.expect(bundleLabel).toContainText('×2');
+    const initialRoute = await bundlePath.getAttribute('d');
     await relayout.click();
     await playwright.expect(page.locator('#graph-edit-status')).toContainText('re-laid out');
-    const viewRoutes = await Promise.all(['left', 'right'].map((name) =>
-        page.locator(`.edge-paths #edge-${name}`).first().getAttribute('d')));
-    playwright.expect(viewRoutes).toEqual(initialRoutes);
+    const viewRoute = await bundlePath.getAttribute('d');
+    playwright.expect(viewRoute).toEqual(initialRoute);
 
     await page.locator('#graph-edit-button').click();
     await playwright.expect(page.locator('html')).toHaveClass(/onnx-graph-edit/);
-    const editRoutes = await Promise.all(['left', 'right'].map((name) =>
-        page.locator(`.edge-paths #edge-${name}`).first().getAttribute('d')));
-    playwright.expect(editRoutes).toEqual(viewRoutes);
+    await playwright.expect(bundlePath).toHaveCount(1);
+    const editRoute = await bundlePath.getAttribute('d');
+    playwright.expect(editRoute).toEqual(viewRoute);
 
     const concat = page.locator('.graph-node:visible').filter({ hasText: 'Concat' }).first();
     const bounds = await concat.boundingBox();
@@ -1045,20 +1049,20 @@ playwright.test('ONNX GraphSurgeon Editor keeps close multi-output routes compac
     const restoredTransform = await concat.getAttribute('transform');
     playwright.expect(restoredTransform).not.toEqual(movedTransform);
 
-    const routes = [page.locator('.edge-paths #edge-left').first(), page.locator('.edge-paths #edge-right').first()];
-    const paths = await Promise.all(routes.map((route) => route.getAttribute('d')));
-    for (const data of paths) {
-        playwright.expect(data).toMatch(/^M/);
-        playwright.expect(data).toContain('C');
-        playwright.expect(data).not.toContain('A');
-        playwright.expect(data).not.toContain('Q');
-    }
+    const data = await bundlePath.getAttribute('d');
+    playwright.expect(data).toMatch(/^M/);
+    playwright.expect(data).toContain('C');
+    playwright.expect(data).not.toContain('A');
+    playwright.expect(data).not.toContain('Q');
+    const bundledOutput = page.locator('.graph-edit-output-port[aria-label="Choose bundled outputs ×2"]');
+    await playwright.expect(bundledOutput).toHaveCount(1);
+    await playwright.expect(bundledOutput.locator('.graph-edit-port-bundle-count')).toHaveText('×2');
     const session = await page.context().newCDPSession(page);
     const alignment = await session.send('Runtime.evaluate', {
         expression: `(() => {
             const path = document.querySelector('#edge-left');
             const port = Array.from(document.querySelectorAll(
-                '.graph-edit-output-port[aria-label="Use output left"]')).find((element) =>
+                '.graph-edit-output-port[aria-label="Choose bundled outputs ×2"]')).find((element) =>
                 element.getClientRects().length > 0);
             const point = path.getPointAtLength(0).matrixTransform(path.getScreenCTM());
             const matrix = port.getScreenCTM();
@@ -1082,8 +1086,17 @@ playwright.test('ONNX GraphSurgeon Editor keeps close multi-output routes compac
         });
         return result.result.value;
     };
-    const source = page.locator('.graph-edit-output-port[aria-label="Use output left"]');
+    const source = page.locator('.graph-edit-output-port[aria-label="Use output x"]');
+    await session.send('Runtime.evaluate', {
+        expression: 'document.getElementById("target").scrollTop = 0'
+    });
     await source.scrollIntoViewIfNeeded();
+    await session.send('Runtime.evaluate', {
+        expression: `(() => {
+            const target = document.getElementById('target');
+            target.scrollTop = Math.max(0, target.scrollTop - 200);
+        })()`
+    });
     const sourceBounds = await source.boundingBox();
     const targetBounds = await target.boundingBox();
     const scrollBefore = await scrollTop();

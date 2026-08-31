@@ -6,7 +6,7 @@
         "email": "hyukize@users.noreply.github.com",
         "url": "https://github.com/hyukize"
     },
-    "version": "1.0.0-rc.1",
+    "version": "1.0.0-rc.2",
     "date": "2026-08-11 00:00:00",
     "description": "ONNX graph workbench for visualization, AIMET analysis, and graph editing",
     "license": "MIT",
