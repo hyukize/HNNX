@@ -28,7 +28,8 @@ in the license and project documentation.
 - Connection replacement and temporary disconnection of any non-initializer input
 - Undo, redo and full edit-session reset
 - NVIDIA ONNX GraphSurgeon-backed Save As export
-- Strict ONNX shape inference over the current unsaved graph edits
+- Strict ONNX shape inference over the current unsaved graph edits, including
+  bounded partial reads of external shape constants
 - External tensor-data references are preserved without copying large weight files
 - Netron-style node-pair edge bundles for parallel logical connections
 
@@ -205,6 +206,11 @@ Models using external tensor data must save the edited ONNX beside the
 original model so its existing `.data` files remain valid. Graph editing is
 available in the macOS app and VS Code extension; a standalone browser cannot
 run the Python backend.
+
+Shape inference does not load complete external weight files. HNNX reads only
+small external Constant and shape/axes/sizes tensor ranges using their declared
+offsets and lengths, with per-tensor and total limits. The inference runs on a
+temporary model copy; Save As keeps the original external-data references.
 
 Node badges represent explicit Graph Input/output QParams (`A8`), parameter QParams
 (`W8`) or quantization signatures (`A8→A16`, `A8/A16→A16`). Propagated precision is

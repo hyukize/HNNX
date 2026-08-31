@@ -74,6 +74,8 @@ smoke test has no blocker.
 | D9 | Re-layout | Graph rebuild retains the current edit model | Automated |
 | D10 | Redo branch invalidation | Undo followed by a different edit clears the stale redo branch | Automated |
 | D11 | Missing external data inference | Remove referenced external tensor data; inference continues and reports a warning | Automated |
+| D11a | External Reshape shape | Read only the small external shape range, infer through downstream nodes, and leave a large external weight unloaded | Automated |
+| D11b | Computed Reshape shape | Propagate a static Shape/Gather/Concat chain through Reshape | Automated |
 | D12 | Deferred refresh affordance | `REFRESH VIEW` stays visibly subdued and disabled until a deferred view refresh is pending | Automated + manual UI |
 | D13 | Re-layout serialization | Rapid repeated re-layout requests finish in order and restore the enabled `RE-LAYOUT` control | Automated |
 | D14 | Connection replacement | Select an existing edge, choose `REPLACE`, select an orange output, then Undo; source path and model connection change and restore | Automated |
@@ -94,6 +96,7 @@ smoke test has no blocker.
 | E7 | Shape inference | Unsaved edits are inferred; stale shapes clear after a new edit | Backend automated + manual UI |
 | E8 | Save As | Available in View/Edit; chosen copy or confirmed overwrite reopens and passes ONNX checker | Backend automated + manual UI |
 | E9 | External data | External tensor references remain valid after edits | Automated |
+| E9a | Inference-assisted external save | Save inferred output types without embedding temporarily loaded external shape constants | Automated |
 | E10 | Endpoint keyboard deletion | Original and newly added graph inputs/outputs can be deleted with `D` and restored with undo | Automated |
 
 ## F. VS Code extension and remote workspace

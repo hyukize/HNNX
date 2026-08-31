@@ -97,6 +97,9 @@ These positions are view-only; `RESET` restores automatic layout.
 
 Models using external tensor data should be saved beside the original ONNX so
 their relative `.data` references remain valid.
+During shape inference HNNX reads only bounded external ranges required by
+small Constant and shape/axes/sizes tensors. Large weights are not loaded, and
+the temporary values are not embedded into the saved model.
 
 ## Keyboard shortcuts
 

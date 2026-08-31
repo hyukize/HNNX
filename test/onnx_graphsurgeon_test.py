@@ -5,13 +5,74 @@ import unittest
 
 import numpy
 import onnx
-from onnx import TensorProto, helper, numpy_helper
+from onnx import TensorProto, external_data_helper, helper, numpy_helper
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BACKEND_PATH = os.path.join(ROOT, "source", "onnx-graphsurgeon.py")
 SPEC = importlib.util.spec_from_file_location("netron_onnx_graphsurgeon", BACKEND_PATH)
 BACKEND = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(BACKEND)
+
+
+def _external_reshape_model(directory):
+    source = os.path.join(directory, "external-reshape.onnx")
+    data = os.path.join(directory, "external-reshape.data")
+    target_shape = helper.make_tensor("", TensorProto.INT64, [2], [2, 12])
+    weight = numpy_helper.from_array(
+        numpy.ones((1024, 1024), dtype=numpy.float32), "unused_weight"
+    )
+    graph = helper.make_graph(
+        [
+            helper.make_node(
+                "Constant",
+                [],
+                ["target_shape"],
+                name="shape_constant",
+                value=target_shape,
+            ),
+            helper.make_node(
+                "Reshape", ["x", "target_shape"], ["reshaped"], name="reshape"
+            ),
+            helper.make_node(
+                "Transpose", ["reshaped"], ["y"], name="after", perm=[1, 0]
+            ),
+            helper.make_node(
+                "Identity", ["unused_weight"], ["unused_weight_value"], name="weight"
+            ),
+        ],
+        "external-reshape",
+        [helper.make_tensor_value_info("x", TensorProto.FLOAT, [2, 3, 4])],
+        [helper.make_tensor_value_info("y", TensorProto.FLOAT, [None, None])],
+        [weight],
+    )
+    model = helper.make_model(
+        graph, opset_imports=[helper.make_opsetid("", 17)]
+    )
+    onnx.save_model(
+        model,
+        source,
+        save_as_external_data=True,
+        all_tensors_to_one_file=True,
+        location=os.path.basename(data),
+        size_threshold=0,
+    )
+    shell = onnx.load(source, load_external_data=False)
+    tensor = shell.graph.node[0].attribute[0].t
+    payload = numpy.asarray([2, 12], dtype=numpy.int64).tobytes()
+    offset = os.path.getsize(data)
+    with open(data, "ab") as stream:
+        stream.write(payload)
+    tensor.ClearField("int64_data")
+    tensor.raw_data = payload
+    external_data_helper.set_external_data(
+        tensor,
+        os.path.basename(data),
+        offset=offset,
+        length=len(payload),
+    )
+    tensor.ClearField("raw_data")
+    onnx.save(shell, source)
+    return source, data
 
 
 class OnnxGraphSurgeonBackendTest(unittest.TestCase):
@@ -210,6 +271,123 @@ class OnnxGraphSurgeonBackendTest(unittest.TestCase):
             self.assertEqual(
                 result["warnings"][0]["files"], ["missing-external.data"]
             )
+
+    def test_infers_external_reshape_shape_without_loading_large_weight(self):
+        with tempfile.TemporaryDirectory() as directory:
+            source, data = _external_reshape_model(directory)
+            _, model = BACKEND._apply_graph_edits(source, [])
+            prepared = onnx.ModelProto()
+            prepared.CopyFrom(model)
+            warnings = []
+
+            loaded = BACKEND._hydrate_inference_external_data(
+                onnx, prepared, source, warnings
+            )
+            result = BACKEND.infer_shapes(source, [])
+
+            self.assertEqual(os.path.getsize(data), 4 * 1024 * 1024 + 16)
+            self.assertEqual(loaded, {"tensors": 1, "bytes": 16})
+            self.assertEqual(warnings, [])
+            self.assertNotIn("error", result)
+            tensors = {tensor["name"]: tensor for tensor in result["tensors"]}
+            self.assertEqual(tensors["reshaped"]["dimensions"], [2, 12])
+            self.assertEqual(tensors["y"]["dimensions"], [12, 2])
+
+    def test_save_preserves_external_data_after_shape_inference(self):
+        with tempfile.TemporaryDirectory() as directory:
+            source, _ = _external_reshape_model(directory)
+            target = os.path.join(directory, "external-reshape.edited.onnx")
+
+            BACKEND.apply_edits(
+                source,
+                target,
+                [{"kind": "rename-node", "nodeIndex": 1, "name": "reshaped_node"}],
+            )
+
+            output = onnx.load(target, load_external_data=False)
+            constant = output.graph.node[0].attribute[0].t
+            self.assertEqual(constant.data_location, TensorProto.EXTERNAL)
+            self.assertEqual(len(constant.raw_data), 0)
+            entries = {entry.key: entry.value for entry in constant.external_data}
+            self.assertEqual(entries["location"], "external-reshape.data")
+            self.assertEqual(
+                output.graph.initializer[0].data_location, TensorProto.EXTERNAL
+            )
+            dimensions = [
+                dimension.dim_value
+                for dimension in output.graph.output[0].type.tensor_type.shape.dim
+            ]
+            self.assertEqual(dimensions, [12, 2])
+            onnx.checker.check_model(target)
+
+    def test_propagates_computed_shape_chain_through_reshape(self):
+        with tempfile.TemporaryDirectory() as directory:
+            source = os.path.join(directory, "computed-reshape.onnx")
+            graph = helper.make_graph(
+                [
+                    helper.make_node("Shape", ["x"], ["shape_x"], name="shape"),
+                    helper.make_node(
+                        "Gather",
+                        ["shape_x", "index_zero"],
+                        ["batch_scalar"],
+                        name="gather",
+                        axis=0,
+                    ),
+                    helper.make_node(
+                        "Unsqueeze",
+                        ["batch_scalar", "axis_zero"],
+                        ["batch"],
+                        name="unsqueeze",
+                    ),
+                    helper.make_node(
+                        "Concat",
+                        ["batch", "minus_one"],
+                        ["target_shape"],
+                        name="concat",
+                        axis=0,
+                    ),
+                    helper.make_node(
+                        "Reshape",
+                        ["x", "target_shape"],
+                        ["reshaped"],
+                        name="reshape",
+                    ),
+                    helper.make_node(
+                        "Identity", ["reshaped"], ["y"], name="after"
+                    ),
+                ],
+                "computed-reshape",
+                [helper.make_tensor_value_info("x", TensorProto.FLOAT, [2, 3, 4])],
+                [
+                    helper.make_tensor_value_info(
+                        "y", TensorProto.FLOAT, [None, None]
+                    )
+                ],
+                [
+                    numpy_helper.from_array(
+                        numpy.asarray(0, dtype=numpy.int64), "index_zero"
+                    ),
+                    numpy_helper.from_array(
+                        numpy.asarray([0], dtype=numpy.int64), "axis_zero"
+                    ),
+                    numpy_helper.from_array(
+                        numpy.asarray([-1], dtype=numpy.int64), "minus_one"
+                    ),
+                ],
+            )
+            onnx.save(
+                helper.make_model(
+                    graph, opset_imports=[helper.make_opsetid("", 17)]
+                ),
+                source,
+            )
+
+            result = BACKEND.infer_shapes(source, [])
+
+            self.assertNotIn("error", result)
+            tensors = {tensor["name"]: tensor for tensor in result["tensors"]}
+            self.assertEqual(tensors["reshaped"]["dimensions"], [2, 12])
+            self.assertEqual(tensors["y"]["dimensions"], [2, 12])
 
     def test_disconnects_only_optional_input_without_shifting_slots(self):
         with tempfile.TemporaryDirectory() as directory:

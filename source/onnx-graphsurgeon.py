@@ -28,6 +28,227 @@ def _dependencies():
     return onnx, graphsurgeon
 
 
+_MAX_INFERENCE_EXTERNAL_TENSOR_BYTES = 1024 * 1024
+_MAX_INFERENCE_EXTERNAL_TOTAL_BYTES = 32 * 1024 * 1024
+
+
+_VALUE_DEPENDENT_INPUTS = {
+    "ConstantOfShape": {0},
+    "Expand": {1},
+    "Pad": {1},
+    "ReduceL1": {1},
+    "ReduceL2": {1},
+    "ReduceLogSum": {1},
+    "ReduceLogSumExp": {1},
+    "ReduceMax": {1},
+    "ReduceMean": {1},
+    "ReduceMin": {1},
+    "ReduceProd": {1},
+    "ReduceSum": {1},
+    "ReduceSumSquare": {1},
+    "Reshape": {1},
+    "Resize": {1, 2, 3},
+    "Slice": {1, 2, 3, 4},
+    "Split": {1},
+    "Squeeze": {1},
+    "Tile": {1},
+    "TopK": {1},
+    "Unsqueeze": {1},
+}
+
+
+def _attribute_tensors(onnx, attribute):
+    if attribute.type == onnx.AttributeProto.TENSOR:
+        return [attribute.t]
+    if attribute.type == onnx.AttributeProto.TENSORS:
+        return list(attribute.tensors)
+    return []
+
+
+def _external_tensor_entries(onnx, model):
+    entries = []
+
+    def visit(graph, scope):
+        for initializer in graph.initializer:
+            if initializer.data_location == onnx.TensorProto.EXTERNAL:
+                entries.append(
+                    {
+                        "tensor": initializer,
+                        "kind": "initializer",
+                        "name": initializer.name,
+                        "node": None,
+                        "label": initializer.name or f"{scope}/initializer",
+                    }
+                )
+        for node_index, node in enumerate(graph.node):
+            node_label = node.name or f"{node.op_type}[{node_index}]"
+            for attribute in node.attribute:
+                for tensor_index, tensor in enumerate(
+                    _attribute_tensors(onnx, attribute)
+                ):
+                    if tensor.data_location != onnx.TensorProto.EXTERNAL:
+                        continue
+                    suffix = f"[{tensor_index}]" if tensor_index else ""
+                    entries.append(
+                        {
+                            "tensor": tensor,
+                            "kind": "attribute",
+                            "name": node.output[0] if node.output else "",
+                            "node": node,
+                            "label": (
+                                f"{scope}/{node_label}:{attribute.name}{suffix}"
+                            ),
+                        }
+                    )
+                if attribute.type == onnx.AttributeProto.GRAPH:
+                    visit(attribute.g, f"{scope}/{node_label}:{attribute.name}")
+                elif attribute.type == onnx.AttributeProto.GRAPHS:
+                    for graph_index, nested in enumerate(attribute.graphs):
+                        visit(
+                            nested,
+                            f"{scope}/{node_label}:{attribute.name}[{graph_index}]",
+                        )
+
+    visit(model.graph, "graph")
+    return entries
+
+
+def _external_metadata(tensor):
+    return {entry.key: entry.value for entry in tensor.external_data}
+
+
+def _shape_external_candidate(onnx, entry, value_inputs):
+    if entry["kind"] == "attribute":
+        return entry["node"] is not None and entry["node"].op_type == "Constant"
+    integer_types = {
+        onnx.TensorProto.BOOL,
+        onnx.TensorProto.INT8,
+        onnx.TensorProto.INT16,
+        onnx.TensorProto.INT32,
+        onnx.TensorProto.INT64,
+        onnx.TensorProto.UINT8,
+        onnx.TensorProto.UINT16,
+        onnx.TensorProto.UINT32,
+        onnx.TensorProto.UINT64,
+    }
+    tensor = entry["tensor"]
+    return entry["name"] in value_inputs or tensor.data_type in integer_types
+
+
+def _value_dependent_inputs(model):
+    names = set()
+    for node in model.graph.node:
+        positions = _VALUE_DEPENDENT_INPUTS.get(node.op_type, set())
+        for input_index in positions:
+            if input_index < len(node.input) and node.input[input_index]:
+                names.add(node.input[input_index])
+    return names
+
+
+def _requires_data_propagation(model):
+    initializers = {initializer.name for initializer in model.graph.initializer}
+    producers = {
+        output: node
+        for node in model.graph.node
+        for output in node.output
+        if output
+    }
+    for name in _value_dependent_inputs(model):
+        if name in initializers:
+            continue
+        producer = producers.get(name)
+        if producer is not None and producer.op_type != "Constant":
+            return True
+    return False
+
+
+def _hydrate_inference_external_data(onnx, model, input_path, warnings):
+    value_inputs = _value_dependent_inputs(model)
+    candidates = []
+    skipped = []
+    total = 0
+    for entry in _external_tensor_entries(onnx, model):
+        if not _shape_external_candidate(onnx, entry, value_inputs):
+            continue
+        metadata = _external_metadata(entry["tensor"])
+        location = metadata.get("location")
+        try:
+            offset = int(metadata.get("offset", "0"))
+            length = int(metadata.get("length", ""))
+        except (TypeError, ValueError):
+            skipped.append(entry["label"])
+            continue
+        if (
+            not location
+            or offset < 0
+            or length < 0
+            or length > _MAX_INFERENCE_EXTERNAL_TENSOR_BYTES
+            or total + length > _MAX_INFERENCE_EXTERNAL_TOTAL_BYTES
+        ):
+            skipped.append(entry["label"])
+            continue
+        path = os.path.normpath(
+            os.path.join(os.path.dirname(os.path.abspath(input_path)), location)
+        )
+        if not os.path.isfile(path):
+            continue
+        entry.update({"path": path, "offset": offset, "length": length})
+        candidates.append(entry)
+        total += length
+
+    files = {}
+    for entry in candidates:
+        files.setdefault(entry["path"], []).append(entry)
+    loaded = 0
+    loaded_bytes = 0
+    for path, entries in files.items():
+        with open(path, "rb") as stream:
+            for entry in sorted(entries, key=lambda value: value["offset"]):
+                stream.seek(entry["offset"])
+                data = stream.read(entry["length"])
+                if len(data) != entry["length"]:
+                    skipped.append(entry["label"])
+                    continue
+                tensor = entry["tensor"]
+                tensor.raw_data = data
+                tensor.data_location = onnx.TensorProto.DEFAULT
+                tensor.ClearField("external_data")
+                loaded += 1
+                loaded_bytes += len(data)
+    if skipped:
+        warnings.append(
+            {
+                "code": "external-shape-data-skipped",
+                "message": (
+                    "Some external constants were not loaded because their "
+                    "metadata, size, or data range was unsafe for partial loading."
+                ),
+                "tensors": sorted(set(skipped)),
+            }
+        )
+    return {"tensors": loaded, "bytes": loaded_bytes}
+
+
+def _prepare_shape_inference(onnx, model, input_path, warnings):
+    prepared = onnx.ModelProto()
+    prepared.CopyFrom(model)
+    _hydrate_inference_external_data(onnx, prepared, input_path, warnings)
+    return prepared, _requires_data_propagation(prepared)
+
+
+def _copy_inferred_types(target, inferred):
+    target.graph.ClearField("value_info")
+    target.graph.value_info.extend(inferred.graph.value_info)
+    inferred_inputs = {value.name: value for value in inferred.graph.input}
+    inferred_outputs = {value.name: value for value in inferred.graph.output}
+    for value in target.graph.input:
+        if value.name in inferred_inputs:
+            value.type.CopyFrom(inferred_inputs[value.name].type)
+    for value in target.graph.output:
+        if value.name in inferred_outputs:
+            value.type.CopyFrom(inferred_outputs[value.name].type)
+
+
 def _external_initializers(model):
     onnx, _ = _dependencies()
     return {
@@ -37,13 +258,14 @@ def _external_initializers(model):
     }
 
 
-def _missing_external_data(model, input_path):
+def _missing_external_data(onnx, model, input_path):
     directory = os.path.dirname(os.path.abspath(input_path))
     missing = set()
-    for initializer in _external_initializers(model).values():
+    for external in _external_tensor_entries(onnx, model):
+        tensor = external["tensor"]
         locations = [
             entry.value
-            for entry in initializer.external_data
+            for entry in tensor.external_data
             if entry.key == "location" and entry.value
         ]
         for location in locations:
@@ -549,7 +771,16 @@ def apply_edits(input_path, output_path, edits):
     onnx, output = _apply_graph_edits(input_path, edits)
     # Newly added intermediate values deliberately start without a shape. Run
     # ONNX inference before saving so graph outputs receive a valid type shape.
-    output = onnx.shape_inference.infer_shapes(output)
+    # Infer on a copy that can hydrate small external shape constants, then copy
+    # only type metadata back so Save As preserves every external data reference.
+    prepared, data_prop = _prepare_shape_inference(onnx, output, input_path, [])
+    inferred = onnx.shape_inference.infer_shapes(
+        prepared,
+        check_type=True,
+        strict_mode=True,
+        data_prop=data_prop,
+    )
+    _copy_inferred_types(output, inferred)
     _restore_external_data(output, external, input_path, output_path)
     onnx.save_model(output, output_path)
     onnx.checker.check_model(output_path)
@@ -632,7 +863,19 @@ def _shape_text(tensor):
 def _shape_mismatch(node, inputs):
     known = [value for value in inputs if isinstance(value.get("dimensions"), list)]
     data_types = {value.get("dataType") for value in inputs if value.get("dataType")}
-    if len(data_types) > 1:
+    same_type_operators = {
+        "Add",
+        "Concat",
+        "Div",
+        "Equal",
+        "Greater",
+        "Less",
+        "MatMul",
+        "Mul",
+        "Pow",
+        "Sub",
+    }
+    if node.op_type in same_type_operators and len(data_types) > 1:
         values = ", ".join(
             f"{value['name']}={value.get('dataType', 'unknown')}" for value in inputs
         )
@@ -773,11 +1016,13 @@ def _shape_inference_error(onnx, model, error):
 def infer_shapes(input_path, edits):
     onnx, model = _apply_graph_edits(input_path, edits)
     warnings = []
+    prepared = model
+    data_prop = False
     try:
         source = onnx.load(input_path, load_external_data=False)
-        has_external_data = bool(_external_initializers(source))
+        has_external_data = bool(_external_tensor_entries(onnx, source))
         if has_external_data:
-            missing = _missing_external_data(source, input_path)
+            missing = _missing_external_data(onnx, source, input_path)
             if missing:
                 warnings.append(
                     {
@@ -792,11 +1037,14 @@ def infer_shapes(input_path, edits):
             else:
                 # Use the path so ONNX can validate external tensor locations.
                 onnx.checker.check_model(input_path)
+        prepared, data_prop = _prepare_shape_inference(
+            onnx, model, input_path, warnings
+        )
         inferred = onnx.shape_inference.infer_shapes(
-            model,
+            prepared,
             check_type=True,
             strict_mode=True,
-            data_prop=False,
+            data_prop=data_prop,
         )
         # Newly added values intentionally have no seeded shape. Validate only
         # after inference has populated graph-output type shapes, matching the
@@ -809,10 +1057,10 @@ def infer_shapes(input_path, edits):
     except Exception as error:
         try:
             partial = onnx.shape_inference.infer_shapes(
-                model,
+                prepared,
                 check_type=False,
                 strict_mode=False,
-                data_prop=False,
+                data_prop=data_prop,
             )
             model = partial
         except Exception:
