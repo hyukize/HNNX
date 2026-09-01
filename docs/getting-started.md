@@ -10,7 +10,7 @@ model. For platform-specific details, see [Installation](installation.md).
 Choose one of these paths:
 
 - **VS Code:** install `hnnx-<version>.vsix` from the
-  [releases page](https://gitea.fde2.mrxrunway.ai/mrx-armstrong/hnnx/releases).
+  [releases page](https://github.com/hyukize/HNNX/releases).
 - **Windows x64:** install `HNNX-<version>-x64-setup.exe`.
 - **Linux x64:** use the AppImage or Debian package.
 - **Apple Silicon macOS:** clone the repository and run

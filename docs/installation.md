@@ -4,7 +4,7 @@ English | [한국어](ko-kr/installation.md)
 
 HNNX is available as a desktop application, a VS Code extension, and source.
 Published packages are listed on the
-[releases page](https://gitea.fde2.mrxrunway.ai/mrx-armstrong/hnnx/releases).
+[releases page](https://github.com/hyukize/HNNX/releases).
 
 ## Apple Silicon macOS
 
@@ -19,7 +19,7 @@ Requirements:
 - Xcode Command Line Tools for `codesign`
 
 ```bash
-git clone https://gitea.fde2.mrxrunway.ai/mrx-armstrong/hnnx.git
+git clone https://github.com/hyukize/HNNX.git
 cd hnnx
 ./scripts/build-macos-local.sh
 ```
@@ -103,7 +103,7 @@ Requirements:
 - Node.js and npm
 
 ```bash
-git clone https://gitea.fde2.mrxrunway.ai/mrx-armstrong/hnnx.git
+git clone https://github.com/hyukize/HNNX.git
 cd hnnx
 npm install
 npm start

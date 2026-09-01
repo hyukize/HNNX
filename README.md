@@ -5,7 +5,7 @@ analysis, and NVIDIA ONNX GraphSurgeon-backed editing.
 
 <img src="publish/hnnx-icon.png" alt="HNNX icon" width="512">
 
-**Downloads:** [HNNX releases](https://gitea.fde2.mrxrunway.ai/mrx-armstrong/hnnx/releases) · [Source repository](https://gitea.fde2.mrxrunway.ai/mrx-armstrong/hnnx)
+**Downloads:** [HNNX releases](https://github.com/hyukize/HNNX/releases) · [Source repository](https://github.com/hyukize/HNNX)
 
 ## Why HNNX
 
@@ -53,7 +53,7 @@ Additional references: [complete feature reference](docs/feature-reference.md) �
 ## Quick development setup
 
 ```bash
-git clone https://gitea.fde2.mrxrunway.ai/mrx-armstrong/hnnx.git
+git clone https://github.com/hyukize/HNNX.git
 cd hnnx
 npm install
 npm start

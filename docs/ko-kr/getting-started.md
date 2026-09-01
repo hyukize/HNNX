@@ -9,7 +9,7 @@
 
 사용 환경에 맞는 방법을 선택합니다.
 
-- **VS Code:** [릴리스 페이지](https://gitea.fde2.mrxrunway.ai/mrx-armstrong/hnnx/releases)에서
+- **VS Code:** [릴리스 페이지](https://github.com/hyukize/HNNX/releases)에서
   `hnnx-<version>.vsix`를 설치합니다.
 - **Windows x64:** `HNNX-<version>-x64-setup.exe`를 설치합니다.
 - **Linux x64:** AppImage 또는 Debian 패키지를 사용합니다.

@@ -1,5 +1,5 @@
 {
-    "appId": "ai.mrxrunway.hnnx",
+    "appId": "io.github.hyukize.hnnx",
     "productName": "HNNX",
     "copyright": "Copyright © 2026 Jonghyuk Park",
     "files": ["source/**/*"],

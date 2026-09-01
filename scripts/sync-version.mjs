@@ -32,7 +32,7 @@ await fs.writeFile(pythonFile, synchronizedPython);
 const extensionFile = path.join(root, 'vscode-extension', 'package.json');
 const extension = await readJson(extensionFile);
 extension.version = version;
-extension.scripts.package = `npm run build:media && npx --yes @vscode/vsce package --no-dependencies --allow-missing-repository --out hnnx-${version}.vsix`;
+extension.scripts.package = `npm run build:media && npx --yes @vscode/vsce package --no-dependencies --out hnnx-${version}.vsix`;
 await writeJson(extensionFile, extension);
 
 process.stdout.write(`Synchronized HNNX ${version}.\n`);

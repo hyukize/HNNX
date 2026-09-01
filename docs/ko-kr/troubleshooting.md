@@ -10,7 +10,7 @@ ad-hoc 서명이 있어도 인터넷에서 받은 DMG를 Gatekeeper가 차단할
 Apple Silicon Mac에서 HNNX를 로컬로 빌드하는 방법을 권장합니다.
 
 ```bash
-git clone https://gitea.fde2.mrxrunway.ai/mrx-armstrong/hnnx.git
+git clone https://github.com/hyukize/HNNX.git
 cd hnnx
 ./scripts/build-macos-local.sh
 ```

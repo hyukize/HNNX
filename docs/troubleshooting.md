@@ -10,7 +10,7 @@ therefore be blocked by Gatekeeper even though the bundle is ad-hoc signed.
 The recommended solution is to build HNNX locally on an Apple Silicon Mac:
 
 ```bash
-git clone https://gitea.fde2.mrxrunway.ai/mrx-armstrong/hnnx.git
+git clone https://github.com/hyukize/HNNX.git
 cd hnnx
 ./scripts/build-macos-local.sh
 ```

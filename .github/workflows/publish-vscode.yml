@@ -1,0 +1,49 @@
+name: Publish VS Code extension
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  AZURE_CORE_OUTPUT: none
+
+jobs:
+  publish:
+    name: Publish hyukize.hnnx
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+
+      - name: Install Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '24.15'
+
+      - name: Install project dependencies
+        run: npm ci
+
+      - name: Run extension tests
+        run: npm --prefix vscode-extension test
+
+      - name: Build VSIX
+        run: npm run build:vscode-hnnx
+
+      - name: Sign in to Microsoft Entra ID
+        uses: azure/login@v3
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          allow-no-subscriptions: true
+
+      - name: Publish to Visual Studio Marketplace
+        shell: bash
+        run: |
+          version="$(node -p "require('./package.json').version")"
+          npx --yes @vscode/vsce publish --azure-credential \
+            --packagePath "vscode-extension/hnnx-${version}.vsix"

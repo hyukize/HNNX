@@ -88,6 +88,11 @@ jobs:
           unzip -t "$vsix"
           unzip -p "$vsix" extension/package.json | grep "\"version\": \"${version}\""
           unzip -l "$vsix" | grep 'extension/media/icon.png'
+          unzip -l "$vsix" | grep 'extension/media/onnx.js'
+          if unzip -Z1 "$vsix" | grep -q 'extension/media/tflite.js'; then
+            echo 'VSIX unexpectedly contains non-ONNX model loaders.' >&2
+            exit 1
+          fi
 
   linux-desktop:
     name: Linux desktop smoke and package

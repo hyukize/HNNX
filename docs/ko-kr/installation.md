@@ -3,7 +3,7 @@
 [English](../installation.md) | 한국어
 
 HNNX는 데스크톱 앱, VS Code 확장, 소스 코드 형태로 제공합니다. 배포된
-패키지는 [릴리스 페이지](https://gitea.fde2.mrxrunway.ai/mrx-armstrong/hnnx/releases)에서
+패키지는 [릴리스 페이지](https://github.com/hyukize/HNNX/releases)에서
 확인합니다.
 
 ## Apple Silicon macOS
@@ -19,7 +19,7 @@ HNNX는 아직 Apple Developer ID 서명과 Apple 공증을 사용하지 않으�
 - `codesign`을 제공하는 Xcode Command Line Tools
 
 ```bash
-git clone https://gitea.fde2.mrxrunway.ai/mrx-armstrong/hnnx.git
+git clone https://github.com/hyukize/HNNX.git
 cd hnnx
 ./scripts/build-macos-local.sh
 ```
@@ -98,7 +98,7 @@ Kubernetes 환경에서는 Python 설정과 모델 접근도 원격 환경에서
 Git, Node.js, npm이 필요합니다.
 
 ```bash
-git clone https://gitea.fde2.mrxrunway.ai/mrx-armstrong/hnnx.git
+git clone https://github.com/hyukize/HNNX.git
 cd hnnx
 npm install
 npm start

@@ -2,10 +2,31 @@
     "name": "hnnx",
     "displayName": "HNNX",
     "description": "Visualize, analyze, and edit ONNX models with AIMET encoding support, including remote workspaces.",
-    "version": "1.0.0-rc.5",
-    "publisher": "local",
+    "version": "1.0.0",
+    "publisher": "hyukize",
     "icon": "media/icon.png",
     "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/hyukize/HNNX.git"
+    },
+    "homepage": "https://github.com/hyukize/HNNX#readme",
+    "bugs": {
+        "url": "https://github.com/hyukize/HNNX/issues"
+    },
+    "galleryBanner": {
+        "color": "#24384f",
+        "theme": "dark"
+    },
+    "keywords": [
+        "onnx",
+        "aimet",
+        "quantization",
+        "mixed precision",
+        "graphsurgeon",
+        "machine learning",
+        "visualization"
+    ],
     "engines": {
         "vscode": "^1.90.0"
     },
@@ -94,13 +115,15 @@
     },
     "scripts": {
         "build:media": "node ./scripts/build-media.mjs",
-        "package": "npm run build:media && npx --yes @vscode/vsce package --no-dependencies --allow-missing-repository --out hnnx-1.0.0-rc.5.vsix",
+        "package": "npm run build:media && npx --yes @vscode/vsce package --no-dependencies --out hnnx-1.0.0.vsix",
         "test": "node --test ./test/*.test.js"
     },
     "files": [
         "extension.js",
         "media/**",
         "README.md",
+        "CHANGELOG.md",
+        "SUPPORT.md",
         "LICENSE"
     ]
 }

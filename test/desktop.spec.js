@@ -1,5 +1,6 @@
 
 import * as fs from 'fs';
+import * as os from 'os';
 import * as path from 'path';
 import * as playwright from '@playwright/test';
 import * as url from 'url';
@@ -13,10 +14,17 @@ playwright.test('desktop', async () => {
     // Keep the desktop smoke test self-contained. The upstream Netron test
     // referenced a separately downloaded third_party model, which is not part
     // of an HNNX checkout or a Gitea Actions workspace.
-    const file = path.resolve(dir, 'aimet.onnx');
-    const encodings = path.resolve(dir, 'aimet.encodings');
-    playwright.expect(fs.existsSync(file)).toBeTruthy();
-    playwright.expect(fs.existsSync(encodings)).toBeTruthy();
+    const fixture = path.resolve(dir, 'aimet.onnx');
+    const fixtureEncodings = path.resolve(dir, 'aimet.encodings');
+    playwright.expect(fs.existsSync(fixture)).toBeTruthy();
+    playwright.expect(fs.existsSync(fixtureEncodings)).toBeTruthy();
+    // Keep automatic discovery out of this test so the explicit desktop
+    // attachment path is exercised exactly once without a competing reload.
+    const temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'hnnx-desktop-'));
+    const file = path.join(temporary, 'desktop.onnx');
+    const encodings = path.join(temporary, 'manual.encodings');
+    fs.copyFileSync(fixture, file);
+    fs.copyFileSync(fixtureEncodings, encodings);
 
     // Launch app
     const electron = await playwright._electron;
@@ -98,7 +106,6 @@ playwright.test('desktop', async () => {
             window.webContents.send('find', {});
         }
     });
-    await page.waitForTimeout(500);
     const search = await page.waitForSelector('#search', { state: 'visible', timeout: 5000 });
     playwright.expect(search).toBeDefined();
 
@@ -109,4 +116,5 @@ playwright.test('desktop', async () => {
     await playwright.expect(page.locator('#sidebar-content')).toContainText('Abs');
 
     await app.close();
+    fs.rmSync(temporary, { recursive: true, force: true });
 });

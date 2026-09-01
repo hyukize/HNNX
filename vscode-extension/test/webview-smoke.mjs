@@ -44,7 +44,9 @@ while (Date.now() < deadline && !result) {
             expression: `JSON.stringify({
                 body: document.body && document.body.className,
                 nodes: document.querySelectorAll('.node').length,
-                badges: (document.body && document.body.innerText.match(/I:A8\\s+O:A16/g) || []).length,
+                badges: Array.from(document.querySelectorAll('.node-item-quantization'))
+                    .filter((element) => element.textContent.includes('A8→A16')).length,
+                setup: document.querySelector('#setup-overlay')?.classList.contains('visible') || false,
                 text: document.querySelector('#message-text') && document.querySelector('#message-text').innerText
             })`,
             returnByValue: true
@@ -65,6 +67,6 @@ while (Date.now() < deadline && !result) {
 socket.close();
 
 if (!result) {
-    throw new Error('Netron Webview did not render the ONNX graph with AIMET badges.');
+    throw new Error('HNNX Webview did not render the ONNX graph with AIMET badges.');
 }
 process.stdout.write(`${JSON.stringify(result)}\n`);
