@@ -2005,7 +2005,7 @@ dagre.layout = (nodes, edges, layout, state) => {
                 const y = selfNode.y;
                 const dx = label.x - x;
                 const dy = selfNode.height / 2;
-                g.setEdge(label.e.v, label.e.w, label.label);
+                g.setEdge(label.e.v, label.e.w, label.label, label.e.name);
                 g.removeNode(v);
                 label.label.points = [
                     { x: x + 2 * dx / 3, y: y - dy },

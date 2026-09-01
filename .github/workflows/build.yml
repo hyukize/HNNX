@@ -39,6 +39,9 @@ jobs:
       - name: Run JavaScript and Python static analysis
         run: npm run lint
 
+      - name: Run graph layout regression tests
+        run: npm run test:layout
+
       - name: Run VS Code extension tests
         run: npm --prefix vscode-extension test
 

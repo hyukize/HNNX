@@ -120,6 +120,7 @@ smoke test has no blocker.
 | G2 | Browser suite | Upstream browser tests pass headlessly | Automated |
 | G3 | Desktop suite | Upstream Electron tests pass | Automated |
 | G4 | Formats unrelated to ONNX | CoreML, PyTorch, TensorFlow, TFLite, GGUF, and other validation samples remain readable | Automated through G1-G3 |
+| G5 | Named self-edge layout | A named edge from a node back to itself retains its identity and receives valid layout points | Automated |
 
 ## H. Release package smoke test
 

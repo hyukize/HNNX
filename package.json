@@ -6,8 +6,8 @@
         "email": "hyukize@users.noreply.github.com",
         "url": "https://github.com/hyukize"
     },
-    "version": "1.0.0-rc.3",
-    "date": "2026-08-31 00:00:00",
+    "version": "1.0.0-rc.4",
+    "date": "2026-09-01 00:00:00",
     "description": "ONNX graph workbench for visualization, AIMET analysis, and graph editing",
     "license": "MIT",
     "repository": "hyukize/HNNX",
@@ -33,6 +33,7 @@
         "test": "node package.js test",
         "test:editor-mixed": "node package.js build web && playwright test --config=test/editor-mixed.playwright.config.js --workers=1",
         "test:editor-stage3": "node package.js build web && playwright test --config=test/editor-stage3.playwright.config.js --workers=1",
+        "test:layout": "node test/dagre.js",
         "validate": "node package.js validate",
         "coverage": "node package.js coverage",
         "analyze": "node package.js analyze",
