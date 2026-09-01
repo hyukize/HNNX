@@ -66,6 +66,12 @@ assert.deepEqual(version2.summary, {
 });
 assert.equal(version2.value(activation).label, 'A8');
 assert.equal(version2.tensor(null, weight).label, 'W4');
+assert.equal(version2.value(activation).min, -2.125);
+assert.equal(version2.value(activation).max, 29.75);
+assert.equal(version2.value(activation).rangeSource, 'derived');
+assert.deepEqual(version2.tensor(null, weight).min.slice(0, 2), [-0.08, -0.088]);
+assert.deepEqual(version2.tensor(null, weight).max.slice(0, 2), [0.07, 0.077]);
+assert.equal(version2.tensor(null, weight).rangeSource, 'derived');
 assert.equal(version2.issues.length, 0);
 assert.deepEqual(version2.profile, {
     encodings: [['A8', 1], ['W4', 1]],
@@ -116,6 +122,27 @@ assert.deepEqual(mixed.profile, {
     encodings: [['A16', 1], ['A8', 3], ['W8', 1]],
     cache: [['A8', 3]]
 });
+assert.equal(mixed.get('past_key_values.attention.2.key').min, 0);
+assert.equal(mixed.get('past_key_values.attention.2.key').max, 25.5);
+assert.equal(mixed.get('past_key_values.attention.2.key').rangeSource, 'derived');
+
+const version1Range = new EncodingFile();
+assert.equal(version1Range.open({
+    version: '1.0.0',
+    activation_encodings: [{
+        name: 'signed.activation',
+        dtype: 'INT',
+        bw: 8,
+        scale: [0.25, 0.5],
+        offset: [-128, -127],
+        enc_type: 'PER_CHANNEL',
+        axis: 1
+    }],
+    param_encodings: []
+}), true);
+assert.deepEqual(version1Range.get('signed.activation').min, [-32, -63.5]);
+assert.deepEqual(version1Range.get('signed.activation').max, [31.75, 64]);
+assert.equal(version1Range.get('signed.activation').rangeSource, 'derived');
 
 const legacy = new EncodingFile();
 assert.equal(legacy.open({
@@ -133,6 +160,9 @@ assert.equal(legacy.open({
 legacy.bind(model);
 assert.equal(legacy.get('conv.weight').granularity, 'per-channel');
 assert.equal(legacy.get('conv.weight').symmetric, true);
+assert.deepEqual(legacy.get('conv.weight').min, [-1, -2]);
+assert.deepEqual(legacy.get('conv.weight').max, [1, 2]);
+assert.equal(legacy.get('conv.weight').rangeSource, 'explicit');
 assert.equal(legacy.summary.unmatched, 1);
 assert.match(legacy.issues[0].message, /missing/);
 
@@ -199,6 +229,9 @@ inferred.bind(passthroughModel);
 assert.equal(inferred.value(transposeOutput), null);
 assert.equal(inferred.precision(transposeOutput).label, 'A8');
 assert.equal(inferred.precision(transposeOutput).inferred, true);
+assert.equal(inferred.precision(transposeOutput).rangeSource, null);
+assert.equal(inferred.precision(transposeOutput).min, null);
+assert.equal(inferred.precision(transposeOutput).max, null);
 assert.equal(inferred.precision(reshapeOutput).label, 'A8');
 assert.equal(inferred.precision(splitOutput0).label, 'A8');
 assert.equal(inferred.precision(splitOutput1).label, 'A8');
@@ -286,6 +319,25 @@ assert.equal(mixedConcat.open({
 }), true);
 mixedConcat.bind(mixedConcatModel);
 assert.equal(mixedConcat.precision(mixedConcatOutput), null);
+
+const lpbq = new EncodingFile();
+assert.equal(lpbq.open({
+    version: '2.0.0',
+    activation_encodings: [],
+    param_encodings: [{
+        name: 'lpbq.weight',
+        output_dtype: 'int4',
+        per_block_int_scale: [2, 3],
+        per_channel_float_scale: [0.125],
+        y_zero_point: 0,
+        block_size: 4,
+        axis: 0
+    }]
+}), true);
+assert.equal(lpbq.get('lpbq.weight').granularity, 'lpbq');
+assert.equal(lpbq.get('lpbq.weight').min, null);
+assert.equal(lpbq.get('lpbq.weight').max, null);
+assert.equal(lpbq.get('lpbq.weight').rangeSource, null);
 
 assert.equal(Utility.count([[1, 2], [3, 4]]), 4);
 assert.equal(Utility.format([1, 2, 3, 4, 5]), '[1, 2, 3, 4, …] (5)');

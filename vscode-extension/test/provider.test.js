@@ -15,6 +15,9 @@ const stats = [];
 const workspaceFiles = new Map();
 let autoPinOnnxEditors = true;
 let autoLoadEncodings = true;
+let defaultEncodingsVisible = true;
+let inferShapesOnOpen = false;
+let pythonPath = '';
 let colorTheme = 'auto';
 let activeColorThemeKind = 2;
 let saveDialogResult = null;
@@ -43,11 +46,28 @@ Module._load = function(request, parent, isMain) {
                         if (name === 'colorTheme') {
                             return colorTheme;
                         }
+                        if (name === 'defaultEncodingsVisible') {
+                            return defaultEncodingsVisible;
+                        }
+                        if (name === 'inferShapesOnOpen') {
+                            return inferShapesOnOpen;
+                        }
+                        if (name === 'pythonPath') {
+                            return pythonPath;
+                        }
                         return fallback;
                     },
                     update: async (name, value) => {
                         if (name === 'colorTheme') {
                             colorTheme = value;
+                        } else if (name === 'autoLoadEncodings') {
+                            autoLoadEncodings = value;
+                        } else if (name === 'defaultEncodingsVisible') {
+                            defaultEncodingsVisible = value;
+                        } else if (name === 'inferShapesOnOpen') {
+                            inferShapesOnOpen = value;
+                        } else if (name === 'pythonPath') {
+                            pythonPath = value;
                         }
                     }
                 }),
@@ -181,6 +201,51 @@ test('auto-load setting controls neighboring encodings during model open', async
     await provider.open(document, webview);
     assert.equal(document.encodingUri.path, encodings.path);
     assert.equal(posted.at(-1).encodings.path, encodings.path);
+});
+
+test('sends first-run settings and persists global viewer preferences', async () => {
+    const state = new Map();
+    const settingsProvider = new OnnxEditorProvider({
+        globalState: {
+            get: (name, fallback) => state.has(name) ? state.get(name) : fallback,
+            update: async (name, value) => state.set(name, value)
+        }
+    });
+    const posted = [];
+    const webview = { postMessage: async (message) => posted.push(message) };
+    colorTheme = 'auto';
+    autoLoadEncodings = true;
+    defaultEncodingsVisible = true;
+    inferShapesOnOpen = false;
+    pythonPath = '';
+    await settingsProvider.sendSettings(model, webview);
+    assert.equal(posted.at(-1).settings.showSetup, true);
+    await settingsProvider.applySetupSettings(model, webview, {
+        completed: true,
+        theme: 'dark',
+        pythonAction: 'later',
+        autoLoadEncodings: false,
+        defaultEncodingsVisible: false,
+        inferShapesOnOpen: true
+    });
+    assert.equal(state.get('setup.completed'), true);
+    assert.equal(colorTheme, 'dark');
+    assert.equal(autoLoadEncodings, false);
+    assert.equal(defaultEncodingsVisible, false);
+    assert.equal(inferShapesOnOpen, true);
+    assert.equal(posted.findLast((message) => message.type === 'settings').settings.showSetup, false);
+});
+
+test('automatic shape inference reports missing Python without blocking model open', async () => {
+    const posted = [];
+    const settingsProvider = new OnnxEditorProvider({ extensionPath: '/extension' });
+    settingsProvider.graphSurgeonPython = async (uri, prompt) => {
+        assert.equal(prompt, false);
+        return '';
+    };
+    await settingsProvider.inferOnnxShapes(model, { postMessage: async (message) => posted.push(message) }, [], true);
+    assert.equal(posted.at(-1).automatic, true);
+    assert.match(posted.at(-1).error, /not configured/i);
 });
 
 test('detaching clears the document URI and tells only the current webview', async () => {

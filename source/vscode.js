@@ -45,12 +45,20 @@ vscode.Host = class extends browser.Host {
             this._api.postMessage({ type: 'saveOnnxAs', edits: value.edits });
             return undefined;
         }
-        if (name === 'infer-onnx-shapes') {
-            this._api.postMessage({ type: 'inferOnnxShapes', edits: value.edits });
+        if (name === 'infer-onnx-shapes' || name === 'infer-onnx-shapes-auto') {
+            this._api.postMessage({
+                type: 'inferOnnxShapes',
+                edits: value.edits,
+                automatic: name === 'infer-onnx-shapes-auto'
+            });
             return undefined;
         }
         if (name === 'set-theme') {
             this._api.postMessage({ type: 'setTheme', value });
+            return undefined;
+        }
+        if (name === 'apply-setup-settings') {
+            this._api.postMessage({ type: 'applySetupSettings', settings: value });
             return undefined;
         }
         return super.execute(name, value);
@@ -139,6 +147,10 @@ vscode.Host = class extends browser.Host {
             }
             case 'theme': {
                 this._view.setTheme(message.preference, message.effective);
+                break;
+            }
+            case 'settings': {
+                this._view.applySettings(message.settings || {});
                 break;
             }
             default:

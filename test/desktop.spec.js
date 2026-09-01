@@ -33,6 +33,11 @@ playwright.test('desktop', async () => {
     if (await consent.isVisible({ timeout: 25000 })) {
         await consent.click();
     }
+    const setup = page.locator('#setup-overlay');
+    if (await setup.isVisible()) {
+        await playwright.expect(page.locator('#setup-title')).toHaveText('Set up HNNX');
+        await page.locator('#setup-close').click();
+    }
 
     // Open the model
     await app.evaluate(async (electron, location) => {
@@ -47,7 +52,7 @@ playwright.test('desktop', async () => {
     await page.waitForSelector('#canvas', { state: 'attached', timeout: 10000 });
     await page.waitForSelector('body.default', { timeout: 10000 });
 
-    await playwright.expect(page.getByText('Abs', { exact: true })).toBeVisible();
+    await playwright.expect(page.getByText('Abs', { exact: true }).first()).toBeVisible();
 
     const fixedToolbarButtons = [
         '#graph-edit-save-button',
@@ -71,10 +76,13 @@ playwright.test('desktop', async () => {
             windows[0].webContents.send('open', { path: location });
         }
     }, encodings);
-    await page.waitForSelector('.node-item-quantization', { timeout: 10000 });
-    await playwright.expect(page.locator('html')).toHaveClass(/has-encodings/);
+    await playwright.expect(page.locator('html')).toHaveClass(/has-encodings/, { timeout: 10000 });
     const encodingsToggle = page.locator('#encodings-toggle-button');
     await playwright.expect(encodingsToggle).toBeVisible();
+    if (await page.locator('html').evaluate((element) => element.classList.contains('encodings-hidden'))) {
+        await encodingsToggle.click();
+    }
+    await page.waitForSelector('.node-item-quantization', { timeout: 10000 });
     await playwright.expect(encodingsToggle).toHaveAttribute('title', /Hide AIMET encodings/);
     const toolbarPositionsAfterEncodings = await page.locator(fixedToolbarButtons.join(', ')).evaluateAll((elements, selectors) => {
         const positions = new Map(elements.map((element) => [element.id, element.getBoundingClientRect().x]));

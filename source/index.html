@@ -108,6 +108,28 @@ html.encodings-hidden .encodings-toggle-dot { background: transparent; box-shado
 .graph-edit-warning-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; }
 .graph-edit-warning-actions button { padding: 7px 12px; border: 1px solid #d97706; border-radius: 6px; color: #7c2d12; background: #fff7ed; font: inherit; font-size: 11px; font-weight: 800; cursor: pointer; }
 .graph-edit-warning-actions .primary { color: #ffffff; border-color: #c2410c; background: #c2410c; }
+.setup-overlay { display: none; position: fixed; inset: 0; z-index: 80; align-items: center; justify-content: center; padding: 24px; background: rgba(15, 23, 42, 0.52); backdrop-filter: blur(4px); }
+.setup-overlay.visible { display: flex; }
+.setup-dialog { width: min(660px, calc(100vw - 48px)); max-height: calc(100vh - 48px); overflow: auto; padding: 24px; box-sizing: border-box; border: 1px solid #94a3b8; border-radius: 16px; color: #1f2937; background: #f8fafc; box-shadow: 0 24px 72px rgba(0, 0, 0, 0.42); }
+.setup-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+.setup-title { font-size: 21px; font-weight: 800; letter-spacing: -0.02em; }
+.setup-description { margin-top: 5px; color: #64748b; font-size: 12px; line-height: 1.5; }
+.setup-close { border: 0; color: #64748b; background: transparent; font-size: 24px; cursor: pointer; }
+.setup-section { margin-top: 18px; padding-top: 16px; border-top: 1px solid #dbe3ec; }
+.setup-section-title { margin-bottom: 9px; color: #334155; font-size: 11px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
+.setup-field { display: grid; grid-template-columns: 190px minmax(0, 1fr); align-items: center; gap: 12px; margin: 9px 0; font-size: 12px; }
+.setup-field label { font-weight: 700; }
+.setup-field select, .setup-field input[type="text"] { min-width: 0; width: 100%; box-sizing: border-box; padding: 8px 9px; border: 1px solid #cbd5e1; border-radius: 7px; color: #1f2937; background: #ffffff; font: inherit; }
+.setup-check { display: flex; align-items: flex-start; gap: 9px; margin: 10px 0; color: #334155; font-size: 12px; line-height: 1.4; }
+.setup-check input { margin-top: 2px; }
+.setup-python-path { display: none; }
+.setup-python-path.visible { display: grid; }
+.setup-note { margin-top: 8px; color: #64748b; font-size: 10px; line-height: 1.45; }
+.setup-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; margin-top: 22px; }
+.setup-actions button { padding: 8px 12px; border: 1px solid #94a3b8; border-radius: 7px; color: #334155; background: #ffffff; font: inherit; font-size: 11px; font-weight: 800; cursor: pointer; }
+.setup-actions .primary { color: #ffffff; border-color: #2563eb; background: #2563eb; }
+.setup-toast { display: none; position: fixed; top: 16px; right: 16px; z-index: 90; max-width: min(440px, calc(100vw - 32px)); padding: 10px 13px; border: 1px solid #d97706; border-radius: 9px; color: #7c2d12; background: rgba(255, 247, 237, 0.98); box-shadow: 0 5px 20px rgba(0, 0, 0, 0.22); font-size: 11px; line-height: 1.45; }
+.setup-toast.visible { display: block; }
 .graph-edit-encodings-warning { display: none; position: fixed; top: 49px; left: 50%; z-index: 3; transform: translateX(-50%); padding: 5px 10px; border-radius: 6px; color: #ffffff; background: #b45309; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); font-size: 9px; font-weight: 800; letter-spacing: 0.06em; pointer-events: none; }
 .graph-edit-reset-button:disabled { cursor: default; opacity: 0.3; }
 .graph-edit-redraw-button:disabled { cursor: default; opacity: 0.3; }
@@ -579,9 +601,61 @@ html.onnx-graph-edit .graph-edit-button:hover { color: #ffffff; border-color: #f
 .menu { transition: none; }
 .sidebar { transition: none; }
 }
+@media (prefers-color-scheme: dark) {
+    .setup-dialog { color: #e2e8f0; border-color: #526173; background: #202936; }
+    .setup-description, .setup-note { color: #94a3b8; }
+    .setup-section { border-color: #3a4656; }
+    .setup-section-title, .setup-check { color: #cbd5e1; }
+    .setup-field select, .setup-field input[type="text"] { color: #e2e8f0; border-color: #526173; background: #2b3544; }
+    .setup-actions button { color: #dbe5ef; border-color: #526173; background: #2b3544; }
+    .setup-actions .primary { color: #ffffff; border-color: #3b82f6; background: #2563eb; }
+}
 </style>
 </head>
 <body class="welcome spinner">
+<div id="setup-overlay" class="setup-overlay">
+    <div class="setup-dialog" role="dialog" aria-modal="true" aria-labelledby="setup-title">
+        <div class="setup-header">
+            <div>
+                <div id="setup-title" class="setup-title">Set up HNNX</div>
+                <div class="setup-description">Choose the defaults used when models open. You can change these later from Settings.</div>
+            </div>
+            <button id="setup-close" class="setup-close" type="button" title="Close">&times;</button>
+        </div>
+        <div class="setup-section">
+            <div class="setup-section-title">Appearance</div>
+            <div class="setup-field">
+                <label for="setup-theme">Theme</label>
+                <select id="setup-theme"><option value="auto">Auto</option><option value="light">Light</option><option value="dark">Dark</option></select>
+            </div>
+        </div>
+        <div class="setup-section">
+            <div class="setup-section-title">ONNX GraphSurgeon Python</div>
+            <div class="setup-field">
+                <label for="setup-python-action">Environment</label>
+                <select id="setup-python-action"><option value="recommended">Create recommended environment</option><option value="existing">Choose existing interpreter</option><option value="later">Set up later</option></select>
+            </div>
+            <div id="setup-python-path-field" class="setup-field setup-python-path">
+                <label for="setup-python-path">Python path</label>
+                <input id="setup-python-path" type="text" placeholder="~/.hnnx/venv/bin/python3">
+            </div>
+            <div class="setup-note">The interpreter must contain <code>onnx</code> and NVIDIA <code>onnx_graphsurgeon</code>. In VS Code Remote, it belongs to the current extension host.</div>
+        </div>
+        <div class="setup-section">
+            <div class="setup-section-title">Model opening</div>
+            <label class="setup-check"><input id="setup-auto-encodings" type="checkbox">Automatically load conventionally named AIMET encodings from the model folder</label>
+            <label class="setup-check"><input id="setup-encodings-visible" type="checkbox">Show attached AIMET encodings by default</label>
+            <label class="setup-check"><input id="setup-infer-open" type="checkbox">Run ONNX shape inference when a model opens</label>
+            <div class="setup-note">Automatic shape inference is off by default. A failure shows a warning and never prevents the model from opening.</div>
+        </div>
+        <div class="setup-actions">
+            <button id="setup-skip" type="button">SKIP FOR NOW</button>
+            <button id="setup-recommended" type="button">USE RECOMMENDED SETTINGS</button>
+            <button id="setup-apply" class="primary" type="button">APPLY</button>
+        </div>
+    </div>
+</div>
+<div id="setup-toast" class="setup-toast" role="status"></div>
 <div id="target" class="target" tabindex="0">
 </div>
 <div id="target-scroll-thumb-vertical" class="target-scroll-thumb target-scroll-thumb-vertical"></div>

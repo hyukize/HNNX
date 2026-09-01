@@ -18,6 +18,11 @@
   공증을 지원하기 전까지는 로컬 빌드를 권장합니다.
 - **개발 환경:** 저장소에서 `npm install`과 `npm start`를 실행합니다.
 
+처음 실행하면 색상 테마, GraphSurgeon Python 환경, AIMET encodings 기본값,
+모델을 열 때 형상 추론 실행 여부를 정하는 설정 창이 표시됩니다. 권장 설정은
+자동 형상 추론을 끈 상태입니다. 이후에는 **Settings…**에서 같은 창을 다시 열 수
+있습니다. macOS 앱에서는 `Cmd+,`를 사용할 수 있습니다.
+
 ## 2. 모델 열기
 
 데스크톱 앱에서는 `.onnx` 파일을 열거나 창으로 드래그합니다. ONNX,
@@ -58,7 +63,7 @@ model.onnx.encodings
 model.encodings.json
 ```
 
-VS Code 확장은 기본적으로 위 파일을 자동으로 불러옵니다. **File > Load
+데스크톱 앱과 VS Code 확장은 기본적으로 위 파일을 자동으로 불러옵니다. **File > Load
 AIMET Encodings…**, **Reload Encodings**, **Detach Encodings**에서 첨부 파일을
 관리합니다. `ENC` 버튼은 ONNX를 다시 열지 않고 encoding 시각화만 켜거나 끕니다.
 
@@ -68,11 +73,15 @@ badge와 edge label의 의미는 [AIMET Encodings](aimet-encodings.md)를 참고
 
 편집 기능은 선택 사항입니다. 다음 방법으로 권장 Python 환경을 생성합니다.
 
-- 데스크톱: **HNNX/View > GraphSurgeon Settings… > Create Recommended Environment**
+- 데스크톱: **HNNX > Settings… > Create recommended environment**
 - VS Code: Command Palette에서 **HNNX: Create GraphSurgeon Environment**
 
 VS Code 원격 세션에서는 Mac이 아니라 원격 extension host에 환경을
 생성합니다.
+
+Settings의 **Run ONNX shape inference when a model opens**는 기본적으로 꺼져
+있습니다. 이 옵션을 켠 상태에서 Python 환경이 없거나 추론에 실패해도 모델은
+그대로 열리고 경고만 표시됩니다.
 
 `E`를 누르거나 `EDIT · BETA`를 선택합니다. 연결선을 선택하면 정확한 소스와
 대상을 확인할 수 있습니다. 예제 모델의 복사본을 편집하고 `INFER

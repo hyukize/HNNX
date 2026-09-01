@@ -541,6 +541,7 @@ browser.Host = class {
             if (model) {
                 this._view.show(null);
                 document.title = context.name || context.identifier;
+                await this._view.afterModelOpen();
                 return '';
             }
             document.title = '';

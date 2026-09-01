@@ -2,7 +2,7 @@
     "name": "hnnx",
     "displayName": "HNNX",
     "description": "Visualize, analyze, and edit ONNX models with AIMET encoding support, including remote workspaces.",
-    "version": "1.0.0-rc.4",
+    "version": "1.0.0-rc.5",
     "publisher": "local",
     "icon": "media/icon.png",
     "license": "MIT",
@@ -58,9 +58,20 @@
                     "default": true,
                     "description": "Automatically load a conventionally named AIMET encodings file from the ONNX model directory when the model opens."
                 },
+                "hnnx.defaultEncodingsVisible": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Show attached AIMET encodings when a model opens. Encodings remain attached when hidden."
+                },
+                "hnnx.inferShapesOnOpen": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Run ONNX shape inference automatically after a model opens. Failures are reported without blocking the model viewer."
+                },
                 "hnnx.pythonPath": {
                     "type": "string",
                     "default": "",
+                    "scope": "machine",
                     "markdownDescription": "Python interpreter containing `onnx` and NVIDIA `onnx_graphsurgeon`. In remote workspaces this path is resolved on the remote extension host. Use **HNNX: Create GraphSurgeon Environment** to create the recommended environment, or **HNNX: Configure GraphSurgeon Python** to validate and save an existing interpreter."
                 },
                 "hnnx.colorTheme": {
@@ -83,7 +94,7 @@
     },
     "scripts": {
         "build:media": "node ./scripts/build-media.mjs",
-        "package": "npm run build:media && npx --yes @vscode/vsce package --no-dependencies --allow-missing-repository --out hnnx-1.0.0-rc.4.vsix",
+        "package": "npm run build:media && npx --yes @vscode/vsce package --no-dependencies --allow-missing-repository --out hnnx-1.0.0-rc.5.vsix",
         "test": "node --test ./test/*.test.js"
     },
     "files": [

@@ -38,9 +38,16 @@ ONNX를 다시 열지 않고 File 메뉴에서 attachment를 관리합니다.
 전달된 정밀도는 그래프 edge에 `~A8`과 같은 흐린 레이블로 표시합니다. 따라서
 정밀도 보존 경로와 명시적 QParam을 가진 노드를 구분할 수 있습니다.
 
-배지, 텐서, 노드 또는 encoding이 있는 `Graph Input`을 클릭하면 encoding 파일에
-존재하는 scale, offset/zero point, min/max, axis, block size, granularity,
-symmetry 정보를 확인할 수 있습니다.
+배지, 텐서, 노드 또는 encoding이 있는 `Graph Input`을 클릭하면 scale,
+offset/zero point, quantization range, axis, block size, granularity, symmetry
+정보를 확인할 수 있습니다. HNNX는 legacy encoding의 명시적 min/max를 그대로
+표시합니다. 정수 AIMET 1.x와 2.x 파일에 min/max가 없으면 bit width, scale,
+offset/zero point로 표현 가능 범위를 계산하고 `range source`에 `explicit` 또는
+`derived`를 표시합니다.
+
+파생 범위는 계산 방식이 명확한 정수 per-tensor 및 per-channel encoding에만
+적용합니다. 전달된 `~A8` 정밀도, floating-point encoding, 호환되지 않는 scale과
+zero-point 배열, LPBQ scale 표현에는 범위를 임의로 생성하지 않습니다.
 
 ## 정밀도 전파
 

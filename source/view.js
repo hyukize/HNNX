@@ -119,6 +119,13 @@ view.View = class {
         this._options = { ...this._defaultOptions };
         this._themePreference = 'auto';
         this._themeMediaRules = null;
+        this._settings = {
+            autoLoadEncodings: true,
+            defaultEncodingsVisible: true,
+            inferShapesOnOpen: false
+        };
+        this._automaticInferencePending = false;
+        this._setupToastTimer = null;
         this._events = {};
         this._events.selectionchange = () => this._selectionChangeHandler();
         this._model = null;
@@ -169,6 +176,28 @@ view.View = class {
             if (['auto', 'light', 'dark'].includes(themePreference)) {
                 this._themePreference = themePreference;
             }
+            this.applySettings({
+                theme: this._themePreference,
+                autoLoadEncodings: this._host.get('encodings.autoLoad') !== false,
+                defaultEncodingsVisible: this._host.get('encodings.defaultVisible') !== false,
+                inferShapesOnOpen: this._host.get('inferShapesOnOpen') === true,
+                pythonPath: this._host.get('graphsurgeon.pythonPath') || ''
+            });
+            this._element('setup-close').addEventListener('click', () => this.closeSetup());
+            this._element('setup-skip').addEventListener('click', async () => await this._saveSetup(true));
+            this._element('setup-apply').addEventListener('click', async () => await this._saveSetup(false));
+            this._element('setup-recommended').addEventListener('click', async () => {
+                this._setSetupForm({
+                    theme: 'auto',
+                    pythonAction: 'recommended',
+                    pythonPath: '',
+                    autoLoadEncodings: true,
+                    defaultEncodingsVisible: true,
+                    inferShapesOnOpen: false
+                });
+                await this._saveSetup(false);
+            });
+            this._element('setup-python-action').addEventListener('change', () => this._updateSetupPythonField());
             this._element('sidebar-model-button').addEventListener('click', () => {
                 this.showModelProperties();
             });
@@ -503,6 +532,10 @@ view.View = class {
                             }
                         });
                     }
+                    view.add({
+                        label: '&Settings...',
+                        execute: () => this.showSetup()
+                    });
                 }
                 view.add({});
                 if (this._host.type === 'Electron') {
@@ -560,6 +593,9 @@ view.View = class {
             this._select = new view.TargetSelector(this, navigator);
             this._select.on('change', (sender, target) => this._updateActiveTarget([target]));
             await this._host.start();
+            if (this._host.type === 'Electron' && this._host.get('setup.completed') !== true) {
+                this.showSetup();
+            }
         } catch (error) {
             this.error(error, null, null);
         }
@@ -737,12 +773,105 @@ view.View = class {
         }
     }
 
+    applySettings(settings = {}) {
+        if (['auto', 'light', 'dark'].includes(settings.theme)) {
+            this._themePreference = settings.theme;
+        }
+        for (const name of ['autoLoadEncodings', 'defaultEncodingsVisible', 'inferShapesOnOpen']) {
+            if (typeof settings[name] === 'boolean') {
+                this._settings[name] = settings[name];
+            }
+        }
+        if (typeof settings.pythonPath === 'string') {
+            this._settings.pythonPath = settings.pythonPath;
+        }
+        if (settings.showSetup) {
+            this.showSetup();
+        }
+    }
+
+    showSetup() {
+        this._setSetupForm({
+            theme: this._themePreference,
+            pythonAction: this._settings.pythonPath ? 'existing' : 'later',
+            pythonPath: this._settings.pythonPath || '',
+            ...this._settings
+        });
+        const overlay = this._element('setup-overlay');
+        overlay.classList.add('visible');
+        this._element('setup-theme').focus();
+    }
+
+    closeSetup() {
+        this._element('setup-overlay').classList.remove('visible');
+    }
+
+    _setSetupForm(settings) {
+        this._element('setup-theme').value = settings.theme || 'auto';
+        this._element('setup-python-action').value = settings.pythonAction || 'later';
+        this._element('setup-python-path').value = settings.pythonPath || '';
+        this._element('setup-auto-encodings').checked = settings.autoLoadEncodings !== false;
+        this._element('setup-encodings-visible').checked = settings.defaultEncodingsVisible !== false;
+        this._element('setup-infer-open').checked = settings.inferShapesOnOpen === true;
+        this._updateSetupPythonField();
+    }
+
+    _updateSetupPythonField() {
+        const existing = this._element('setup-python-action').value === 'existing';
+        this._element('setup-python-path-field').classList.toggle('visible', existing);
+    }
+
+    async _saveSetup(skip) {
+        const settings = skip ? {
+            completed: false,
+            pythonAction: 'later'
+        } : {
+            completed: true,
+            theme: this._element('setup-theme').value,
+            pythonAction: this._element('setup-python-action').value,
+            pythonPath: this._element('setup-python-path').value.trim(),
+            autoLoadEncodings: this._element('setup-auto-encodings').checked,
+            defaultEncodingsVisible: this._element('setup-encodings-visible').checked,
+            inferShapesOnOpen: this._element('setup-infer-open').checked
+        };
+        if (!skip && settings.pythonAction === 'existing' && !settings.pythonPath) {
+            this._showSetupToast('Enter a Python interpreter path, or choose Set up later.');
+            this._element('setup-python-path').focus();
+            return;
+        }
+        this.closeSetup();
+        if (!skip) {
+            this.applySettings(settings);
+        }
+        try {
+            const result = await this._host.execute('apply-setup-settings', settings);
+            if (result && typeof result.pythonPath === 'string') {
+                this._settings.pythonPath = result.pythonPath;
+            }
+        } catch (error) {
+            this._showSetupToast(`Settings were saved, but Python setup failed: ${error.message || String(error)}`);
+        }
+    }
+
+    _showSetupToast(message) {
+        const element = this._element('setup-toast');
+        element.textContent = message;
+        element.classList.add('visible');
+        if (this._setupToastTimer) {
+            this._host.window.clearTimeout(this._setupToastTimer);
+        }
+        this._setupToastTimer = this._host.window.setTimeout(() => element.classList.remove('visible'), 7000);
+    }
+
     setEncodingsSource(source) {
         this._encodingsSource = typeof source === 'string' && source.length > 0 ? source : null;
         if (this._encodingsSource && this._model && this._model.attachment) {
             const quantization = this._model.attachment.quantization;
-            this._encodingsQuantization = quantization && !quantization.empty ? quantization : null;
-            this._encodingsVisible = Boolean(this._encodingsQuantization);
+            this._encodingsQuantization = quantization && !quantization.empty ? quantization : this._encodingsQuantization;
+            this._encodingsVisible = Boolean(this._encodingsQuantization) && this._settings.defaultEncodingsVisible;
+            if (!this._encodingsVisible && this._encodingsQuantization) {
+                this._model.attachment.quantization = new aimet.EncodingFile();
+            }
             this._graphEdit.encodingsDisabled = false;
             this._host.document.documentElement.classList.remove('onnx-graph-edit-encodings-disabled');
         } else if (!this._encodingsSource) {
@@ -2845,10 +2974,11 @@ view.View = class {
         return [...addedInputs, ...addedNodes, ...Array.from(edits.values()), ...addedOutputs];
     }
 
-    async inferGraphShapes() {
+    async inferGraphShapes(options = {}) {
         if (!this.activeTarget) {
             return;
         }
+        const automatic = options.automatic === true;
         const invalid = this._graphEdit.undo.length > 0 ? this._invalidGraphEditConnections() : [];
         if (invalid.length > 0) {
             this._updateGraphEditStatus(
@@ -2861,17 +2991,33 @@ view.View = class {
             'Running ONNX shape inference on the current edited graph…' :
             'Running ONNX shape inference…');
         try {
-            const result = await this._host.execute('infer-onnx-shapes', {
-                edits: this._graphEditEdits()
+            this._automaticInferencePending = automatic;
+            const result = await this._host.execute(automatic ? 'infer-onnx-shapes-auto' : 'infer-onnx-shapes', {
+                edits: this._graphEditEdits(),
+                automatic
             });
             if (result) {
-                await this.graphEditShapeInferenceResult(result);
+                await this.graphEditShapeInferenceResult({ ...result, automatic });
             }
         } catch (error) {
-            this._showGraphEditInferenceError({
-                message: error.message || String(error),
-                summary: error.message || String(error)
-            });
+            if (automatic) {
+                this._showSetupToast(`Automatic shape inference was skipped: ${error.message || String(error)}`);
+            } else {
+                this._showGraphEditInferenceError({
+                    message: error.message || String(error),
+                    summary: error.message || String(error)
+                });
+            }
+        } finally {
+            if (automatic && this._host.type !== 'VS Code') {
+                this._automaticInferencePending = false;
+            }
+        }
+    }
+
+    async afterModelOpen() {
+        if (this._settings.inferShapesOnOpen && this.activeTarget) {
+            await this.inferGraphShapes({ automatic: true });
         }
     }
 
@@ -2887,9 +3033,18 @@ view.View = class {
 
     async graphEditShapeInferenceResult(result) {
         if (result && result.error) {
-            this._showGraphEditInferenceError(result.error);
+            const automatic = result.automatic === true || this._automaticInferencePending;
+            this._automaticInferencePending = false;
+            if (automatic) {
+                const message = typeof result.error === 'string' ? result.error :
+                    result.error.message || result.error.summary || String(result.error);
+                this._showSetupToast(`Automatic shape inference was skipped: ${message}`);
+            } else {
+                this._showGraphEditInferenceError(result.error);
+            }
             return;
         }
+        this._automaticInferencePending = false;
         if (!result || !Array.isArray(result.tensors)) {
             this._updateGraphEditStatus();
             return;
@@ -5413,7 +5568,10 @@ view.View = class {
                 attachment.bind(this._model);
                 this._model.attachment = attachment;
                 this._encodingsQuantization = attachment.quantization.empty ? null : attachment.quantization;
-                this._encodingsVisible = Boolean(this._encodingsQuantization);
+                this._encodingsVisible = Boolean(this._encodingsQuantization) && this._settings.defaultEncodingsVisible;
+                if (!this._encodingsVisible && this._encodingsQuantization) {
+                    attachment.quantization = new aimet.EncodingFile();
+                }
                 // Quantization badges can change measured node widths. Swap
                 // the refreshed nodes and edges as one frame so a transition
                 // cannot temporarily leave the nodes beside final edge paths.
@@ -8171,6 +8329,38 @@ view.GraphEditGraphOutputPorts = class {
 
 view.Node = class extends grapher.Node {
 
+    static category(type) {
+        if (!type) {
+            return '';
+        }
+        if (type.category) {
+            return type.category;
+        }
+        const module = type.module || '';
+        if (module !== '' && module !== 'ai.onnx') {
+            return '';
+        }
+        const name = typeof type.name === 'string' ? type.name.split('.').pop() : '';
+        view.Node.categories = view.Node.categories || new Map([
+            ['Activation', new Set(['Elu', 'Gelu', 'HardSigmoid', 'HardSwish', 'LeakyRelu', 'LogSoftmax', 'PRelu', 'Relu', 'Selu', 'Sigmoid', 'Softmax', 'Softplus', 'Softsign', 'Tanh', 'ThresholdedRelu'])],
+            ['Attention', new Set(['Attention', 'MultiHeadAttention'])],
+            ['Dropout', new Set(['Dropout'])],
+            ['Layer', new Set(['Conv', 'ConvInteger', 'ConvTranspose', 'Gemm'])],
+            ['Normalization', new Set(['BatchNormalization', 'GroupNormalization', 'InstanceNormalization', 'LayerNormalization', 'LpNormalization', 'MeanVarianceNormalization', 'RMSNormalization'])],
+            ['Pool', new Set(['AveragePool', 'GlobalAveragePool', 'GlobalLpPool', 'GlobalMaxPool', 'LpPool', 'MaxPool'])],
+            ['Quantization', new Set(['DequantizeLinear', 'DynamicQuantizeLinear', 'MatMulInteger', 'QLinearConv', 'QLinearMatMul', 'QuantizeLinear'])],
+            ['Shape', new Set(['Compress', 'ConcatFromSequence', 'DepthToSpace', 'Expand', 'Flatten', 'Gather', 'GatherElements', 'GatherND', 'Reshape', 'SequenceAt', 'SequenceConstruct', 'SequenceEmpty', 'SequenceErase', 'SequenceInsert', 'SequenceLength', 'Shape', 'Size', 'Slice', 'SpaceToDepth', 'SplitToSequence', 'Squeeze', 'Unsqueeze'])],
+            ['Tensor', new Set(['Concat', 'ConstantOfShape', 'EyeLike', 'NonZero', 'OneHot', 'Pad', 'Range', 'Scatter', 'ScatterElements', 'ScatterND', 'Split', 'Tile', 'TopK', 'Trilu'])],
+            ['Transform', new Set(['Cast', 'CastLike', 'Transpose'])]
+        ]);
+        for (const [category, names] of view.Node.categories) {
+            if (names.has(name)) {
+                return category;
+            }
+        }
+        return '';
+    }
+
     constructor(context, value, type) {
         super();
         this.context = context;
@@ -8250,7 +8440,7 @@ view.Node = class extends grapher.Node {
         const node = (type === 'graph' || type === 'function') ? { type: value } : value;
         const options = this.context.options;
         const header =  this.header();
-        const category = node.type && node.type.category ? node.type.category : '';
+        const category = view.Node.category(node.type);
         if (node.type && typeof node.type.name !== 'string' || !node.type.name.split) { // #416
             const error = new view.Error(`Unsupported node type '${JSON.stringify(node.type.name)}'.`);
             if (this.context.model && this.context.model.identifier) {
@@ -9298,14 +9488,17 @@ view.ObjectSidebar = class extends view.Control {
         const fields = [
             ['scale', entry.scale],
             [entry.zeroPointLabel, entry.zeroPoint],
-            ['min', entry.min],
-            ['max', entry.max]
+            ['range min', entry.min],
+            ['range max', entry.max]
         ];
         for (const [name, value] of fields) {
             const content = aimet.Utility.format(value);
             if (content) {
                 this.addProperty(name, content, 'code');
             }
+        }
+        if (entry.rangeSource) {
+            this.addProperty('range source', entry.rangeSource);
         }
     }
 

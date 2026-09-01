@@ -223,6 +223,9 @@ desktop.Host = class {
         electron.ipcRenderer.on('about', () => {
             this._view.about();
         });
+        electron.ipcRenderer.on('show-setup', () => {
+            this._view.showSetup();
+        });
         this._element('titlebar-close').addEventListener('click', () => {
             electron.ipcRenderer.sendSync('window-close', {});
         });
@@ -368,13 +371,13 @@ desktop.Host = class {
             }
             return null;
         }
-        if (name === 'infer-onnx-shapes') {
+        if (name === 'infer-onnx-shapes' || name === 'infer-onnx-shapes-auto') {
             if (!this._modelPath) {
                 throw new Error('No ONNX model is open.');
             }
-            const python = await this._graphSurgeonPython();
+            const python = await this._graphSurgeonPython(name !== 'infer-onnx-shapes-auto');
             if (!python) {
-                return null;
+                throw new Error('ONNX GraphSurgeon Python is not configured. Open Settings to finish setup.');
             }
             return await inferOnnxGraphSurgeonShapes(
                 this._graphSurgeonScript(),
@@ -395,12 +398,12 @@ desktop.Host = class {
         });
     }
 
-    async _graphSurgeonPython() {
+    async _graphSurgeonPython(prompt = true) {
         try {
             return await findOnnxGraphSurgeonPython(this.get('graphsurgeon.pythonPath') || '');
         } catch (error) {
             if (error && error.code === 'GRAPH_SURGEON_PYTHON_NOT_FOUND') {
-                return await this.execute('graphsurgeon-settings', { reason: 'missing' });
+                return prompt ? await this.execute('graphsurgeon-settings', { reason: 'missing' }) : '';
             }
             throw error;
         }
@@ -580,6 +583,16 @@ desktop.Host = class {
                         this._modelPath = path;
                         options.path = path;
                         this._title(location.label);
+                        if (this.get('encodings.autoLoad') !== false) {
+                            const encodingPath = this._findEncodingsPath(path);
+                            if (encodingPath) {
+                                const encodingContext = await this._context(encodingPath);
+                                if (await this._view.attach(encodingContext)) {
+                                    this._view.setEncodingsSource(encodingPath);
+                                }
+                            }
+                        }
+                        await this._view.afterModelOpen();
                     } else {
                         options.path = path;
                         this._title('');
@@ -595,6 +608,20 @@ desktop.Host = class {
                 this.update(options);
             }
         }
+    }
+
+    _findEncodingsPath(modelPath) {
+        if (!modelPath || !modelPath.toLowerCase().endsWith('.onnx')) {
+            return '';
+        }
+        const extension = path.extname(modelPath);
+        const stem = modelPath.slice(0, -extension.length);
+        const candidates = [
+            `${stem}.encodings`,
+            `${modelPath}.encodings`,
+            `${stem}.encodings.json`
+        ];
+        return candidates.find((candidate) => fs.existsSync(candidate) && fs.statSync(candidate).isFile()) || '';
     }
 
     _request(location, headers, timeout) {

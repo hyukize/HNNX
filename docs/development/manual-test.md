@@ -12,7 +12,7 @@ Use a copy of the ONNX file when testing `SAVE AS`.
 1. Build and install the latest `dist/HNNX-<version>-arm64.dmg` locally.
 2. Control-click the copied app, choose **Open**, and confirm the unsigned-app
    prompt. Confirm that macOS does not report the app as damaged.
-3. Open **HNNX > GraphSurgeon Settings…** or press `Cmd+,`.
+3. Open **HNNX > Settings…** or press `Cmd+,`.
 4. Select the Python executable that contains `onnx` and
    `onnx_graphsurgeon`.
 5. Confirm that **GraphSurgeon Python is ready** appears.
@@ -266,7 +266,7 @@ Expected:
 1. Install `dist/HNNX-<version>-x64-setup.exe`.
 2. Open an ONNX file through HNNX and by double-clicking the associated file.
 3. Open **View > Theme**, test Auto/Light/Dark, and restart the app.
-4. Open GraphSurgeon Settings and create the recommended environment.
+4. Open Settings and create the recommended environment.
 5. Confirm the interpreter is `~/.hnnx/venv/Scripts/python.exe`, then run
    Infer Shapes and Save As.
 

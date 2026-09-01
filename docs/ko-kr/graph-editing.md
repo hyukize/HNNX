@@ -14,8 +14,8 @@ Python 3 환경이 필요합니다.
 
 다음 메뉴에서 권장 환경을 자동으로 생성합니다.
 
-- **macOS 데스크톱:** **HNNX > GraphSurgeon Settings… > Create Recommended Environment**
-- **Windows/Linux 데스크톱:** **View > GraphSurgeon Settings… > Create Recommended Environment**
+- **macOS 데스크톱:** **HNNX > Settings… > Create recommended environment**
+- **Windows/Linux 데스크톱:** **View > Settings… > Create recommended environment**
 - **VS Code:** **HNNX: Create GraphSurgeon Environment**를 실행합니다.
 
 권장 경로는 `~/.hnnx/venv`입니다. VS Code는 Remote SSH, Dev Container,
@@ -37,7 +37,7 @@ $HOME\.hnnx\venv\Scripts\python.exe -m pip install onnx onnx_graphsurgeon `
   --extra-index-url https://pypi.ngc.nvidia.com
 ```
 
-기존 interpreter를 사용하려면 GraphSurgeon Settings에서 선택하거나 VS Code에서
+기존 interpreter를 사용하려면 Settings에서 선택하거나 VS Code에서
 **HNNX: Configure GraphSurgeon Python**을 실행합니다. HNNX는 경로를 저장하기
 전에 두 module을 import할 수 있는지 검증합니다.
 

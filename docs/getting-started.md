@@ -18,6 +18,11 @@ Choose one of these paths:
   Developer ID signing and notarization are available.
 - **Development:** run `npm install` and `npm start` from the repository.
 
+On first launch, HNNX opens a setup window for the color theme, GraphSurgeon
+Python environment, AIMET encodings defaults, and optional shape inference on
+open. The recommended profile keeps automatic shape inference off. Reopen the
+same window later from **Settings…** (`Cmd+,` in the macOS app).
+
 ## 2. Open a model
 
 In the desktop app, open or drag an `.onnx` file into the window. You can drag
@@ -58,7 +63,7 @@ model.onnx.encodings
 model.encodings.json
 ```
 
-The VS Code extension auto-loads these by default. Use **File > Load AIMET
+The desktop app and VS Code extension auto-load these by default. Use **File > Load AIMET
 Encodings…**, **Reload Encodings**, or **Detach Encodings** to manage the
 attachment. The `ENC` button hides or shows encoding visualization without
 unloading the ONNX model.
@@ -70,11 +75,15 @@ See [AIMET Encodings](aimet-encodings.md) for badge and edge-label semantics.
 Editing is optional. Create the recommended Python environment using one of
 these commands:
 
-- Desktop: **HNNX/View > GraphSurgeon Settings… > Create Recommended Environment**
+- Desktop: **HNNX > Settings… > Create recommended environment**
 - VS Code: **HNNX: Create GraphSurgeon Environment** from the Command Palette
 
 In a VS Code remote session, the environment is created on the remote
 extension host, not on your Mac.
+
+**Run ONNX shape inference when a model opens** is available in Settings and
+is disabled by default. If enabled, a missing Python environment or an
+inference error produces a warning while the original model remains open.
 
 Press `E` or choose `EDIT · BETA`. Select a connection to inspect its exact
 source and destination. Try an edit on a copy of the example model, run

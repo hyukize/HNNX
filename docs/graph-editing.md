@@ -14,8 +14,8 @@ and `onnx_graphsurgeon`.
 
 Create the recommended environment automatically:
 
-- **macOS desktop:** **HNNX > GraphSurgeon Settings… > Create Recommended Environment**
-- **Windows/Linux desktop:** **View > GraphSurgeon Settings… > Create Recommended Environment**
+- **macOS desktop:** **HNNX > Settings… > Create recommended environment**
+- **Windows/Linux desktop:** **View > Settings… > Create recommended environment**
 - **VS Code:** run **HNNX: Create GraphSurgeon Environment**
 
 The recommended path is `~/.hnnx/venv`. VS Code creates it on the active
@@ -37,7 +37,7 @@ $HOME\.hnnx\venv\Scripts\python.exe -m pip install onnx onnx_graphsurgeon `
   --extra-index-url https://pypi.ngc.nvidia.com
 ```
 
-To use an existing interpreter, select it in GraphSurgeon Settings or run
+To use an existing interpreter, select it in Settings or run
 **HNNX: Configure GraphSurgeon Python** in VS Code. HNNX validates that both
 required modules can be imported before saving the path.
 

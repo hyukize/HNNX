@@ -34,7 +34,7 @@ python3 -m venv ~/.hnnx/venv
 ## HNNX cannot find ONNX GraphSurgeon
 
 1. Run **HNNX: Create GraphSurgeon Environment** in VS Code, or open desktop
-   GraphSurgeon Settings and choose **Create Recommended Environment**.
+   **Settings…** and choose **Create recommended environment**.
 2. If an environment already exists, select its Python executable with
    **HNNX: Configure GraphSurgeon Python**.
 3. Verify it manually:

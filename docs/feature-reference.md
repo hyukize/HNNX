@@ -172,10 +172,21 @@ function may remain only partially inferred.
 
 ## ONNX GraphSurgeon setup
 
+HNNX displays a one-time setup window on first launch. It configures
+Auto/Light/Dark appearance, GraphSurgeon Python, neighboring AIMET encodings
+auto-load, default encoding visibility, and optional shape inference on open.
+The window can be reopened from **Settings…**. Viewer preferences are global
+in VS Code, while the Python interpreter is resolved and executed on the
+current extension host, including remote containers and Kubernetes sessions.
+
+Automatic shape inference is disabled by default. When enabled, it runs after
+the graph has opened; a missing environment or inference failure is surfaced
+as a warning and never replaces the open model with an error screen.
+
 Editing requires Python 3, ONNX and NVIDIA ONNX GraphSurgeon. A dedicated
 environment is recommended and can be created automatically. In the desktop
-app, open **HNNX > GraphSurgeon Settings…** and choose
-**Create Recommended Environment**. In VS Code, run
+app, open **HNNX > Settings…** and choose
+**Create recommended environment**. In VS Code, run
 **HNNX: Create GraphSurgeon Environment** from the Command Palette. The VS Code
 command runs on the active extension host, including Remote SSH, Dev Container,
 and Kubernetes environments.
@@ -190,7 +201,7 @@ python3 -m venv ~/.hnnx/venv
 
 The macOS app discovers this environment automatically. Alternatively, set
 `HNNX_PYTHON` to the desired interpreter. Team members can also open
-**HNNX > GraphSurgeon Settings…** (`Cmd+,`) to select and validate a
+**HNNX > Settings…** (`Cmd+,`) to select and validate a
 Python executable. The path is saved in the app configuration. If no usable
 environment is found during `SAVE AS`, the same setup dialog opens
 automatically before a destination file is requested.

@@ -69,6 +69,38 @@ const primaryModifier = () => {
     };
 };
 
+playwright.test('standard ONNX node colors survive unavailable operator metadata', async ({ page }) => {
+    await page.route(/onnx-metadata\.json/, (route) => route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: '[]'
+    }));
+    await page.goto('http://127.0.0.1:8765/dist/web/');
+    await page.waitForSelector('body.welcome', { timeout: 10000 });
+    const consent = page.locator('#message-button');
+    if (await consent.isVisible()) {
+        await consent.click();
+    }
+    const node = protobufNode('transpose', 'Transpose', ['x'], ['y']);
+    const graph = protobufJoin([
+        protobufBytes(1, node),
+        protobufString(2, 'metadata-fallback'),
+        protobufBytes(11, protobufValueInfo('x')),
+        protobufBytes(12, protobufValueInfo('y'))
+    ]);
+    const model = protobufJoin([
+        protobufValue(1, 8),
+        protobufBytes(7, graph),
+        protobufBytes(8, protobufValue(2, 17))
+    ]);
+    const chooser = page.waitForEvent('filechooser');
+    await page.locator('#open-file-button').click();
+    await (await chooser).setFiles({ name: 'metadata-fallback.onnx', mimeType: 'application/octet-stream', buffer: model });
+    await page.waitForSelector('body.default', { timeout: 10000 });
+    await playwright.expect(page.getByText('Transpose', { exact: true })).toBeVisible();
+    await playwright.expect(page.locator('.node-item-type-transform')).toHaveCount(1);
+});
+
 const editableOnnx = () => {
     const nodes = [
         protobufNode('abs', 'Abs', ['x'], ['a']),
@@ -219,6 +251,11 @@ playwright.test('AIMET encodings attachment', async ({ page }) => {
     const inputSidebar = page.locator('#sidebar-content');
     await playwright.expect(inputSidebar).toContainText('Graph Input QParam');
     await playwright.expect(inputSidebar).toContainText('A8');
+    await playwright.expect(inputSidebar.locator('input[value="range min"]')).toHaveCount(1);
+    await playwright.expect(inputSidebar).toContainText('-1.5');
+    await playwright.expect(inputSidebar).toContainText('30.375');
+    await playwright.expect(inputSidebar.locator('input[value="range source"]')).toHaveCount(1);
+    await playwright.expect(inputSidebar).toContainText('derived');
 
     const badge = page.locator('.node-item-quantization', { hasText: 'A8→A16' });
     await playwright.expect(badge).toBeVisible();
@@ -229,6 +266,8 @@ playwright.test('AIMET encodings attachment', async ({ page }) => {
     await playwright.expect(nodeSidebar).toContainText('explicit tensor encoding');
     await playwright.expect(nodeSidebar).not.toContainText('0.125');
     await playwright.expect(nodeSidebar).toContainText('0.0078125');
+    await playwright.expect(nodeSidebar).toContainText('-256');
+    await playwright.expect(nodeSidebar).toContainText('255.9921875');
     const sidebar = page.locator('#sidebar');
     const resize = page.locator('#sidebar-resize');
     await page.waitForTimeout(150);

@@ -71,6 +71,7 @@ class OnnxEditorProvider {
     async onMessage(document, webview, message) {
         switch (message.type) {
             case 'ready':
+                await this.sendSettings(document.uri, webview);
                 await this.sendTheme(document.uri, webview);
                 await this.open(document, webview);
                 break;
@@ -91,10 +92,13 @@ class OnnxEditorProvider {
                 await this.saveOnnxAs(document.uri, webview, message.edits);
                 break;
             case 'inferOnnxShapes':
-                await this.inferOnnxShapes(document.uri, webview, message.edits);
+                await this.inferOnnxShapes(document.uri, webview, message.edits, message.automatic === true);
                 break;
             case 'setTheme':
                 await this.setTheme(document.uri, webview, message.value);
+                break;
+            case 'applySetupSettings':
+                await this.applySetupSettings(document.uri, webview, message.settings || {});
                 break;
             case 'openExternal':
                 if (typeof message.url === 'string') {
@@ -133,6 +137,55 @@ class OnnxEditorProvider {
             effective = hostDark ? 'dark' : 'light';
         }
         await webview.postMessage({ type: 'theme', preference, effective });
+    }
+
+    async sendSettings(uri, webview) {
+        const configuration = vscode.workspace.getConfiguration('hnnx', uri);
+        const completed = this.context.globalState && typeof this.context.globalState.get === 'function' ?
+            this.context.globalState.get('setup.completed', false) : true;
+        await webview.postMessage({
+            type: 'settings',
+            settings: {
+                theme: configuration.get('colorTheme', 'auto'),
+                autoLoadEncodings: configuration.get('autoLoadEncodings', true),
+                defaultEncodingsVisible: configuration.get('defaultEncodingsVisible', true),
+                inferShapesOnOpen: configuration.get('inferShapesOnOpen', false),
+                pythonPath: configuration.get('pythonPath', ''),
+                showSetup: !completed
+            }
+        });
+    }
+
+    async applySetupSettings(uri, webview, settings) {
+        const configuration = vscode.workspace.getConfiguration('hnnx', uri);
+        const updates = [
+            ['colorTheme', settings.theme],
+            ['autoLoadEncodings', settings.autoLoadEncodings],
+            ['defaultEncodingsVisible', settings.defaultEncodingsVisible],
+            ['inferShapesOnOpen', settings.inferShapesOnOpen]
+        ];
+        for (const [name, value] of updates) {
+            if (value !== undefined) {
+                await configuration.update(name, value, vscode.ConfigurationTarget.Global);
+            }
+        }
+        if (this.context.globalState && typeof this.context.globalState.update === 'function') {
+            await this.context.globalState.update('setup.completed', settings.completed === true);
+        }
+        let python = configuration.get('pythonPath', '');
+        if (settings.pythonAction === 'recommended') {
+            python = await this.createGraphSurgeonEnvironment(uri, { confirm: false });
+        } else if (settings.pythonAction === 'existing') {
+            const candidate = normalizePython(settings.pythonPath || '');
+            if (!await validatePython(candidate)) {
+                throw new Error(`The selected interpreter cannot import ONNX GraphSurgeon: ${candidate}`);
+            }
+            python = candidate;
+            await configuration.update('pythonPath', python, vscode.ConfigurationTarget.Global);
+        }
+        await this.sendSettings(uri, webview);
+        await this.sendTheme(uri, webview);
+        return python;
     }
 
     async open(document, webview) {
@@ -267,11 +320,15 @@ class OnnxEditorProvider {
         }
     }
 
-    async inferOnnxShapes(modelUri, webview, edits) {
+    async inferOnnxShapes(modelUri, webview, edits, automatic = false) {
         try {
-            const pythonPath = await this.graphSurgeonPython(modelUri);
+            const pythonPath = await this.graphSurgeonPython(modelUri, !automatic);
             if (!pythonPath) {
-                await webview.postMessage({ type: 'graphEditShapeInferenceResult' });
+                await webview.postMessage({
+                    type: 'graphEditShapeInferenceResult',
+                    automatic,
+                    error: automatic ? 'ONNX GraphSurgeon Python is not configured. Open Settings to finish setup.' : undefined
+                });
                 return;
             }
             const script = path.join(this.context.extensionPath, 'media', 'onnx-graphsurgeon.py');
@@ -283,23 +340,28 @@ class OnnxEditorProvider {
             );
             await webview.postMessage({
                 type: 'graphEditShapeInferenceResult',
+                automatic,
                 ...result
             });
         } catch (error) {
             await webview.postMessage({
                 type: 'graphEditShapeInferenceResult',
+                automatic,
                 error: error instanceof Error ? error.message : String(error)
             });
         }
     }
 
-    async graphSurgeonPython(modelUri) {
+    async graphSurgeonPython(modelUri, prompt = true) {
         try {
             const configuration = vscode.workspace.getConfiguration('hnnx', modelUri);
             return await findPython(configuration.get('pythonPath', ''));
         } catch (error) {
             if (!error || error.code !== 'GRAPH_SURGEON_PYTHON_NOT_FOUND') {
                 throw error;
+            }
+            if (!prompt) {
+                return '';
             }
             const action = await vscode.window.showErrorMessage(
                 'HNNX could not find a Python environment containing ONNX and NVIDIA ONNX GraphSurgeon.',
@@ -354,18 +416,27 @@ class OnnxEditorProvider {
         return python;
     }
 
-    async createGraphSurgeonEnvironment(resource) {
+    async createGraphSurgeonEnvironment(resource, options = {}) {
         const directory = recommendedEnvironmentDirectory();
-        const action = await vscode.window.showInformationMessage(
-            `Create the recommended ONNX GraphSurgeon environment at ${directory}?`,
-            {
-                modal: true,
-                detail: "HNNX will install 'onnx' and 'onnx_graphsurgeon'. This may take a few minutes and requires internet access."
-            },
-            'Create and Install'
-        );
-        if (action !== 'Create and Install') {
-            return '';
+        const existing = recommendedEnvironmentPython(directory);
+        if (await validatePython(existing)) {
+            const configuration = vscode.workspace.getConfiguration('hnnx', resource);
+            await configuration.update('pythonPath', existing, vscode.ConfigurationTarget.Global);
+            vscode.window.showInformationMessage(`HNNX GraphSurgeon Python is ready: ${existing}`);
+            return existing;
+        }
+        if (options.confirm !== false) {
+            const action = await vscode.window.showInformationMessage(
+                `Create the recommended ONNX GraphSurgeon environment at ${directory}?`,
+                {
+                    modal: true,
+                    detail: "HNNX will install 'onnx' and 'onnx_graphsurgeon'. This may take a few minutes and requires internet access."
+                },
+                'Create and Install'
+            );
+            if (action !== 'Create and Install') {
+                return '';
+            }
         }
         try {
             const python = await vscode.window.withProgress({

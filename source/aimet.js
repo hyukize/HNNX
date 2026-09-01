@@ -452,6 +452,7 @@ aimet.EncodingFile = class {
                         zeroPointLabel: 'zero point',
                         min: null,
                         max: null,
+                        rangeSource: null,
                         matched: false
                     });
                 }
@@ -497,6 +498,7 @@ aimet.EncodingFile = class {
                 zeroPointLabel: 'offset',
                 min: encodings.map((encoding) => encoding.min).filter((value) => value !== undefined),
                 max: encodings.map((encoding) => encoding.max).filter((value) => value !== undefined),
+                rangeConvention: 'offset',
                 axis: null,
                 blockSize: null,
                 symmetric: aimet.Utility.boolean(first.is_symmetric),
@@ -529,8 +531,9 @@ aimet.EncodingFile = class {
             scale: item.scale,
             zeroPoint: item.offset,
             zeroPointLabel: 'offset',
-            min: null,
-            max: null,
+            min: item.min === undefined ? null : item.min,
+            max: item.max === undefined ? null : item.max,
+            rangeConvention: 'offset',
             axis: Number.isInteger(item.axis) ? item.axis : null,
             blockSize: Number.isInteger(item.block_size) ? item.block_size : null,
             symmetric: aimet.Utility.boolean(item.is_sym),
@@ -562,6 +565,14 @@ aimet.EncodingFile = class {
         } else {
             granularity = 'per-block';
         }
+        let minimum = item.min === undefined ? null : item.min;
+        let maximum = item.max === undefined ? null : item.max;
+        if (item.y_min !== undefined) {
+            minimum = item.y_min;
+        }
+        if (item.y_max !== undefined) {
+            maximum = item.y_max;
+        }
         return {
             name: item.name,
             dataType,
@@ -569,8 +580,9 @@ aimet.EncodingFile = class {
             scale,
             zeroPoint: item.y_zero_point === undefined ? 0 : item.y_zero_point,
             zeroPointLabel: 'zero point',
-            min: null,
-            max: null,
+            min: minimum,
+            max: maximum,
+            rangeConvention: 'zero-point',
             axis: Number.isInteger(item.axis) ? item.axis : null,
             blockSize,
             symmetric: null,
@@ -594,6 +606,11 @@ aimet.EncodingFile = class {
             this._parseIssue(`Duplicate encoding for tensor '${entry.name}'.`);
             return;
         }
+        const range = aimet.Utility.quantizationRange(entry);
+        entry.min = range.min;
+        entry.max = range.max;
+        entry.rangeSource = range.source;
+        delete entry.rangeConvention;
         entry.category = category;
         entry.label = `${category === 'parameter' ? 'W' : 'A'}${entry.bitWidth || entry.dataType.toUpperCase()}`;
         entry.matched = false;
@@ -606,6 +623,66 @@ aimet.EncodingFile = class {
 };
 
 aimet.Utility = class {
+
+    static quantizationRange(entry) {
+        const hasValue = (value) => value !== undefined && value !== null && (!Array.isArray(value) || value.length > 0);
+        if (hasValue(entry.min) || hasValue(entry.max)) {
+            return { min: entry.min, max: entry.max, source: 'explicit' };
+        }
+        const bitWidth = Number(entry.bitWidth);
+        if (!Number.isInteger(bitWidth) || bitWidth < 1 || bitWidth > 32) {
+            return { min: null, max: null, source: null };
+        }
+        let qmin = 0;
+        let qmax = (2 ** bitWidth) - 1;
+        let sign = 1;
+        if (entry.rangeConvention === 'zero-point') {
+            const match = String(entry.dataType || '').toLowerCase().match(/^(u?)int(\d+)$/);
+            if (!match || Number(match[2]) !== bitWidth) {
+                return { min: null, max: null, source: null };
+            }
+            if (match[1] !== 'u') {
+                qmin = -(2 ** (bitWidth - 1));
+                qmax = (2 ** (bitWidth - 1)) - 1;
+            }
+            sign = -1;
+        } else if (entry.rangeConvention !== 'offset') {
+            return { min: null, max: null, source: null };
+        }
+        const flatten = (value, values = []) => {
+            if (Array.isArray(value)) {
+                for (const item of value) {
+                    flatten(item, values);
+                }
+            } else if (Number.isFinite(Number(value))) {
+                values.push(Number(value));
+            }
+            return values;
+        };
+        const scales = flatten(entry.scale);
+        const points = flatten(entry.zeroPoint);
+        if (scales.length === 0 || points.length === 0 || scales.some((value) => value <= 0)) {
+            return { min: null, max: null, source: null };
+        }
+        const length = Math.max(scales.length, points.length);
+        if (scales.length !== 1 && scales.length !== length || points.length !== 1 && points.length !== length) {
+            return { min: null, max: null, source: null };
+        }
+        const normalize = (value) => Number(value.toPrecision(12));
+        const minimum = [];
+        const maximum = [];
+        for (let index = 0; index < length; index++) {
+            const scale = scales[scales.length === 1 ? 0 : index];
+            const point = points[points.length === 1 ? 0 : index];
+            minimum.push(normalize((qmin + (sign * point)) * scale));
+            maximum.push(normalize((qmax + (sign * point)) * scale));
+        }
+        return {
+            min: length === 1 ? minimum[0] : minimum,
+            max: length === 1 ? maximum[0] : maximum,
+            source: 'derived'
+        };
+    }
 
     static boolean(value) {
         if (typeof value === 'boolean') {

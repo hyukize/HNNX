@@ -35,6 +35,8 @@ smoke test has no blocker.
 | B7 | Zoom | Control-wheel and Command-wheel zoom in fine steps; overview zoom-out remains usable | Automated + manual |
 | B8 | Graph Input QParam | An explicitly encoded model input shows a colored `A*` badge and `Graph Input QParam` details | Automated |
 | B9 | Appearance modes | Auto follows the host theme; Light and Dark overrides update every bundled theme rule and persist | Automated + packaged manual smoke |
+| B10 | First-run setup | Setup appears once, can be reopened, and persists appearance, encodings, and inference defaults | Automated + packaged manual smoke |
+| B11 | Inference on open | Disabled by default; when enabled, success updates shapes and failure warns without blocking the opened model | Automated + manual |
 
 ## C. Graph editor connections
 
@@ -108,6 +110,7 @@ smoke test has no blocker.
 | F3 | Preview pinning | Active ONNX preview is kept open; inactive/disabled previews are not | Automated |
 | F4 | Python validation | Configured interpreter is accepted; invalid path is rejected | Automated with configured Python |
 | F5 | Remote edit bridge | Edits execute through the configured Python backend | Automated with configured Python |
+| F6 | Settings scope | Viewer preferences persist globally while GraphSurgeon Python resolves on the active local or remote extension host | Automated + remote manual |
 | F6 | Remote shape inference | Inference executes through the configured Python backend | Automated with configured Python |
 | F7 | Tab retention | Switching to another file and back does not unnecessarily reload the ONNX model | Manual VS Code |
 | F8 | Webview scrollbars | Both vertical and horizontal thumbs are visible when content overflows | Manual VS Code |

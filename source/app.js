@@ -290,6 +290,14 @@ app.Application = class {
             case 'quit': electron.app.quit(); break;
             case 'reload': this._reload(); break;
             case 'theme': this._setTheme(value); break;
+            case 'show-settings': {
+                const view = this._views.get(window) || this._views.activeView;
+                if (view) {
+                    view.execute('show-setup');
+                }
+                break;
+            }
+            case 'apply-setup-settings': result = await this._applySetupSettings(window, value || {}); break;
             case 'graphsurgeon-settings': result = await this._graphSurgeonSettings(window, value || {}); break;
             case 'report-issue': electron.shell.openExternal(`https://github.com/${this._package.repository}/issues/new`); break;
             case 'about': this._about(); break;
@@ -315,6 +323,38 @@ app.Application = class {
     _applyTheme(theme) {
         const value = ['auto', 'light', 'dark'].includes(theme) ? theme : 'auto';
         electron.nativeTheme.themeSource = value === 'auto' ? 'system' : value;
+    }
+
+    async _applySetupSettings(window, settings) {
+        this._configuration.set('setup.completed', settings.completed === true);
+        if (settings.theme && ['auto', 'light', 'dark'].includes(settings.theme)) {
+            this._configuration.set('theme', settings.theme);
+            this._applyTheme(settings.theme);
+        }
+        if (typeof settings.autoLoadEncodings === 'boolean') {
+            this._configuration.set('encodings.autoLoad', settings.autoLoadEncodings);
+        }
+        if (typeof settings.defaultEncodingsVisible === 'boolean') {
+            this._configuration.set('encodings.defaultVisible', settings.defaultEncodingsVisible);
+        }
+        if (typeof settings.inferShapesOnOpen === 'boolean') {
+            this._configuration.set('inferShapesOnOpen', settings.inferShapesOnOpen);
+        }
+        this._configuration.save();
+        let python = '';
+        if (settings.pythonAction === 'recommended') {
+            python = await this._createGraphSurgeonEnvironment(window, false);
+        } else if (settings.pythonAction === 'existing') {
+            python = settings.pythonPath || '';
+            if (!await this._validateGraphSurgeonPython(python)) {
+                throw new Error(`The selected Python interpreter cannot import ONNX GraphSurgeon: ${python}`);
+            }
+        }
+        if (python) {
+            this._configuration.set('graphsurgeon.pythonPath', python);
+            this._configuration.save();
+        }
+        return { pythonPath: python || this._configuration.get('graphsurgeon.pythonPath') || '' };
     }
 
     _reload() {
@@ -441,21 +481,26 @@ app.Application = class {
         /* eslint-enable no-await-in-loop */
     }
 
-    async _createGraphSurgeonEnvironment(owner) {
+    async _createGraphSurgeonEnvironment(owner, confirm = true) {
         const directory = path.join(os.homedir(), '.hnnx', 'venv');
         const interpreter = this._graphSurgeonEnvironmentPython(directory);
-        const response = await electron.dialog.showMessageBox(owner, {
-            type: 'info',
-            title: 'Create ONNX GraphSurgeon Environment',
-            message: 'Create the recommended Python environment?',
-            detail: `${directory}\n\nThis installs Python packages 'onnx' and 'onnx_graphsurgeon'. It may take a few minutes and requires internet access.`,
-            buttons: ['Create and Install', 'Cancel'],
-            defaultId: 0,
-            cancelId: 1,
-            noLink: true
-        });
-        if (response.response !== 0) {
-            return '';
+        if (await this._validateGraphSurgeonPython(interpreter)) {
+            return interpreter;
+        }
+        if (confirm) {
+            const response = await electron.dialog.showMessageBox(owner, {
+                type: 'info',
+                title: 'Create ONNX GraphSurgeon Environment',
+                message: 'Create the recommended Python environment?',
+                detail: `${directory}\n\nThis installs Python packages 'onnx' and 'onnx_graphsurgeon'. It may take a few minutes and requires internet access.`,
+                buttons: ['Create and Install', 'Cancel'],
+                defaultId: 0,
+                cancelId: 1,
+                noLink: true
+            });
+            if (response.response !== 0) {
+                return '';
+            }
         }
         const bootstrap = await this._findPythonForVenv();
         if (!bootstrap) {
@@ -621,9 +666,9 @@ app.Application = class {
                     applicationSubmenu.push(
                         { type: 'separator' },
                         {
-                            label: 'GraphSurgeon Settings…',
+                            label: 'Settings…',
                             accelerator: 'Cmd+,',
-                            click: async () => await this.execute('graphsurgeon-settings', null)
+                            click: async () => await this.execute('show-settings', null)
                         }
                     );
                 }

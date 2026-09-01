@@ -34,7 +34,7 @@ python3 -m venv ~/.hnnx/venv
 ## ONNX GraphSurgeon 검색 실패
 
 1. VS Code에서 **HNNX: Create GraphSurgeon Environment**를 실행하거나 데스크톱
-   GraphSurgeon Settings에서 **Create Recommended Environment**를 선택합니다.
+   **Settings…**에서 **Create recommended environment**를 선택합니다.
 2. 기존 환경이 있다면 **HNNX: Configure GraphSurgeon Python**에서 Python
    executable을 선택합니다.
 3. 다음 명령으로 직접 검증합니다.

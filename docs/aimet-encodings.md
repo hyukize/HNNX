@@ -42,8 +42,16 @@ This distinguishes a precision-preserving path from a node that owns an
 explicit QParam.
 
 Click a badge, tensor, node, or encoded Graph Input to inspect scale,
-offset/zero point, min/max, axis, block size, granularity, and symmetry when
-those values exist in the encoding file.
+offset/zero point, quantization range, axis, block size, granularity, and
+symmetry. HNNX preserves explicit min/max values from legacy encodings. For
+integer AIMET 1.x and 2.x encodings, it derives the representable range from
+bit width, scale, and offset/zero point when the file does not store min/max.
+The detail view labels the range source as `explicit` or `derived`.
+
+Derived ranges are limited to unambiguous integer per-tensor and per-channel
+encodings. HNNX does not invent ranges for propagated `~A8` precision,
+floating-point encodings, incompatible scale/zero-point arrays, or LPBQ scale
+representations.
 
 ## Precision propagation
 
