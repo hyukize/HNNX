@@ -10,9 +10,6 @@ permissions:
   contents: read
   id-token: write
 
-env:
-  AZURE_CORE_OUTPUT: none
-
 jobs:
   publish:
     name: Publish hyukize.hnnx
