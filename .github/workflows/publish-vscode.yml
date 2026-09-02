@@ -1,6 +1,9 @@
 name: Publish VS Code extension
 
 on:
+  workflow_run:
+    workflows: [HNNX CI]
+    types: [completed]
   workflow_dispatch:
 
 permissions:
@@ -13,35 +16,89 @@ env:
 jobs:
   publish:
     name: Publish hyukize.hnnx
+    if: >-
+      github.server_url == 'https://github.com' &&
+      (github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.head_branch == 'main'))
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
     steps:
       - name: Check out repository
         uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
 
       - name: Install Node.js
         uses: actions/setup-node@v5
         with:
-          node-version: '24.15'
+          node-version: "24.15"
 
       - name: Install project dependencies
         run: npm ci
 
-      - name: Run extension tests
-        run: npm --prefix vscode-extension test
+      - name: Check Marketplace version
+        id: marketplace
+        shell: bash
+        run: |
+          local_version="$(node -p "require('./package.json').version")"
+          published_version=""
+
+          if metadata="$(npx --yes @vscode/vsce show hyukize.hnnx --json 2>/dev/null)"; then
+            published_version="$(node -e "
+              const chunks = [];
+              process.stdin.on('data', (chunk) => chunks.push(chunk));
+              process.stdin.on('end', () => {
+                try {
+                  const value = JSON.parse(Buffer.concat(chunks).toString());
+                  process.stdout.write(value?.versions?.[0]?.version ?? value?.version ?? '');
+                } catch {
+                  process.stdout.write('');
+                }
+              });
+            " <<<"$metadata")"
+          fi
+
+          echo "local-version=$local_version" >> "$GITHUB_OUTPUT"
+          echo "published-version=$published_version" >> "$GITHUB_OUTPUT"
+          if [[ "$local_version" == "$published_version" ]]; then
+            echo "publish=false" >> "$GITHUB_OUTPUT"
+            echo "Marketplace already contains HNNX $local_version; nothing to publish."
+          else
+            echo "publish=true" >> "$GITHUB_OUTPUT"
+            echo "HNNX $local_version will be published (current: ${published_version:-none})."
+          fi
 
       - name: Build VSIX
+        if: steps.marketplace.outputs.publish == 'true'
         run: npm run build:vscode-hnnx
 
       - name: Sign in to Microsoft Entra ID
+        if: steps.marketplace.outputs.publish == 'true'
         uses: azure/login@v3
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           allow-no-subscriptions: true
 
+      - name: Resolve Visual Studio Marketplace identity
+        if: steps.marketplace.outputs.publish == 'true'
+        id: marketplace-identity
+        shell: bash
+        run: |
+          profile="$(az rest \
+            --method get \
+            --url 'https://app.vssps.visualstudio.com/_apis/profile/profiles/me' \
+            --resource '499b84ac-1321-427f-aa17-267ca6975798' \
+            --output json)"
+          identity_id="$(node -p "JSON.parse(process.argv[1]).id" "$profile")"
+          echo "identity-id=$identity_id" >> "$GITHUB_OUTPUT"
+          echo "Marketplace identity ID: $identity_id" >> "$GITHUB_STEP_SUMMARY"
+
       - name: Publish to Visual Studio Marketplace
+        if: steps.marketplace.outputs.publish == 'true'
         shell: bash
         run: |
           version="$(node -p "require('./package.json').version")"
